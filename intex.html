@@ -198,6 +198,9 @@
         .phone-row select { padding: 0 9px; }
         .otp-input { letter-spacing: 8px; font-size: 17px !important; font-weight: 700; text-align: center; }
         .resend-row { display: flex; justify-content: space-between; gap: 12px; margin: 2px 0 16px; color: var(--muted); font-size: 11px; }
+        .otp-meta { display: flex; justify-content: space-between; gap: 12px; margin: 2px 0 17px; color: var(--muted); font-size: 11px; }
+        .otp-meta button:disabled { color: #a2aaa2; cursor: not-allowed; text-decoration: none; }
+        .masked-number { color: var(--ink); font-weight: 600; white-space: nowrap; }
         .trust-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 17px; color: #89938a; font-size: 10px; line-height: 1.55; }
         .trust-note svg { flex: 0 0 auto; margin-top: 1px; }
         .hidden { display: none !important; }
@@ -311,26 +314,42 @@
                             <div class="field-label-row"><label for="phone-number">Mobile number</label></div>
                             <div class="phone-row">
                                 <select id="country-code" aria-label="Country calling code">
+                                    <option value="+91" selected>IN +91</option>
                                     <option value="+1">US +1</option>
                                     <option value="+44">UK +44</option>
                                     <option value="+61">AU +61</option>
-                                    <option value="+91">IN +91</option>
                                     <option value="+64">NZ +64</option>
                                 </select>
                                 <input id="phone-number" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(555) 000-0000" required aria-describedby="phone-error">
                             </div>
                             <p class="form-message" id="phone-error" aria-live="polite"></p>
                         </div>
-                        <div class="field hidden" id="otp-field">
-                            <div class="field-label-row"><label for="otp-code">Verification code</label></div>
-                            <input class="otp-input" id="otp-code" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-describedby="otp-error">
-                            <p class="form-message" id="otp-error" aria-live="polite"></p>
-                        </div>
-                        <div class="resend-row hidden" id="resend-row"><span>Didn't receive a code?</span><button class="quiet-link" type="button" id="resend-code">Resend code</button></div>
                         <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Send verification code</span></button>
                         <p class="form-message" id="phone-message" role="status" aria-live="polite"></p>
                     </form>
                     <p class="trust-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Your number is only used to secure your account.</p>
+                </section>
+
+                <section id="verify-view" class="auth-view hidden" aria-labelledby="verify-title">
+                    <button class="back-button" type="button" id="change-number"><span aria-hidden="true">←</span> Change mobile number</button>
+                    <header class="welcome">
+                        <p class="step-label">One more step</p>
+                        <h2 id="verify-title">Verify your mobile number</h2>
+                        <p>Enter the 6-digit code sent to <span class="masked-number" id="masked-number"></span>.</p>
+                    </header>
+                    <form id="verify-form" novalidate>
+                        <div class="field">
+                            <div class="field-label-row"><label for="otp-code">6-digit verification code</label></div>
+                            <input class="otp-input" id="otp-code" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" aria-describedby="otp-error">
+                            <p class="form-message" id="otp-error" aria-live="polite"></p>
+                        </div>
+                        <div class="otp-meta">
+                            <span id="otp-expiry" aria-live="polite">Code expires in 5:00</span>
+                            <button class="quiet-link" type="button" id="resend-code" disabled>Resend OTP in 30s</button>
+                        </div>
+                        <button class="submit-button" id="verify-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Verify OTP</span></button>
+                        <p class="form-message" id="verify-message" role="status" aria-live="polite"></p>
+                    </form>
                 </section>
 
                 <section id="recovery-view" class="auth-view hidden" aria-labelledby="recovery-title">
@@ -366,10 +385,10 @@
                 signup: "",
                 requestOtp: "",
                 verifyOtp: "",
-                passwordReset: ""
+                passwordReset: "",
+                googleStart: ""
             },
-            googleClientId: "",
-            successUrl: "next.html"
+            successUrl: "./next.html"
         };
 
         const AuthService = {
@@ -383,18 +402,25 @@
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(result.message || "Something went wrong. Please try again.");
+                if (!response.ok) {
+                    const error = new Error(result.message || "Something went wrong. Please try again.");
+                    error.code = result.code || (response.status === 429 ? "too_many_attempts" : "request_failed");
+                    error.retryAfterSeconds = Number(result.retryAfterSeconds || response.headers.get("Retry-After") || 0);
+                    throw error;
+                }
                 return result;
             },
             login(credentials) { return this.request("login", credentials); },
             signup(details) { return this.request("signup", details); },
             requestOtp(phone) { return this.request("requestOtp", phone); },
             verifyOtp(code) { return this.request("verifyOtp", code); },
-            resetPassword(email) { return this.request("passwordReset", email); }
+            resetPassword(email) { return this.request("passwordReset", email); },
+            startGoogleSignIn() { return this.request("googleStart", {}); }
         };
 
         const views = [...document.querySelectorAll(".auth-view")];
         const showView = (id) => {
+            if (id !== "verify-view") stopOtpTimer();
             views.forEach((view) => view.classList.toggle("hidden", view.id !== id));
             document.getElementById(id)?.querySelector("input")?.focus();
             history.replaceState(null, "", id === "login-view" ? "#login" : `#${id.replace("-view", "")}`);
@@ -426,21 +452,23 @@
             return !invalid;
         }
 
-        async function handleSubmit(form, button, messageId, busyLabel, action, onSuccess) {
+        async function handleSubmit(form, button, messageId, busyLabel, action, onSuccess, onError, afterBusy) {
             setMessage(messageId, "");
             setBusy(button, true, busyLabel);
             try {
                 const result = await action();
                 if (onSuccess) await onSuccess(result);
             } catch (error) {
-                setMessage(messageId, error.message || "Something went wrong. Please try again.");
+                if (onError) onError(error);
+                else setMessage(messageId, error.message || "Something went wrong. Please try again.");
             } finally {
                 setBusy(button, false);
+                if (afterBusy) afterBusy();
             }
         }
 
-        function navigateAfterAuthentication(result) {
-            const destination = result?.redirectUrl || AUTH_CONFIG.successUrl;
+        function navigateAfterAuthentication() {
+            const destination = AUTH_CONFIG.successUrl;
             if (destination) window.location.assign(destination);
         }
 
@@ -459,62 +487,188 @@
         });
         document.getElementById("forgot-password").addEventListener("click", () => showView("recovery-view"));
         document.getElementById("create-account").addEventListener("click", () => showView("signup-view"));
-        document.getElementById("google-login").addEventListener("click", () => {
-            const message = AUTH_CONFIG.googleClientId
-                ? "Google OAuth is ready to be connected to your identity provider."
-                : "Google sign-in is not connected yet. Please use email or mobile sign-in.";
-            setMessage("social-message", message);
+        document.getElementById("google-login").addEventListener("click", async (event) => {
+            const button = event.currentTarget;
+            button.disabled = true;
+            setMessage("social-message", "");
+            try {
+                const result = await AuthService.startGoogleSignIn();
+                if (!result.authorizationUrl) throw new Error("Google sign-in is not configured yet.");
+                const authorizationUrl = new URL(result.authorizationUrl, window.location.href);
+                if (authorizationUrl.protocol !== "https:" && authorizationUrl.hostname !== "localhost") {
+                    throw new Error("The authentication service returned an invalid Google sign-in URL.");
+                }
+                window.location.assign(authorizationUrl.href);
+            } catch (error) {
+                setMessage("social-message", error.message || "Google sign-in could not be started.");
+            } finally {
+                button.disabled = false;
+            }
         });
 
-        let otpRequested = false;
+        let otpChallengeId = "";
+        let phoneForOtp = "";
+        let otpExpiresAt = 0;
+        let resendAvailableAt = 0;
+        let otpBlockedUntil = 0;
+        let otpTimer = null;
+
+        function stopOtpTimer() {
+            if (otpTimer) window.clearInterval(otpTimer);
+            otpTimer = null;
+        }
+
+        function formatSeconds(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
+        }
+
+        function updateOtpTimers() {
+            const now = Date.now();
+            const expiryRemaining = Math.max(0, Math.ceil((otpExpiresAt - now) / 1000));
+            const resendRemaining = Math.max(0, Math.ceil((resendAvailableAt - now) / 1000));
+            const blockedRemaining = Math.max(0, Math.ceil((otpBlockedUntil - now) / 1000));
+            const resendButton = document.getElementById("resend-code");
+            const verifyButton = document.getElementById("verify-button");
+
+            document.getElementById("otp-expiry").textContent = expiryRemaining
+                ? `Code expires in ${formatSeconds(expiryRemaining)}`
+                : "OTP expired, please request a new OTP";
+            resendButton.disabled = resendRemaining > 0;
+            resendButton.textContent = resendRemaining ? `Resend OTP in ${resendRemaining}s` : "Resend OTP";
+            verifyButton.disabled = expiryRemaining === 0 || blockedRemaining > 0;
+            if (blockedRemaining > 0) {
+                setMessage("verify-message", `Too many attempts. Try again in ${blockedRemaining} seconds.`);
+            }
+            if (!expiryRemaining && !resendRemaining && !blockedRemaining) stopOtpTimer();
+        }
+
+        function startOtpTimer(expiresInSeconds, resendAfterSeconds) {
+            stopOtpTimer();
+            otpExpiresAt = Date.now() + Math.max(1, expiresInSeconds) * 1000;
+            resendAvailableAt = Date.now() + Math.max(0, resendAfterSeconds) * 1000;
+            otpBlockedUntil = 0;
+            updateOtpTimers();
+            otpTimer = window.setInterval(updateOtpTimers, 1000);
+        }
+
+        function maskPhone(phone, countryCode) {
+            const digits = phone.replace(/\D/g, "");
+            return `${countryCode}${"•".repeat(Math.max(0, digits.length - 4))}${digits.slice(-4)}`;
+        }
+
+        function validMobileNumber(number, countryCode) {
+            const digits = number.replace(/\D/g, "");
+            return countryCode === "+91" ? /^[6-9]\d{9}$/.test(digits) : /^\d{7,15}$/.test(digits);
+        }
+
+        async function requestOtp() {
+            const countryCode = document.getElementById("country-code").value;
+            const number = document.getElementById("phone-number").value.trim();
+            if (!validMobileNumber(number, countryCode)) {
+                document.getElementById("phone-number").setAttribute("aria-invalid", "true");
+                setMessage("phone-error", countryCode === "+91" ? "Enter a valid 10-digit Indian mobile number." : "Enter a valid mobile number.");
+                return false;
+            }
+
+            document.getElementById("phone-number").setAttribute("aria-invalid", "false");
+            setMessage("phone-error", "");
+            const button = document.querySelector("#phone-form .submit-button");
+            await handleSubmit(document.getElementById("phone-form"), button, "phone-message", "Sending OTP...", async () => {
+                const fullPhone = `${countryCode}${number.replace(/\D/g, "")}`;
+                const challenge = await AuthService.requestOtp({ phone: fullPhone });
+                if (!challenge.challengeId) throw new Error("The authentication service returned an invalid OTP challenge.");
+                otpChallengeId = challenge.challengeId;
+                phoneForOtp = fullPhone;
+                document.getElementById("masked-number").textContent = maskPhone(fullPhone, countryCode);
+                startOtpTimer(challenge.expiresInSeconds || 300, challenge.resendAfterSeconds ?? 30);
+                return challenge;
+            }, () => {
+                setMessage("verify-message", "");
+                document.getElementById("otp-code").value = "";
+                showView("verify-view");
+                document.getElementById("otp-code").focus();
+            });
+            return true;
+        }
+
         document.getElementById("phone-start").addEventListener("click", () => {
-            otpRequested = false;
+            otpChallengeId = "";
+            phoneForOtp = "";
             document.getElementById("phone-form").reset();
-            document.getElementById("phone-number-field").classList.remove("hidden");
-            document.getElementById("otp-field").classList.add("hidden");
-            document.getElementById("resend-row").classList.add("hidden");
-            document.getElementById("phone-title").textContent = "Sign in with your phone";
-            document.getElementById("phone-description").textContent = "We’ll text you a one-time code to verify it’s you.";
-            document.querySelector("#phone-form .button-text").textContent = "Send verification code";
-            document.querySelector("#phone-form .submit-button").dataset.defaultLabel = "Send verification code";
             setMessage("phone-message", "");
             showView("phone-view");
         });
         document.getElementById("phone-form").addEventListener("submit", async (event) => {
             event.preventDefault();
-            const button = event.currentTarget.querySelector(".submit-button");
-            const phone = document.getElementById("phone-number");
-            if (!otpRequested) {
-                const valid = validateField(phone, "phone-error", "Enter a valid mobile number.") && phone.value.replace(/\D/g, "").length >= 7;
-                if (!valid) { setMessage("phone-error", "Enter a valid mobile number."); phone.setAttribute("aria-invalid", "true"); return phone.focus(); }
-                await handleSubmit(event.currentTarget, button, "phone-message", "Sending code...", async () => {
-                    await AuthService.requestOtp({ phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` });
-                    otpRequested = true;
-                    document.getElementById("phone-number-field").classList.add("hidden");
-                    document.getElementById("otp-field").classList.remove("hidden");
-                    document.getElementById("resend-row").classList.remove("hidden");
-                    document.getElementById("phone-title").textContent = "Check your messages";
-                    document.getElementById("phone-description").textContent = "Enter the 6-digit code we sent to your phone.";
-                    button.dataset.defaultLabel = "Verify and continue";
-                    button.querySelector(".button-text").textContent = "Verify and continue";
-                    document.getElementById("otp-code").focus();
-                    setMessage("phone-message", "Code sent. It expires in 10 minutes.", true);
-                    return null;
-                });
-            } else {
-                const code = document.getElementById("otp-code");
-                const valid = /^\d{6}$/.test(code.value.trim());
-                code.setAttribute("aria-invalid", String(!valid));
-                if (!valid) { setMessage("otp-error", "Enter the 6-digit code."); return code.focus(); }
-                handleSubmit(event.currentTarget, button, "phone-message", "Verifying...", () => AuthService.verifyOtp({ code: code.value.trim(), phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` }), navigateAfterAuthentication);
+            await requestOtp();
+        });
+        document.getElementById("phone-number").addEventListener("input", (event) => {
+            event.currentTarget.setAttribute("aria-invalid", "false");
+            setMessage("phone-error", "");
+        });
+        document.getElementById("verify-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const code = document.getElementById("otp-code");
+            const value = code.value.trim();
+            if (!/^\d{6}$/.test(value)) {
+                code.setAttribute("aria-invalid", "true");
+                setMessage("otp-error", "Enter the 6-digit code.");
+                return code.focus();
             }
+            code.setAttribute("aria-invalid", "false");
+            setMessage("otp-error", "");
+            handleSubmit(event.currentTarget, document.getElementById("verify-button"), "verify-message", "Verifying...", () => {
+                if (!otpChallengeId) throw new Error("Your OTP session expired. Request a new code.");
+                return AuthService.verifyOtp({ challengeId: otpChallengeId, code: value });
+            }, navigateAfterAuthentication, (error) => {
+                if (error.code === "invalid_otp") setMessage("verify-message", "Invalid OTP");
+                else if (error.code === "otp_expired" || error.code === "expired_otp") {
+                    setMessage("verify-message", "OTP expired, please request a new OTP");
+                    otpExpiresAt = Date.now();
+                    updateOtpTimers();
+                } else if (error.code === "too_many_attempts") {
+                    const retryAfter = Math.max(1, error.retryAfterSeconds || 60);
+                    otpBlockedUntil = Date.now() + retryAfter * 1000;
+                    setMessage("verify-message", `Too many attempts. Try again in ${retryAfter} seconds.`);
+                    if (!otpTimer) otpTimer = window.setInterval(updateOtpTimers, 1000);
+                    updateOtpTimers();
+                } else setMessage("verify-message", error.message || "We couldn't verify that code. Please try again.");
+            }, updateOtpTimers);
+        });
+        document.getElementById("otp-code").addEventListener("input", (event) => {
+            event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6);
+            setMessage("otp-error", "");
         });
         document.getElementById("resend-code").addEventListener("click", async () => {
-            const phone = document.getElementById("phone-number");
+            if (document.getElementById("resend-code").disabled) return;
+            setMessage("verify-message", "");
+            const button = document.getElementById("resend-code");
+            button.disabled = true;
             try {
-                await AuthService.requestOtp({ phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` });
-                setMessage("phone-message", "A new code has been sent.", true);
-            } catch (error) { setMessage("phone-message", error.message); }
+                const challenge = await AuthService.requestOtp({ phone: phoneForOtp });
+                if (!challenge.challengeId) throw new Error("The authentication service returned an invalid OTP challenge.");
+                otpChallengeId = challenge.challengeId;
+                startOtpTimer(challenge.expiresInSeconds || 300, challenge.resendAfterSeconds ?? 30);
+                document.getElementById("otp-code").value = "";
+                setMessage("verify-message", "A new OTP has been sent.", true);
+            } catch (error) {
+                const message = error.code === "too_many_attempts"
+                    ? `Too many attempts. Try again in ${Math.max(1, error.retryAfterSeconds || 60)} seconds.`
+                    : error.message || "Could not resend the OTP. Please try again.";
+                setMessage("verify-message", message);
+                if (error.code === "too_many_attempts") {
+                    otpBlockedUntil = Date.now() + Math.max(1, error.retryAfterSeconds || 60) * 1000;
+                    resendAvailableAt = Math.max(resendAvailableAt, otpBlockedUntil);
+                    if (!otpTimer) otpTimer = window.setInterval(updateOtpTimers, 1000);
+                }
+            } finally {
+                updateOtpTimers();
+            }
+        });
+        document.getElementById("change-number").addEventListener("click", () => {
+            otpChallengeId = "";
+            showView("phone-view");
         });
 
         document.getElementById("recovery-form").addEventListener("submit", (event) => {

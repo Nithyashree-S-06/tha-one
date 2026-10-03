@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f7f2">
+    <meta name="description" content="Find everyday favourites, new discoveries and good things in one place at THA ONE.">
+    <title>THA ONE | A little more everyday</title>
+    <link rel="preload" as="image" href="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84">
+    <link rel="stylesheet" href="storefront.css">
+    <script src="products.js" defer></script>
+    <script src="storefront.js" defer></script>
+</head>
+<body data-page="home">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></symbol>
+        <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 8.8c0 5.4-8.8 11-8.8 11s-8.8-5.6-8.8-11A4.8 4.8 0 0 1 12 6.2a4.8 4.8 0 0 1 8.8 2.6Z"/></symbol>
+        <symbol id="icon-bag" viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+        <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
+        <symbol id="icon-electronics" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></symbol>
+        <symbol id="icon-fashion" viewBox="0 0 24 24"><path d="m8 4 4 2 4-2 5 4-3 4-2-1v9H8v-9l-2 1-3-4 5-4Z"/></symbol>
+        <symbol id="icon-mobile" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M10 5h4m-3 14h2"/></symbol>
+        <symbol id="icon-beauty" viewBox="0 0 24 24"><path d="M8 3h8v4l2 2v12H6V9l2-2V3Z"/><path d="M8 7h8m-7 6h6"/></symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1V10Z"/></symbol>
+        <symbol id="icon-grocery" viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5L4 8Z"/><path d="m8 8 4-5 4 5M9 12v5m6-5v5"/></symbol>
+        <symbol id="icon-accessories" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v4m0 9v4M3.5 12h4m9 0h4"/></symbol>
+        <symbol id="icon-sports" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m12 7 4 3-1.5 5h-5L8 10l4-3Zm-4 3-4-1m11 1 4-1m-8 5-2 5m5-5 2 5"/></symbol>
+        <symbol id="icon-tag" viewBox="0 0 24 24"><path d="M20 13 13 20 3 10V4h6l11 9Z"/><circle cx="7.5" cy="8" r="1"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5m6 6-6-6 6-6"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14"/></symbol>
+        <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 6h11v12H3zM14 10h4l3 3v5h-7"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 3 1.8 6.2L20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8L12 3Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"/></symbol>
+    </svg>
+
+    <div class="announcement"><strong>One less thing to look for.</strong>&nbsp; Free delivery on your first order over ₹999</div>
+    <header class="site-header">
+        <div class="header-main page-width">
+            <a class="wordmark" href="home.html" aria-label="THA ONE home"><span class="brand-symbol" aria-hidden="true">T</span><span class="brand-name">THA <span>ONE</span></span></a>
+            <button class="location-select" type="button" id="location-open" aria-label="Choose your delivery location">
+                <svg class="icon" aria-hidden="true"><use href="#icon-pin"/></svg>
+                <span class="location-copy"><small>Delivering to</small><strong id="location-label">Set your location</strong></span>
+            </button>
+            <nav class="header-actions" aria-label="Account and shopping">
+                <a class="profile-link" href="intex.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Login / Profile</span></a>
+                <button class="icon-action wishlist-header" type="button" data-open-wishlist aria-label="View wishlist" title="Wishlist"><svg class="icon" aria-hidden="true"><use href="#icon-heart"/></svg><span class="count-badge" id="wishlist-count">0</span></button>
+                <button class="icon-action" type="button" data-open-cart aria-label="Open shopping cart" title="Cart"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="cart-count">0</span></button>
+                <button class="icon-action mobile-menu" id="menu-toggle" type="button" aria-label="Open categories" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg></button>
+            </nav>
+        </div>
+        <div class="header-search-row page-width">
+            <form class="search-form" id="search-form" role="search">
+                <label class="visually-hidden" for="product-search">Search products</label>
+                <input id="product-search" type="search" placeholder="Search for something good..." autocomplete="off">
+                <button class="search-submit" type="submit" aria-label="Search products"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg></button>
+            </form>
+        </div>
+        <nav class="category-nav" id="category-nav" aria-label="Shop by category">
+            <div class="category-list page-width" id="category-list">
+                <button class="category-link active" type="button" data-category="All"><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>All</button>
+                <button class="category-link" type="button" data-category="Electronics"><svg class="icon" aria-hidden="true"><use href="#icon-electronics"/></svg>Electronics</button>
+                <button class="category-link" type="button" data-category="Fashion"><svg class="icon" aria-hidden="true"><use href="#icon-fashion"/></svg>Fashion</button>
+                <button class="category-link" type="button" data-category="Mobiles"><svg class="icon" aria-hidden="true"><use href="#icon-mobile"/></svg>Mobiles</button>
+                <button class="category-link" type="button" data-category="Beauty"><svg class="icon" aria-hidden="true"><use href="#icon-beauty"/></svg>Beauty</button>
+                <button class="category-link" type="button" data-category="Home"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg>Home</button>
+                <button class="category-link" type="button" data-category="Grocery"><svg class="icon" aria-hidden="true"><use href="#icon-grocery"/></svg>Grocery</button>
+                <button class="category-link" type="button" data-category="Accessories"><svg class="icon" aria-hidden="true"><use href="#icon-accessories"/></svg>Accessories</button>
+                <button class="category-link" type="button" data-category="Sports"><svg class="icon" aria-hidden="true"><use href="#icon-sports"/></svg>Sports</button>
+                <button class="category-link" type="button" data-category="Offers"><svg class="icon" aria-hidden="true"><use href="#icon-tag"/></svg>Offers</button>
+                <button class="category-link" type="button" data-category="More"><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>More</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero page-width" id="hero" aria-label="Featured offers" aria-roledescription="carousel">
+            <img class="hero-image" id="hero-image" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84" alt="A considered edit of clothing and everyday essentials" fetchpriority="high">
+            <div class="hero-content" aria-live="polite" aria-atomic="true">
+                <p class="hero-kicker" id="hero-kicker">The THA ONE edit</p>
+                <h1 class="hero-title" id="hero-title">Good things for your everyday.</h1>
+                <p class="hero-description" id="hero-description">Small upgrades, thoughtful finds and the pieces you’ll reach for again tomorrow.</p>
+                <a class="hero-cta" id="hero-cta" href="#featured"><span>Explore the edit</span><svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></a>
+            </div>
+            <div class="hero-controls" aria-label="Carousel controls">
+                <button class="hero-arrow" id="hero-previous" type="button" aria-label="Previous banner"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg></button>
+                <div class="hero-dots" id="hero-dots" aria-label="Choose banner"></div>
+                <button class="hero-arrow" id="hero-next" type="button" aria-label="Next banner"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button>
+            </div>
+        </section>
+
+        <section class="section page-width" id="deals" aria-labelledby="deals-title">
+            <div class="section-heading deals-heading">
+                <div><h2 id="deals-title">Deals of the Day</h2><p>Good finds, while they last.</p></div>
+                <div class="deal-clock" aria-label="Time remaining on today's deals"><span class="clock-label">Ends in</span><span class="timer-boxes"><span id="timer-hours">00</span><span class="timer-colon">:</span><span id="timer-minutes">00</span><span class="timer-colon">:</span><span id="timer-seconds">00</span></span></div>
+            </div>
+            <div class="product-grid deal-grid" id="deal-grid" aria-live="polite"><p class="empty-state">Finding today’s good things…</p></div>
+        </section>
+
+        <section class="section page-width" id="featured" aria-labelledby="featured-title">
+            <div class="section-heading">
+                <div><h2 id="featured-title">Featured Products</h2><p id="featured-subtitle">A few good things we think you’ll love.</p></div>
+                <div class="section-toolbar"><label class="visually-hidden" for="sort-products">Sort products</label><select class="filter-select" id="sort-products"><option value="featured">Sort: Featured</option><option value="price-low">Price: Low to high</option><option value="price-high">Price: High to low</option><option value="rating">Top rated</option></select></div>
+            </div>
+            <div class="filter-chip-row" id="filter-chip-row" aria-label="Filter featured products by category"></div>
+            <div class="product-grid" id="featured-grid" aria-live="polite"><p class="empty-state">A moment while we get the shelves ready…</p></div>
+        </section>
+
+        <section class="section page-width" id="trending" aria-labelledby="trending-title">
+            <div class="section-heading"><div><h2 id="trending-title">Trending Now</h2><p>Things people are adding to their everyday.</p></div><div class="section-toolbar"><button class="icon-action" type="button" data-scroll-trending="left" aria-label="Scroll trending products left"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg></button><button class="icon-action" type="button" data-scroll-trending="right" aria-label="Scroll trending products right"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div></div>
+            <div class="trending-shell"><div class="trending-track" id="trending-track" aria-label="Trending products" tabindex="0"><p class="empty-state">Loading trending products…</p></div></div>
+        </section>
+
+        <section class="section page-width personalized-section" id="recommended" aria-labelledby="recommended-title">
+            <div class="section-heading"><div><h2 id="recommended-title">Recommended for You</h2><p class="personalized-note">A few picks, made around you.</p></div><svg class="icon" aria-hidden="true" style="color:#789365"><use href="#icon-spark"/></svg></div>
+            <div class="product-grid" id="recommended-grid"></div>
+        </section>
+
+        <section class="benefit-strip page-width" aria-label="Shopping benefits">
+            <div class="benefit"><span class="benefit-icon"><svg class="icon" aria-hidden="true"><use href="#icon-truck"/></svg></span><span><strong>Thoughtful delivery</strong><small>Free over ₹999</small></span></div>
+            <div class="benefit"><span class="benefit-icon"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg></span><span><strong>Easy returns</strong><small>Simple, no-fuss help</small></span></div>
+            <div class="benefit"><span class="benefit-icon"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg></span><span><strong>Secure checkout</strong><small>Your details stay yours</small></span></div>
+            <div class="benefit"><span class="benefit-icon"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg></span><span><strong>Here when you need us</strong><small>Real help, every day</small></span></div>
+        </section>
+    </main>
+
+    <footer class="site-footer" id="footer">
+        <div class="footer-main page-width">
+            <div class="footer-brand"><a class="wordmark" href="home.html" aria-label="THA ONE home"><span class="brand-symbol" aria-hidden="true">T</span><span class="brand-name">THA <span>ONE</span></span></a><p>A little more everyday. Thoughtful finds and useful favourites, brought together in one place.</p><div class="social-links" aria-label="Follow THA ONE"><a href="#instagram" aria-label="Instagram">ig</a><a href="#facebook" aria-label="Facebook">f</a><a href="#pinterest" aria-label="Pinterest">p</a></div></div>
+            <div class="footer-column"><h3>THA ONE</h3><nav class="footer-links" aria-label="About THA ONE"><a href="#about">About us</a><a href="#contact">Contact</a><a href="#careers">Careers</a></nav></div>
+            <div class="footer-column"><h3>Need a hand?</h3><nav class="footer-links" aria-label="Customer help"><a href="#support">Help &amp; support</a><a href="#shipping">Shipping information</a><a href="#returns">Returns policy</a></nav></div>
+            <div class="footer-column"><h3>The small print</h3><nav class="footer-links" aria-label="Legal"><a href="#terms">Terms &amp; conditions</a><a href="#privacy">Privacy policy</a><a href="#accessibility">Accessibility</a></nav></div>
+        </div>
+        <div class="footer-bottom page-width"><span>© <span id="copyright-year"></span> THA ONE. Made for the everyday.</span><span>Prices shown in INR · India</span></div>
+    </footer>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        <a class="bottom-nav-item active" href="home.html" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg><span>Home</span></a>
+        <button class="bottom-nav-item" type="button" data-open-categories><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg><span>Categories</span></button>
+        <button class="bottom-nav-item" type="button" data-focus-search><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><span>Search</span></button>
+        <button class="bottom-nav-item" type="button" data-open-cart><span class="bottom-cart-wrap"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="mobile-cart-count">0</span></span><span>Cart</span></button>
+        <a class="bottom-nav-item" href="intex.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a>
+    </nav>
+
+    <div class="cart-backdrop" id="cart-backdrop" data-close-cart></div>
+    <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-modal="true" role="dialog" aria-hidden="true" inert>
+        <div class="drawer-header"><h2 id="cart-title">Your bag <span id="cart-title-count">(0)</span></h2><button class="drawer-close" type="button" data-close-cart aria-label="Close cart"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+        <div class="drawer-items" id="cart-items" aria-live="polite"><p class="empty-state">Your bag is waiting for something good.</p></div>
+        <div class="drawer-footer"><div class="subtotal-row"><span>Subtotal</span><strong id="cart-subtotal">₹0</strong></div><button class="checkout-button" type="button" id="checkout-button">Continue to checkout <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button><p class="drawer-note">Delivery and any applicable discounts are calculated at checkout.</p></div>
+    </aside>
+    <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+    <dialog class="location-dialog" id="location-dialog" aria-labelledby="location-dialog-title">
+        <form method="dialog" class="location-dialog-form" id="location-form">
+            <button class="drawer-close" type="submit" aria-label="Close location dialog"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button>
+            <h2 id="location-dialog-title">Where should we deliver?</h2>
+            <p>Choose your city to see what’s available near you.</p>
+            <label for="location-input">City or postal code</label>
+            <input id="location-input" name="location" autocomplete="postal-code" placeholder="Try Bengaluru or 560001">
+            <button class="checkout-button" id="save-location" type="button">Save location</button>
+        </form>
+    </dialog>
+</body>
+</html>
