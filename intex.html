@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f3f5ef">
+    <meta name="description" content="Sign in to THA ONE, your one place for what comes next.">
+    <title>Sign in | THA ONE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #17231e;
+            --muted: #748078;
+            --line: #e1e7df;
+            --paper: #fbfcf9;
+            --canvas: #f3f5ef;
+            --green: #b9ef58;
+            --green-dark: #31533c;
+            --coral: #ef7258;
+            --error: #b9382a;
+            --sans: "DM Sans", "Segoe UI", sans-serif;
+            --display: "Manrope", "Segoe UI", sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--ink);
+            background: var(--canvas);
+            font-family: var(--sans);
+            -webkit-font-smoothing: antialiased;
+        }
+        button, input { font: inherit; }
+        button { color: inherit; }
+        a { color: inherit; }
+        .page-shell {
+            display: grid;
+            grid-template-columns: minmax(340px, 0.9fr) minmax(440px, 1.1fr);
+            min-height: 100vh;
+            padding: 18px;
+            gap: 18px;
+        }
+        .brand-panel {
+            position: relative;
+            display: flex;
+            min-height: calc(100vh - 36px);
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            padding: 38px 42px 30px;
+            border-radius: 9px;
+            color: #f6f8f2;
+            background-color: #20372e;
+            background-image: linear-gradient(135deg, rgba(24, 47, 37, .96), rgba(38, 66, 49, .94));
+            isolation: isolate;
+            animation: arrive .65s ease both;
+        }
+        .brand-panel::before {
+            position: absolute;
+            z-index: -1;
+            inset: 0;
+            content: "";
+            opacity: .17;
+            background-image: linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(135deg, black, transparent 78%);
+        }
+        .brand-panel::after {
+            position: absolute;
+            z-index: -1;
+            right: -120px;
+            bottom: 50px;
+            width: min(35vw, 440px);
+            aspect-ratio: 1;
+            border: 1px solid rgba(185, 239, 88, .22);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(185,239,88,.035), 0 0 0 70px rgba(185,239,88,.025), 0 0 0 105px rgba(185,239,88,.018);
+            content: "";
+        }
+        .wordmark { display: inline-flex; align-items: center; gap: 11px; width: fit-content; text-decoration: none; }
+        .brand-symbol {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border-radius: 11px 11px 11px 3px;
+            color: #1e3428;
+            background: var(--green);
+            font-family: var(--display);
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: 0;
+        }
+        .wordmark-name { font-family: var(--display); font-size: 14px; font-weight: 800; letter-spacing: 0; }
+        .wordmark-name span { color: var(--green); }
+        .brand-copy { position: relative; max-width: 510px; margin: auto 0; padding: 64px 0 78px; }
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 23px;
+            color: #c7d2c6;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+        }
+        .eyebrow::before { width: 21px; height: 2px; content: ""; background: var(--green); }
+        .brand-copy h1 {
+            max-width: 490px;
+            margin: 0;
+            font-family: var(--display);
+            font-size: clamp(46px, 5.1vw, 72px);
+            font-weight: 600;
+            line-height: 1.06;
+            letter-spacing: 0;
+        }
+        .brand-copy h1 span { color: var(--green); }
+        .brand-copy > p:last-child { max-width: 340px; margin: 21px 0 0; color: #c2cdc3; font-size: 14px; line-height: 1.8; }
+        .brand-footer { display: flex; justify-content: space-between; align-items: center; gap: 18px; color: #b8c5b9; font-size: 11px; }
+        .brand-footer .availability { display: inline-flex; align-items: center; gap: 8px; }
+        .availability::before { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(185,239,88,.12); content: ""; }
+
+        .form-side { display: grid; min-height: calc(100vh - 36px); place-items: center; padding: 42px 28px; }
+        .auth-wrap { width: min(100%, 420px); animation: rise .55s .08s ease both; }
+        .mobile-wordmark { display: none; }
+        .welcome { margin-bottom: 27px; }
+        .welcome .step-label { margin: 0 0 10px; color: var(--green-dark); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .welcome h2 { margin: 0; font-family: var(--display); font-size: 31px; font-weight: 700; letter-spacing: 0; line-height: 1.2; }
+        .welcome p { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+        .social-button, .phone-button, .submit-button {
+            position: relative;
+            display: flex;
+            width: 100%;
+            min-height: 49px;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: rgba(255,255,255,.72);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+        }
+        .social-button:hover, .phone-button:hover { transform: translateY(-1px); border-color: #b9c8b9; box-shadow: 0 7px 18px rgba(32,55,46,.07); background: #fff; }
+        .social-button:active, .phone-button:active, .submit-button:active { transform: translateY(1px) scale(.995); }
+        .social-button svg, .phone-button svg { flex: 0 0 auto; }
+        .phone-button { margin-top: 10px; }
+        .divider { display: flex; align-items: center; gap: 13px; margin: 22px 0; color: #8b958d; font-size: 10px; font-weight: 600; letter-spacing: .7px; text-transform: uppercase; }
+        .divider::before, .divider::after { height: 1px; flex: 1; content: ""; background: var(--line); }
+        .field { margin: 0 0 15px; }
+        .field-label-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 7px; }
+        .field label { display: block; color: #35443a; font-size: 11px; font-weight: 600; }
+        .field-control { position: relative; }
+        .field input, .phone-row select {
+            width: 100%;
+            height: 47px;
+            padding: 0 13px;
+            border: 1px solid #dce3da;
+            border-radius: 4px;
+            outline: none;
+            color: var(--ink);
+            background: rgba(255,255,255,.72);
+            font-size: 13px;
+            transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+        }
+        .field input::placeholder { color: #a1aaa2; }
+        .field input:focus, .phone-row select:focus { border-color: #83aa61; background: #fff; box-shadow: 0 0 0 3px rgba(131,170,97,.14); }
+        .field input[aria-invalid="true"] { border-color: #d36a5c; }
+        .password-input { padding-right: 51px !important; }
+        .reveal-button { position: absolute; top: 0; right: 0; display: grid; width: 47px; height: 47px; place-items: center; border: 0; border-radius: 4px; color: #707c72; background: transparent; cursor: pointer; }
+        .reveal-button:hover { color: var(--ink); }
+        .quiet-link { padding: 0; border: 0; color: #476b42; background: transparent; cursor: pointer; font-size: 11px; font-weight: 600; text-decoration: none; }
+        .quiet-link:hover { color: #233d2b; text-decoration: underline; text-underline-offset: 3px; }
+        .submit-button { min-height: 48px; margin-top: 4px; border-color: #243a2e; color: #f8fbf5; background: #243a2e; }
+        .submit-button:hover { transform: translateY(-1px); border-color: #335640; background: #335640; box-shadow: 0 8px 17px rgba(36,58,46,.15); }
+        .submit-button:disabled { cursor: wait; opacity: .75; transform: none; }
+        .spinner { display: none; width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.4); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; }
+        .submit-button[aria-busy="true"] .spinner { display: block; }
+        .submit-button[aria-busy="true"] .button-text { opacity: .85; }
+        .form-message { min-height: 18px; margin: 9px 0 0; color: var(--error); font-size: 11px; line-height: 1.5; }
+        .form-message:empty { min-height: 0; margin: 0; }
+        .form-message.success { color: #3b7443; }
+        .account-prompt { margin: 20px 0 0; color: #6e7a70; font-size: 12px; text-align: center; }
+        .account-prompt .quiet-link { margin-left: 4px; font-size: 12px; }
+        .legal { margin: 28px 0 0; color: #929b93; font-size: 10px; line-height: 1.7; text-align: center; }
+        .legal a { color: #69776c; text-decoration: underline; text-decoration-color: #c5cec4; text-underline-offset: 2px; }
+        .back-button { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 22px; padding: 0; border: 0; color: #6d796f; background: transparent; cursor: pointer; font-size: 11px; font-weight: 600; }
+        .back-button:hover { color: var(--ink); }
+        .phone-row { display: grid; grid-template-columns: 112px 1fr; gap: 8px; }
+        .phone-row select { padding: 0 9px; }
+        .otp-input { letter-spacing: 8px; font-size: 17px !important; font-weight: 700; text-align: center; }
+        .resend-row { display: flex; justify-content: space-between; gap: 12px; margin: 2px 0 16px; color: var(--muted); font-size: 11px; }
+        .trust-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 17px; color: #89938a; font-size: 10px; line-height: 1.55; }
+        .trust-note svg { flex: 0 0 auto; margin-top: 1px; }
+        .hidden { display: none !important; }
+        :focus-visible { outline: 3px solid rgba(84,129,59,.4); outline-offset: 2px; }
+
+        @keyframes arrive { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (min-width: 1450px) { .page-shell { max-width: 1680px; margin: 0 auto; } }
+        @media (max-width: 800px) {
+            .page-shell { grid-template-columns: 1fr; min-height: 100svh; padding: 0; gap: 0; }
+            .brand-panel { display: none; }
+            .form-side { min-height: 100svh; padding: 38px 24px 28px; }
+            .auth-wrap { width: min(100%, 410px); }
+            .mobile-wordmark { display: inline-flex; margin-bottom: 36px; color: var(--ink); }
+            .mobile-wordmark .brand-symbol { width: 34px; height: 34px; border-radius: 10px 10px 10px 3px; font-size: 17px; }
+            .mobile-wordmark .wordmark-name span { color: #477044; }
+            .legal { margin-top: 24px; }
+        }
+        @media (max-width: 420px) {
+            .form-side { padding-right: 21px; padding-left: 21px; }
+            .mobile-wordmark { margin-bottom: 30px; }
+            .welcome { margin-bottom: 23px; }
+            .welcome h2 { font-size: 28px; }
+            .divider { margin: 19px 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+    </style>
+</head>
+<body>
+    <main class="page-shell">
+        <aside class="brand-panel" aria-label="About THA ONE">
+            <a class="wordmark" href="#login" aria-label="THA ONE home">
+                <span class="brand-symbol" aria-hidden="true">T</span>
+                <span class="wordmark-name">THA <span>ONE</span></span>
+            </a>
+            <div class="brand-copy">
+                <p class="eyebrow">One place to begin</p>
+                <h1>Good things<br>start with <span>one.</span></h1>
+                <p>Your next step, your next idea, your next everyday essential. It all starts here.</p>
+            </div>
+            <div class="brand-footer">
+                <span>Thoughtfully made for what’s next.</span>
+                <span class="availability">Here for you</span>
+            </div>
+        </aside>
+
+        <section class="form-side" aria-label="Sign in to THA ONE">
+            <div class="auth-wrap">
+                <a class="wordmark mobile-wordmark" href="#login" aria-label="THA ONE home">
+                    <span class="brand-symbol" aria-hidden="true">T</span>
+                    <span class="wordmark-name">THA <span>ONE</span></span>
+                </a>
+
+                <section id="login-view" class="auth-view">
+                    <header class="welcome">
+                        <p class="step-label">Your account, all in one</p>
+                        <h2>Welcome to THA ONE</h2>
+                        <p>Sign in to pick up right where you belong.</p>
+                    </header>
+
+                    <button class="social-button" id="google-login" type="button">
+                        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5h6.6c3.9-3.6 6.1-8.8 6.1-14.9Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.2A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.7a12 12 0 0 1 0-7.4v-5.2H5.8a20 20 0 0 0 0 17.8l6.8-5.2Z"/><path fill="#EA4335" d="M24 11.9c3 0 5.6 1 7.7 3.1l5.8-5.8C34 5.9 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.2c1.6-4.8 6.1-8.4 11.4-8.4Z"/></svg>
+                        <span>Continue with Google</span>
+                    </button>
+                    <button class="phone-button" id="phone-start" type="button">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="6" y="2.75" width="12" height="18.5" rx="2.5" stroke="currentColor" stroke-width="1.7"/><path d="M10 5.75h4M10.5 18.25h3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                        <span>Continue with mobile number</span>
+                    </button>
+                    <p class="form-message" id="social-message" role="status" aria-live="polite"></p>
+
+                    <div class="divider"><span>or sign in with email</span></div>
+
+                    <form id="login-form" novalidate>
+                        <div class="field">
+                            <div class="field-label-row"><label for="identity">Email or username</label></div>
+                            <input id="identity" name="identity" type="text" autocomplete="username" placeholder="you@example.com" required aria-describedby="identity-error">
+                            <p class="form-message" id="identity-error" aria-live="polite"></p>
+                        </div>
+                        <div class="field">
+                            <div class="field-label-row">
+                                <label for="password">Password</label>
+                                <button class="quiet-link" id="forgot-password" type="button">Forgot password?</button>
+                            </div>
+                            <div class="field-control">
+                                <input class="password-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required aria-describedby="password-error">
+                                <button class="reveal-button" type="button" data-toggle-password="password" aria-label="Show password" title="Show password">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.6"/></svg>
+                                </button>
+                            </div>
+                            <p class="form-message" id="password-error" aria-live="polite"></p>
+                        </div>
+                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Log in</span></button>
+                        <p class="form-message" id="login-message" role="status" aria-live="polite"></p>
+                    </form>
+                    <p class="account-prompt">New to THA ONE?<button class="quiet-link" id="create-account" type="button">Create account</button></p>
+                    <p class="legal">By continuing, you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</p>
+                </section>
+
+                <section id="phone-view" class="auth-view hidden" aria-labelledby="phone-title">
+                    <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
+                    <header class="welcome">
+                        <p class="step-label" id="phone-step-label">Quick and secure</p>
+                        <h2 id="phone-title">Sign in with your phone</h2>
+                        <p id="phone-description">We’ll text you a one-time code to verify it’s you.</p>
+                    </header>
+                    <form id="phone-form" novalidate>
+                        <div class="field" id="phone-number-field">
+                            <div class="field-label-row"><label for="phone-number">Mobile number</label></div>
+                            <div class="phone-row">
+                                <select id="country-code" aria-label="Country calling code">
+                                    <option value="+1">US +1</option>
+                                    <option value="+44">UK +44</option>
+                                    <option value="+61">AU +61</option>
+                                    <option value="+91">IN +91</option>
+                                    <option value="+64">NZ +64</option>
+                                </select>
+                                <input id="phone-number" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="(555) 000-0000" required aria-describedby="phone-error">
+                            </div>
+                            <p class="form-message" id="phone-error" aria-live="polite"></p>
+                        </div>
+                        <div class="field hidden" id="otp-field">
+                            <div class="field-label-row"><label for="otp-code">Verification code</label></div>
+                            <input class="otp-input" id="otp-code" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-describedby="otp-error">
+                            <p class="form-message" id="otp-error" aria-live="polite"></p>
+                        </div>
+                        <div class="resend-row hidden" id="resend-row"><span>Didn't receive a code?</span><button class="quiet-link" type="button" id="resend-code">Resend code</button></div>
+                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Send verification code</span></button>
+                        <p class="form-message" id="phone-message" role="status" aria-live="polite"></p>
+                    </form>
+                    <p class="trust-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 19 6v5c0 4.6-2.8 8.2-7 10-4.2-1.8-7-5.4-7-10V6l7-3Z" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Your number is only used to secure your account.</p>
+                </section>
+
+                <section id="recovery-view" class="auth-view hidden" aria-labelledby="recovery-title">
+                    <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
+                    <header class="welcome"><p class="step-label">Account recovery</p><h2 id="recovery-title">Reset your password</h2><p>Enter the email linked to your account and we’ll send a reset link.</p></header>
+                    <form id="recovery-form" novalidate>
+                        <div class="field"><div class="field-label-row"><label for="recovery-email">Email address</label></div><input id="recovery-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="recovery-error"><p class="form-message" id="recovery-error" aria-live="polite"></p></div>
+                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Send reset link</span></button>
+                        <p class="form-message" id="recovery-message" role="status" aria-live="polite"></p>
+                    </form>
+                </section>
+
+                <section id="signup-view" class="auth-view hidden" aria-labelledby="signup-title">
+                    <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
+                    <header class="welcome"><p class="step-label">A good place to start</p><h2 id="signup-title">Create your account</h2><p>One account opens the door to THA ONE.</p></header>
+                    <form id="signup-form" novalidate>
+                        <div class="field"><div class="field-label-row"><label for="signup-name">Your name</label></div><input id="signup-name" name="name" type="text" autocomplete="name" placeholder="How should we call you?" required aria-describedby="signup-name-error"><p class="form-message" id="signup-name-error" aria-live="polite"></p></div>
+                        <div class="field"><div class="field-label-row"><label for="signup-email">Email address</label></div><input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="signup-email-error"><p class="form-message" id="signup-email-error" aria-live="polite"></p></div>
+                        <div class="field"><div class="field-label-row"><label for="signup-password">Create a password</label></div><input id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required aria-describedby="signup-password-error"><p class="form-message" id="signup-password-error" aria-live="polite"></p></div>
+                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Create account</span></button>
+                        <p class="form-message" id="signup-message" role="status" aria-live="polite"></p>
+                    </form>
+                    <p class="legal">By creating an account, you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</p>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const AUTH_CONFIG = {
+            endpoints: {
+                login: "",
+                signup: "",
+                requestOtp: "",
+                verifyOtp: "",
+                passwordReset: ""
+            },
+            googleClientId: "",
+            successUrl: "next.html"
+        };
+
+        const AuthService = {
+            async request(endpoint, payload) {
+                const url = AUTH_CONFIG.endpoints[endpoint];
+                if (!url) throw new Error("Authentication isn't connected yet. Please try again later.");
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(result.message || "Something went wrong. Please try again.");
+                return result;
+            },
+            login(credentials) { return this.request("login", credentials); },
+            signup(details) { return this.request("signup", details); },
+            requestOtp(phone) { return this.request("requestOtp", phone); },
+            verifyOtp(code) { return this.request("verifyOtp", code); },
+            resetPassword(email) { return this.request("passwordReset", email); }
+        };
+
+        const views = [...document.querySelectorAll(".auth-view")];
+        const showView = (id) => {
+            views.forEach((view) => view.classList.toggle("hidden", view.id !== id));
+            document.getElementById(id)?.querySelector("input")?.focus();
+            history.replaceState(null, "", id === "login-view" ? "#login" : `#${id.replace("-view", "")}`);
+        };
+        const setMessage = (id, text, success = false) => {
+            const element = document.getElementById(id);
+            element.textContent = text;
+            element.classList.toggle("success", success);
+        };
+        const setBusy = (button, busy, label) => {
+            button.disabled = busy;
+            button.setAttribute("aria-busy", String(busy));
+            button.querySelector(".button-text").textContent = busy ? label : button.dataset.defaultLabel;
+        };
+        document.querySelectorAll(".submit-button").forEach((button) => { button.dataset.defaultLabel = button.querySelector(".button-text").textContent; });
+        document.querySelectorAll("[data-show-view]").forEach((button) => button.addEventListener("click", () => showView(button.dataset.showView)));
+        document.querySelectorAll("[data-toggle-password]").forEach((button) => button.addEventListener("click", () => {
+            const input = document.getElementById(button.dataset.togglePassword);
+            const showing = input.type === "password";
+            input.type = showing ? "text" : "password";
+            button.setAttribute("aria-label", showing ? "Hide password" : "Show password");
+            button.title = showing ? "Hide password" : "Show password";
+        }));
+
+        function validateField(input, messageId, message) {
+            const invalid = !input.value.trim() || (input.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim()));
+            input.setAttribute("aria-invalid", String(invalid));
+            setMessage(messageId, invalid ? message : "");
+            return !invalid;
+        }
+
+        async function handleSubmit(form, button, messageId, busyLabel, action, onSuccess) {
+            setMessage(messageId, "");
+            setBusy(button, true, busyLabel);
+            try {
+                const result = await action();
+                if (onSuccess) await onSuccess(result);
+            } catch (error) {
+                setMessage(messageId, error.message || "Something went wrong. Please try again.");
+            } finally {
+                setBusy(button, false);
+            }
+        }
+
+        function navigateAfterAuthentication(result) {
+            const destination = result?.redirectUrl || AUTH_CONFIG.successUrl;
+            if (destination) window.location.assign(destination);
+        }
+
+        const loginForm = document.getElementById("login-form");
+        loginForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const identity = document.getElementById("identity");
+            const password = document.getElementById("password");
+            const identityValid = validateField(identity, "identity-error", "Enter your email or username.");
+            const passwordValid = validateField(password, "password-error", "Enter your password.");
+            if (!identityValid) return identity.focus();
+            if (!passwordValid) return password.focus();
+            handleSubmit(loginForm, loginForm.querySelector(".submit-button"), "login-message", "Signing in...", async () => {
+                return AuthService.login({ identity: identity.value.trim(), password: password.value });
+            }, navigateAfterAuthentication);
+        });
+        document.getElementById("forgot-password").addEventListener("click", () => showView("recovery-view"));
+        document.getElementById("create-account").addEventListener("click", () => showView("signup-view"));
+        document.getElementById("google-login").addEventListener("click", () => {
+            const message = AUTH_CONFIG.googleClientId
+                ? "Google OAuth is ready to be connected to your identity provider."
+                : "Google sign-in is not connected yet. Please use email or mobile sign-in.";
+            setMessage("social-message", message);
+        });
+
+        let otpRequested = false;
+        document.getElementById("phone-start").addEventListener("click", () => {
+            otpRequested = false;
+            document.getElementById("phone-form").reset();
+            document.getElementById("phone-number-field").classList.remove("hidden");
+            document.getElementById("otp-field").classList.add("hidden");
+            document.getElementById("resend-row").classList.add("hidden");
+            document.getElementById("phone-title").textContent = "Sign in with your phone";
+            document.getElementById("phone-description").textContent = "We’ll text you a one-time code to verify it’s you.";
+            document.querySelector("#phone-form .button-text").textContent = "Send verification code";
+            document.querySelector("#phone-form .submit-button").dataset.defaultLabel = "Send verification code";
+            setMessage("phone-message", "");
+            showView("phone-view");
+        });
+        document.getElementById("phone-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const button = event.currentTarget.querySelector(".submit-button");
+            const phone = document.getElementById("phone-number");
+            if (!otpRequested) {
+                const valid = validateField(phone, "phone-error", "Enter a valid mobile number.") && phone.value.replace(/\D/g, "").length >= 7;
+                if (!valid) { setMessage("phone-error", "Enter a valid mobile number."); phone.setAttribute("aria-invalid", "true"); return phone.focus(); }
+                await handleSubmit(event.currentTarget, button, "phone-message", "Sending code...", async () => {
+                    await AuthService.requestOtp({ phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` });
+                    otpRequested = true;
+                    document.getElementById("phone-number-field").classList.add("hidden");
+                    document.getElementById("otp-field").classList.remove("hidden");
+                    document.getElementById("resend-row").classList.remove("hidden");
+                    document.getElementById("phone-title").textContent = "Check your messages";
+                    document.getElementById("phone-description").textContent = "Enter the 6-digit code we sent to your phone.";
+                    button.dataset.defaultLabel = "Verify and continue";
+                    button.querySelector(".button-text").textContent = "Verify and continue";
+                    document.getElementById("otp-code").focus();
+                    setMessage("phone-message", "Code sent. It expires in 10 minutes.", true);
+                    return null;
+                });
+            } else {
+                const code = document.getElementById("otp-code");
+                const valid = /^\d{6}$/.test(code.value.trim());
+                code.setAttribute("aria-invalid", String(!valid));
+                if (!valid) { setMessage("otp-error", "Enter the 6-digit code."); return code.focus(); }
+                handleSubmit(event.currentTarget, button, "phone-message", "Verifying...", () => AuthService.verifyOtp({ code: code.value.trim(), phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` }), navigateAfterAuthentication);
+            }
+        });
+        document.getElementById("resend-code").addEventListener("click", async () => {
+            const phone = document.getElementById("phone-number");
+            try {
+                await AuthService.requestOtp({ phone: `${document.getElementById("country-code").value}${phone.value.replace(/\D/g, "")}` });
+                setMessage("phone-message", "A new code has been sent.", true);
+            } catch (error) { setMessage("phone-message", error.message); }
+        });
+
+        document.getElementById("recovery-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const email = document.getElementById("recovery-email");
+            const valid = validateField(email, "recovery-error", "Enter a valid email address.");
+            if (!valid) return email.focus();
+            handleSubmit(event.currentTarget, event.currentTarget.querySelector(".submit-button"), "recovery-message", "Sending...", () => AuthService.resetPassword({ email: email.value.trim() }), () => {
+                setMessage("recovery-message", "If an account matches that email, a reset link is on its way.", true);
+            });
+        });
+        document.getElementById("signup-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            const name = document.getElementById("signup-name");
+            const email = document.getElementById("signup-email");
+            const password = document.getElementById("signup-password");
+            const nameValid = validateField(name, "signup-name-error", "Enter your name.");
+            const emailValid = validateField(email, "signup-email-error", "Enter a valid email address.");
+            const passwordValid = password.value.length >= 8;
+            password.setAttribute("aria-invalid", String(!passwordValid));
+            setMessage("signup-password-error", passwordValid ? "" : "Use at least 8 characters.");
+            if (!nameValid) return name.focus();
+            if (!emailValid) return email.focus();
+            if (!passwordValid) return password.focus();
+            handleSubmit(event.currentTarget, event.currentTarget.querySelector(".submit-button"), "signup-message", "Creating account...", () => AuthService.signup({ name: name.value.trim(), email: email.value.trim(), password: password.value }), navigateAfterAuthentication);
+        });
+    </script>
+</body>
+</html>
