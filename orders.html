@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f7f2">
+    <meta name="description" content="View your THA ONE Shopping order history and updates.">
+    <title>My Orders | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="orders.js" defer></script>
+</head>
+<body class="orders-page">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1V10Z"/></symbol>
+        <symbol id="icon-bag" viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    </svg>
+    <tha-app-switcher current="shopping"></tha-app-switcher>
+    <main class="orders-main page-width">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="home.html">Shopping</a><span aria-hidden="true">/</span><span>My orders</span></nav>
+        <header class="orders-heading"><p class="service-eyebrow">Your THA ONE Shopping activity</p><h1>My orders</h1><p>Order updates and delivery progress, all in one place.</p></header>
+        <div class="orders-toolbar"><div class="order-tabs" role="group" aria-label="Filter orders"><button class="order-tab active" type="button" data-order-filter="all" aria-pressed="true">All orders</button><button class="order-tab" type="button" data-order-filter="active" aria-pressed="false">In progress</button><button class="order-tab" type="button" data-order-filter="delivered" aria-pressed="false">Delivered</button></div><select id="orders-sort" aria-label="Sort orders"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div>
+        <section class="orders-list" id="orders-list" aria-live="polite"><div class="orders-loading"><span></span><p>Loading your orders…</p></div></section>
+        <a class="orders-shop-link" href="home.html">Back to Shopping <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></a>
+    </main>
+    <footer class="orders-footer"><span>THA ONE · Shopping</span><a href="intex.html">Profile &amp; account</a></footer>
+</body>
+</html>

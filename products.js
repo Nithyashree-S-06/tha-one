@@ -24,8 +24,8 @@ window.THA_ONE_PRODUCTS = [
         reviews: 214,
         badge: "Just in",
         description: "A lightweight knit upper and cushioned sole make Stride an easy choice for early starts, city walks and everything that happens between.",
-        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=82",
-        alt: "Red running shoe against a clean studio background",
+        image: "https://images.unsplash.com/photo-1495555961986-6d4c1ecb7be3?auto=format&fit=crop&w=900&q=82",
+        alt: "A collection of everyday shoes arranged together",
         deals: true,
         variants: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"]
     },
@@ -61,7 +61,7 @@ window.THA_ONE_PRODUCTS = [
     },
     {
         id: "everyday-crossbody",
-        name: "Everyday crossbody bag",
+        name: "Everyday city backpack",
         category: "Fashion",
         price: 2890,
         originalPrice: 3790,
@@ -69,8 +69,8 @@ window.THA_ONE_PRODUCTS = [
         reviews: 143,
         badge: "Easy carry",
         description: "A compact shape with room for the things you reach for most. Adjustable, lightweight and ready for a quick coffee or a full day out.",
-        image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=82",
-        alt: "Structured tan everyday handbag",
+        image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=82",
+        alt: "A simple navy everyday backpack against a light background",
         deals: true,
         variants: ["Cognac", "Black", "Stone"]
     },

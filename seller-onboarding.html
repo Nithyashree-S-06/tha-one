@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7f3">
+    <meta name="description" content="Complete secure Seller verification for THA ONE.">
+    <title>Seller Verification | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="kyc-onboarding.js" defer></script>
+</head>
+<body class="ops-service kyc-service" data-onboarding="seller">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5m6 6-6-6 6-6"/></symbol>
+    </svg>
+    <tha-app-switcher current="seller"></tha-app-switcher>
+    <header class="ops-header kyc-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Seller verification</span><a class="ops-header-button" href="intex.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+
+    <main class="kyc-main page-width">
+        <div class="kyc-heading"><div><p class="service-eyebrow">A secure start for your store</p><h1>Seller verification</h1><p>Tell us about your business. Verification is handled securely through THA ONE’s authorized verification service.</p></div><span class="kyc-security-note"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>Encrypted connection required</span></div>
+        <div class="kyc-status-banner" id="onboarding-status" role="status" aria-live="polite"><strong>Checking verification status…</strong></div>
+        <ol class="kyc-progress" id="onboarding-progress" aria-label="Seller verification steps">
+            <li class="active" data-step-indicator="0"><span>1</span><b>Business</b></li><li data-step-indicator="1"><span>2</span><b>PAN</b></li><li data-step-indicator="2"><span>3</span><b>Documents</b></li><li data-step-indicator="3"><span>4</span><b>Bank</b></li><li data-step-indicator="4"><span>5</span><b>Verification</b></li>
+        </ol>
+
+        <form class="kyc-form" id="onboarding-form" method="post" action="seller-onboarding.html" novalidate autocomplete="off">
+            <section class="kyc-step active" data-step-panel="0" aria-labelledby="seller-step-business">
+                <div class="kyc-step-heading"><span class="kyc-step-number">01</span><div><h2 id="seller-step-business">Personal &amp; business details</h2><p>Use the details associated with the person who owns this store.</p></div></div>
+                <div class="kyc-field-grid"><div class="service-form-field"><label for="seller-full-name">Full name</label><input class="service-input" id="seller-full-name" name="fullName" autocomplete="name" required maxlength="100"></div><div class="service-form-field"><label for="seller-mobile">Mobile number</label><input class="service-input" id="seller-mobile" name="mobile" type="tel" inputmode="tel" autocomplete="tel" required pattern="[6-9][0-9]{9}" maxlength="10" aria-describedby="seller-mobile-help"><small id="seller-mobile-help">Enter a 10-digit Indian mobile number.</small></div><div class="service-form-field"><label for="seller-email">Email address</label><input class="service-input" id="seller-email" name="email" type="email" autocomplete="email" required maxlength="254"></div><div class="service-form-field"><label for="seller-store-name">Store / business name</label><input class="service-input" id="seller-store-name" name="businessName" autocomplete="organization" required maxlength="120"></div><div class="service-form-field full-width"><label for="seller-business-address">Business address</label><textarea class="service-textarea" id="seller-business-address" name="businessAddress" autocomplete="street-address" required maxlength="300"></textarea></div><div class="service-form-field"><label for="seller-city">City</label><input class="service-input" id="seller-city" name="city" autocomplete="address-level2" required maxlength="80"></div><div class="service-form-field"><label for="seller-state">State</label><input class="service-input" id="seller-state" name="state" autocomplete="address-level1" required maxlength="80"></div><div class="service-form-field"><label for="seller-pincode">Pincode</label><input class="service-input" id="seller-pincode" name="pincode" inputmode="numeric" autocomplete="postal-code" required pattern="[0-9]{6}" maxlength="6"></div><div class="service-form-field"><label for="seller-business-type">Business type</label><select class="service-select-input" id="seller-business-type" name="businessType" required><option value="">Select business type</option><option value="individual">Individual / sole proprietor</option><option value="partnership">Partnership</option><option value="private-limited">Private limited company</option><option value="llp">Limited liability partnership</option><option value="other">Other registered entity</option></select></div></div>
+                <div class="kyc-step-actions"><span></span><button class="service-button" type="button" data-step-next>Continue to PAN <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div>
+            </section>
+
+            <section class="kyc-step" data-step-panel="1" aria-labelledby="seller-step-pan" hidden>
+                <div class="kyc-step-heading"><span class="kyc-step-number">02</span><div><h2 id="seller-step-pan">PAN verification</h2><p>Your PAN is sent only to the configured secure KYC service. It is never saved in this browser.</p></div></div>
+                <div class="kyc-field-grid"><div class="service-form-field"><label for="seller-pan-name">PAN holder name</label><input class="service-input" id="seller-pan-name" autocomplete="off" required maxlength="100"></div><div class="service-form-field"><label for="seller-pan-number">PAN number</label><input class="service-input kyc-sensitive" id="seller-pan-number" type="password" inputmode="text" autocomplete="new-password" autocapitalize="characters" spellcheck="false" required minlength="10" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]" aria-describedby="seller-pan-help"><small id="seller-pan-help">Hidden while typing. The full number is never shown after submission.</small></div></div>
+                <div class="kyc-upload" data-document-type="seller-pan"><label for="seller-pan-file">PAN document <span>PDF, JPG, PNG or WebP · up to 5 MB</span></label><input id="seller-pan-file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"><div class="kyc-file-status" role="status" aria-live="polite">Optional if the verification provider requests it.</div><progress class="kyc-upload-progress" max="100" value="0" hidden></progress><div class="kyc-file-preview" hidden></div><button class="kyc-remove-document" type="button" hidden>Remove document</button></div>
+                <div class="kyc-step-actions"><button class="service-button secondary" type="button" data-step-back><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>Back</button><button class="service-button" type="button" data-step-next>Continue to documents <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div>
+            </section>
+
+            <section class="kyc-step" data-step-panel="2" aria-labelledby="seller-step-documents" hidden>
+                <div class="kyc-step-heading"><span class="kyc-step-number">03</span><div><h2 id="seller-step-documents">Business documents</h2><p>Upload only documents requested for your business type. Files are sent to private backend storage, not public URLs.</p></div></div>
+                <div class="kyc-upload" data-document-type="seller-business-proof"><label for="seller-business-file">Business registration document <span>PDF, JPG, PNG or WebP · up to 5 MB</span></label><input id="seller-business-file" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"><div class="kyc-file-status" role="status" aria-live="polite">Optional. Your verification provider may request proof of registration.</div><progress class="kyc-upload-progress" max="100" value="0" hidden></progress><div class="kyc-file-preview" hidden></div><button class="kyc-remove-document" type="button" hidden>Remove document</button></div>
+                <div class="kyc-privacy-note"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg><p>Documents are private and accessible only to authorized verification personnel through the secure verification service.</p></div>
+                <div class="kyc-step-actions"><button class="service-button secondary" type="button" data-step-back><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>Back</button><button class="service-button" type="button" data-step-next>Continue to bank <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div>
+            </section>
+
+            <section class="kyc-step" data-step-panel="3" aria-labelledby="seller-step-bank" hidden>
+                <div class="kyc-step-heading"><span class="kyc-step-number">04</span><div><h2 id="seller-step-bank">Bank verification</h2><p>Bank details are submitted securely and never kept in local or session storage.</p></div></div>
+                <div class="kyc-field-grid"><div class="service-form-field"><label for="seller-bank-holder">Account holder name</label><input class="service-input" id="seller-bank-holder" autocomplete="off" required maxlength="100"></div><div class="service-form-field"><label for="seller-bank-name">Bank name</label><input class="service-input" id="seller-bank-name" autocomplete="off" required maxlength="100"></div><div class="service-form-field"><label for="seller-account-number">Account number</label><input class="service-input kyc-sensitive" id="seller-account-number" type="password" inputmode="numeric" autocomplete="new-password" required minlength="8" maxlength="18" pattern="[0-9]{8,18}"></div><div class="service-form-field"><label for="seller-ifsc">IFSC code</label><input class="service-input" id="seller-ifsc" autocomplete="off" autocapitalize="characters" required minlength="11" maxlength="11" pattern="[A-Za-z]{4}0[A-Za-z0-9]{6}"></div></div>
+                <p class="kyc-field-error" id="seller-bank-error" role="alert"></p>
+                <div class="kyc-step-actions"><button class="service-button secondary" type="button" data-step-back><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>Back</button><button class="service-button" type="button" data-step-next>Review details <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div>
+            </section>
+
+            <section class="kyc-step" data-step-panel="4" aria-labelledby="seller-step-review" hidden>
+                <div class="kyc-step-heading"><span class="kyc-step-number">05</span><div><h2 id="seller-step-review">Review &amp; submit</h2><p>Check your non-sensitive details before sending them for verification.</p></div></div>
+                <dl class="kyc-review-list" id="seller-review-list"></dl>
+                <label class="kyc-consent"><input id="seller-consent" type="checkbox" required><span>I confirm these details are accurate and consent to THA ONE and its authorized verification provider processing the information required to verify this seller account.</span></label>
+                <p class="kyc-field-error" id="seller-submit-error" role="alert"></p>
+                <div class="kyc-step-actions"><button class="service-button secondary" type="button" data-step-back><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg>Back</button><button class="service-button" id="seller-submit" type="submit">Submit for verification</button></div>
+            </section>
+        </form>
+
+        <section class="kyc-result-panel" id="onboarding-result" hidden aria-labelledby="onboarding-result-title"><div class="kyc-result-icon" id="onboarding-result-icon" aria-hidden="true">✓</div><p class="service-eyebrow" id="onboarding-result-eyebrow">Seller verification</p><h2 id="onboarding-result-title">Verification status</h2><p id="onboarding-result-message"></p><dl class="kyc-masked-details" id="onboarding-masked-details"></dl><a class="service-button" id="onboarding-dashboard-link" href="seller.html" hidden>Continue to Seller Dashboard</a><button class="service-button secondary" id="onboarding-retry" type="button" hidden>Refresh status</button></section>
+    </main>
+    <footer class="ops-footer">THA ONE Seller verification <span>Identity and bank verification must be completed by the authorized backend provider.</span></footer>
+</body>
+</html>

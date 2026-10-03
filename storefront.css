@@ -33,8 +33,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .page-width { width: min(var(--page), calc(100% - 64px)); margin-inline: auto; }
 .announcement { min-height: 31px; display: flex; align-items: center; justify-content: center; padding: 6px 18px; color: #edf5e8; background: var(--deep); font-size: 10px; letter-spacing: .15px; text-align: center; }
 .announcement strong { color: var(--leaf); font-weight: 700; }
-.site-header { position: sticky; z-index: 30; top: 0; border-bottom: 1px solid rgba(226, 231, 224, .9); background: rgba(250, 251, 248, .94); backdrop-filter: blur(16px); }
-.header-main { display: grid; grid-template-columns: auto minmax(170px, 220px) minmax(280px, 1fr) auto; align-items: center; gap: 25px; min-height: 82px; }
+.site-header { position: sticky; z-index: 30; top: 47px; border-bottom: 1px solid rgba(226, 231, 224, .9); background: rgba(250, 251, 248, .94); backdrop-filter: blur(16px); }
+.header-main { display: grid; grid-template-columns: auto minmax(170px, 220px) minmax(0, 1fr); align-items: center; gap: 25px; min-height: 74px; }
 .wordmark { display: inline-flex; align-items: center; gap: 9px; width: max-content; text-decoration: none; }
 .brand-symbol { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 11px 11px 11px 3px; color: var(--deep); background: var(--leaf); font-family: var(--display); font-size: 18px; font-weight: 800; }
 .brand-name { font-family: var(--display); font-size: 14px; font-weight: 800; }
@@ -52,8 +52,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .search-form input::placeholder { color: #9aa49b; }
 .search-submit { display: grid; width: 48px; flex: 0 0 48px; place-items: center; border: 0; color: #edf4e6; background: var(--deep-2); transition: background .18s ease; }
 .search-submit:hover { background: #3e6346; }
-.header-actions { display: flex; align-items: center; gap: 9px; }
-.header-search-row { display: none; }
+.header-actions { display: flex; align-items: center; justify-self: end; gap: 9px; }
+.header-search-row { display: block; padding-bottom: 12px; }
 .icon-action { position: relative; display: grid; width: 39px; height: 39px; flex: 0 0 39px; place-items: center; border: 1px solid transparent; border-radius: 50%; color: #405146; background: transparent; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
 .icon-action:hover { transform: translateY(-1px); border-color: var(--line); background: #fff; }
 .icon-action .icon { width: 19px; height: 19px; }
@@ -245,7 +245,7 @@ main { min-height: 60vh; }
 
 @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 1060px) {
-    .header-main { grid-template-columns: auto minmax(130px, 170px) minmax(190px, 1fr) auto; gap: 13px; }
+    .header-main { grid-template-columns: auto minmax(140px, 195px) minmax(0, 1fr); gap: 13px; }
     .header-actions { gap: 4px; }
     .product-grid.deal-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .product-grid.deal-grid .product-card:nth-child(5) { display: none; }
@@ -256,10 +256,14 @@ main { min-height: 60vh; }
     html { scroll-padding-top: 115px; }
     .page-width { width: min(var(--page), calc(100% - 36px)); }
     .announcement { min-height: 28px; font-size: 9px; }
-    .header-main { grid-template-columns: auto 1fr auto; min-height: 62px; gap: 12px; }
+    .header-main { grid-template-columns: auto minmax(0, 1fr) auto; min-height: 57px; gap: 8px; }
+    .site-header { top: 43px; }
     .brand-symbol { width: 33px; height: 33px; font-size: 16px; }
     .brand-name { font-size: 12px; }
-    .location-select { display: none; }
+    .location-select { display: flex; min-width: 0; gap: 5px; padding: 5px 3px; }
+    .location-select .icon { width: 15px; height: 15px; flex: 0 0 15px; }
+    .location-copy small { font-size: 8px; }
+    .location-copy strong { max-width: 92px; font-size: 9px; }
     .header-search-row { display: block; padding-bottom: 11px; }
     .search-form { height: 39px; }
     .search-form input { font-size: 11px; }

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7f3">
+    <meta name="description" content="Authorized THA ONE verification review queue.">
+    <title>Verification Review | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="admin-review.js" defer></script>
+</head>
+<body class="ops-service admin-review-page" data-admin-page="verification">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"/></symbol>
+        <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    </svg>
+    <tha-app-switcher current="admin"></tha-app-switcher>
+    <header class="ops-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Authorized verification review</span><a class="ops-header-button" href="intex.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+
+    <main class="admin-main page-width">
+        <section class="admin-gate" id="admin-gate" aria-live="polite"><div class="kyc-result-icon" aria-hidden="true"><svg class="icon"><use href="#icon-shield"/></svg></div><p class="service-eyebrow">Restricted workspace</p><h1 id="admin-gate-title">Verification queue unavailable</h1><p id="admin-gate-message">The authorized admin queue API is not configured. No verification requests or sensitive documents are exposed.</p><button class="service-button secondary" id="admin-retry" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg>Refresh queue</button></section>
+        <section class="admin-workspace" id="admin-workspace" hidden>
+            <header class="admin-heading"><div><p class="service-eyebrow">Authorized personnel only</p><h1>Verification requests</h1><p>Review non-sensitive seller and delivery-partner profile summaries. Identity documents are not displayed in this workspace.</p></div><button class="service-button secondary" id="admin-refresh" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg>Refresh</button></header>
+            <div class="admin-security-note"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg><span>Access is enforced by the backend admin role. Document review must use a separately authorized private verification console.</span></div>
+            <div class="admin-toolbar"><div class="admin-tabs" role="group" aria-label="Filter verification requests"><button class="active" type="button" data-admin-filter="all" aria-pressed="true">All requests</button><button type="button" data-admin-filter="seller" aria-pressed="false">Seller</button><button type="button" data-admin-filter="delivery" aria-pressed="false">Delivery partner</button></div><label class="visually-hidden" for="admin-status-filter">Filter by verification status</label><select id="admin-status-filter"><option value="all">All statuses</option><option value="pending">Pending</option><option value="failed">Needs correction</option><option value="verified">Verified</option></select></div>
+            <div class="admin-queue" id="admin-queue" aria-live="polite"><div class="orders-loading"><span></span><p>Loading authorized verification requests…</p></div></div>
+        </section>
+    </main>
+    <dialog class="service-dialog" id="admin-action-dialog" aria-labelledby="admin-action-title"><div class="service-dialog-inner"><div class="service-dialog-heading"><div><h2 id="admin-action-title">Request correction</h2><p id="admin-action-description">Provide a clear, non-sensitive correction reason.</p></div><button class="dialog-close" type="button" id="admin-dialog-close" aria-label="Close action dialog"><svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg></button></div><form id="admin-action-form"><input type="hidden" id="admin-request-id"><input type="hidden" id="admin-action-type"><div class="service-form-field"><label for="admin-correction">Correction note</label><textarea class="service-textarea" id="admin-correction" maxlength="300" placeholder="Describe what needs to be corrected. Do not include document numbers." required></textarea></div><p class="kyc-field-error" id="admin-action-error" role="alert"></p><div class="service-form-actions"><button class="service-button secondary" type="button" id="admin-action-cancel">Cancel</button><button class="service-button" type="submit" id="admin-action-submit">Send correction request</button></div></form></div></dialog>
+    <div class="toast-region" id="admin-toast-region" aria-live="polite" aria-atomic="true"></div>
+    <footer class="ops-footer">THA ONE Verification · Restricted to authorized review roles <span>No PAN, Aadhaar, licence, bank numbers or document URLs are rendered here.</span></footer>
+</body>
+</html>

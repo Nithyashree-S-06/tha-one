@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7f3">
+    <meta name="description" content="Manage delivery requests, active routes and earnings with THA ONE.">
+    <title>Delivery Partner | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="delivery.js" defer></script>
+</head>
+<body class="ops-service delivery-service" data-ops-service="delivery">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1V10Z"/></symbol>
+        <symbol id="icon-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></symbol>
+        <symbol id="icon-bag" viewBox="0 0 24 24"><path d="M4 8h16l-1 13H5L4 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-chart" viewBox="0 0 24 24"><path d="M4 20V10m5 10V4m5 16v-7m5 7V7M2 20h20"/></symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.6a8 8 0 0 1-1.7 1L15.8 21h-2.7l-.4-1.9a8 8 0 0 1-1.8-1l-1.7.6-1.4-2.4 1.5-1.2a7 7 0 0 1 0-2l-1.5-1.2 1.4-2.4 1.7.6a8 8 0 0 1 1.8-1L13.1 7h2.7l.4 1.9a8 8 0 0 1 1.7 1l1.7-.6L21 11.7l-1.5 1.2a7 7 0 0 1-.1 2.1Z" transform="translate(-1.5 -2)"/></symbol>
+        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="icon-bike" viewBox="0 0 24 24"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="m6 17 4-8h4l4 8m-8-8 3 8m-4-5h7M9 7h2"/></symbol>
+        <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+    </svg>
+
+    <tha-app-switcher current="delivery"></tha-app-switcher>
+    <header class="ops-header"><a href="delivery.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Delivery partner</span><label class="ops-toggle delivery-online-toggle"><input type="checkbox" id="delivery-online"><span id="delivery-online-label">You’re online</span></label><a class="ops-header-button" href="intex.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+
+    <section class="kyc-access-gate" id="delivery-access-gate" aria-live="polite"><div class="kyc-result-icon" aria-hidden="true">✓</div><p class="service-eyebrow">Delivery partner account</p><h1 data-gate-title>Checking verification</h1><p data-gate-message>Confirming your status with the secure verification service.</p><a class="service-button" data-gate-link href="delivery-onboarding.html">Complete Delivery Verification</a><button class="service-button secondary" data-gate-retry type="button">Refresh status</button></section>
+
+    <main class="ops-layout" id="delivery-dashboard" hidden>
+        <aside class="ops-sidebar"><p class="ops-sidebar-heading">On the road</p><nav class="ops-nav" aria-label="Delivery partner dashboard"><button class="ops-nav-button active" type="button" data-delivery-view="overview" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#icon-home"/></svg>Overview</button><button class="ops-nav-button" type="button" data-delivery-view="requests"><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>Requests<span class="nav-count" id="delivery-request-count">0</span></button><button class="ops-nav-button" type="button" data-delivery-view="active"><svg class="icon" aria-hidden="true"><use href="#icon-bike"/></svg>Active delivery</button><button class="ops-nav-button" type="button" data-delivery-view="history"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg>History</button><button class="ops-nav-button" type="button" data-delivery-view="earnings"><svg class="icon" aria-hidden="true"><use href="#icon-chart"/></svg>Earnings</button><button class="ops-nav-button" type="button" data-delivery-view="notifications"><svg class="icon" aria-hidden="true"><use href="#icon-bell"/></svg>Notifications<span class="nav-count" id="delivery-notification-count">0</span></button><button class="ops-nav-button" type="button" data-delivery-view="profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</button></nav><p class="ops-sidebar-note">Your routes and deliveries, together in one place.</p></aside>
+
+        <div class="ops-content">
+            <section class="ops-view active" data-delivery-panel="overview" aria-labelledby="delivery-overview-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Your day, at a glance</p><h1 id="delivery-overview-title">Good morning, Arjun</h1><p>Stay ready. Good deliveries are close.</p></div><button class="service-button secondary" type="button" data-delivery-view="requests">View requests <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></header><div class="ops-stat-grid" id="delivery-overview-stats"></div><div class="delivery-overview-grid"><section class="ops-panel"><div class="ops-panel-head"><div><h2>On your route</h2><p>Your current delivery status.</p></div><button class="text-link" type="button" data-delivery-view="active">Open route</button></div><div id="delivery-overview-active"></div></section><section class="ops-panel"><div class="ops-panel-head"><div><h2>Nearby requests</h2><p>Short trips, close to your current area.</p></div></div><div id="delivery-overview-requests"></div></section></div></section>
+
+            <section class="ops-view" data-delivery-panel="requests" aria-labelledby="delivery-requests-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Available near you</p><h1 id="delivery-requests-title">Delivery requests</h1><p id="delivery-request-subtitle">Choose a request that fits your route.</p></div><label class="ops-toggle"><input type="checkbox" data-delivery-online-copy><span>Available for requests</span></label></header><div class="ops-panel"><div class="delivery-requests-list" id="delivery-request-list"></div></div></section>
+
+            <section class="ops-view" data-delivery-panel="active" aria-labelledby="delivery-active-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Keep it moving</p><h1 id="delivery-active-title">Active delivery</h1><p>Update each step as you go.</p></div></header><div id="delivery-active-content"></div></section>
+
+            <section class="ops-view" data-delivery-panel="history" aria-labelledby="delivery-history-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Your completed work</p><h1 id="delivery-history-title">Delivery history</h1><p>Completed trips and their earnings.</p></div></header><section class="ops-panel"><div class="ops-table-wrap"><table class="ops-table"><thead><tr><th>Delivery</th><th>Pickup</th><th>Delivered to</th><th>Completed</th><th>Distance</th><th>Earnings</th></tr></thead><tbody id="delivery-history-rows"></tbody></table></div></section></section>
+
+            <section class="ops-view" data-delivery-panel="earnings" aria-labelledby="delivery-earnings-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Your hard work, accounted for</p><h1 id="delivery-earnings-title">Earnings</h1><p>See your completed deliveries and estimated earnings.</p></div><select class="service-select" id="delivery-earnings-range" aria-label="Earnings range"><option value="7">This week</option><option value="30">This month</option></select></header><div class="ops-stat-grid" id="delivery-earning-stats"></div><section class="ops-panel"><div class="ops-panel-head"><div><h2>Recent earnings</h2><p>Payouts will connect to your delivery partner account.</p></div></div><div class="ops-chart" id="delivery-earnings-chart" role="img" aria-label="Weekly delivery earnings chart"></div></section></section>
+
+            <section class="ops-view" data-delivery-panel="notifications" aria-labelledby="delivery-notifications-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Stay in the loop</p><h1 id="delivery-notifications-title">Notifications</h1><p>Updates about requests, routes and your account.</p></div><button class="text-link" type="button" id="delivery-mark-read">Mark all as read</button></header><div class="ops-panel"><div class="delivery-notifications-list" id="delivery-notifications-list"></div></div></section>
+
+            <section class="ops-view" data-delivery-panel="profile" aria-labelledby="delivery-profile-title"><header class="ops-view-heading"><div><p class="service-eyebrow">Your partner details</p><h1 id="delivery-profile-title">Profile</h1><p>Manage your contact and vehicle information.</p></div></header><form class="ops-panel" id="delivery-profile-form"><div class="service-form-grid"><div class="service-form-field"><label for="delivery-name">Full name</label><input class="service-input" id="delivery-name" name="name" required></div><div class="service-form-field"><label for="delivery-phone">Contact number</label><input class="service-input" id="delivery-phone" name="phone" type="tel" required></div><div class="service-form-field"><label for="delivery-vehicle">Vehicle type</label><select class="service-select-input" id="delivery-vehicle" required><option value="">Choose vehicle</option><option>Scooter</option><option>Motorcycle</option><option>Bicycle</option></select></div><div class="service-form-field"><label for="delivery-registration">Vehicle registration</label><input class="service-input" id="delivery-registration" name="registration" autocomplete="off" required></div></div><div class="service-form-actions"><button class="service-button" type="submit">Save profile</button></div></form></section>
+        </div>
+    </main>
+
+    <div class="toast-region" id="delivery-toast-region" aria-live="polite" aria-atomic="true"></div>
+    <footer class="ops-footer">THA ONE Delivery · Every good delivery matters <span>Route maps, payouts and partner verification connect to your delivery service backend.</span></footer>
+</body>
+</html>
