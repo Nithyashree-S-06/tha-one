@@ -7,6 +7,8 @@
     ];
 
     class ThaAppSwitcher extends HTMLElement {
+        static get observedAttributes() { return ["current"]; }
+
         connectedCallback() {
             if (this.shadowRoot) return;
             this.attachShadow({ mode: "open" });
@@ -22,9 +24,15 @@
             this.ownerDocument.removeEventListener("keydown", this.handleKeydown);
         }
 
+        attributeChangedCallback(name) {
+            if (name === "current" && this.shadowRoot) this.render();
+        }
+
         get currentService() {
-            if (this.getAttribute("current") === "admin") return { id: "admin", label: "Admin review", icon: "✓" };
-            return services.find((service) => service.id === this.getAttribute("current")) || services[0];
+            const attribute = this.getAttribute("current");
+            if (attribute === "admin") return { id: "admin", label: "Admin review", icon: "✓" };
+            const current = attribute === "auto" ? new URLSearchParams(window.location.search).get("service") : attribute;
+            return services.find((service) => service.id === current) || services[0];
         }
 
         render() {
@@ -89,7 +97,7 @@
                     <div class="controls">
                         <button class="utility" type="button" data-panel="notifications" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>Notifications</button>
                         <button class="utility" type="button" data-panel="help" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4 1.8c-1 .7-1.7 1.1-1.7 2.7m0 3h.01"/></svg>Help</button>
-                        <a class="profile" href="intex.html" aria-label="Profile and sign in"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>Profile</a>
+                        <a class="profile" href="profile.html" aria-label="Profile and account"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg>Profile</a>
                         <button class="switch" type="button" aria-haspopup="menu" aria-expanded="false"><span class="switch-icon" aria-hidden="true">${active.icon}</span><span>${active.label}</span><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
                     </div>
                 </header>

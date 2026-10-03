@@ -8,9 +8,11 @@
     <title>Seller Workspace | THA ONE</title>
     <link rel="stylesheet" href="storefront.css">
     <link rel="stylesheet" href="services.css">
+    <script src="app-config.js" defer></script>
     <script src="kyc-config.js" defer></script>
     <script src="global-app-switcher.js" defer></script>
     <script src="kyc-access.js" defer></script>
+    <script src="app-api.js" defer></script>
     <script src="seller.js" defer></script>
 </head>
 <body class="ops-service seller-service" data-ops-service="seller">
@@ -29,7 +31,7 @@
         <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     </svg>
     <tha-app-switcher current="seller"></tha-app-switcher>
-    <header class="ops-header"><a href="seller.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Seller workspace</span><span class="ops-status-open"><span></span>Store is open</span><a class="ops-header-button" href="intex.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+    <header class="ops-header"><a href="seller.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Seller workspace</span><span class="ops-status-open"><span></span>Store is open</span><a class="ops-header-button" href="profile.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
 
     <section class="kyc-access-gate" id="seller-access-gate" aria-live="polite"><div class="kyc-result-icon" aria-hidden="true">✓</div><p class="service-eyebrow">Seller account</p><h1 data-gate-title>Checking verification</h1><p data-gate-message>Confirming your status with the secure verification service.</p><a class="service-button" data-gate-link href="seller-onboarding.html">Complete Seller Verification</a><button class="service-button secondary" data-gate-retry type="button">Refresh status</button></section>
 

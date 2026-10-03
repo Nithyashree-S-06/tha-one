@@ -68,7 +68,7 @@
     function getVisibleRestaurants() {
         let visible = restaurants.filter((restaurant) => {
             const restaurantDishes = dishes.filter((dish) => dish.restaurantId === restaurant.id);
-            const categoryMatch = state.category === "All" || restaurantDishes.some((dish) => dish.category === state.category);
+            const categoryMatch = state.category === "All" || state.category === "More" || restaurantDishes.some((dish) => dish.category === state.category);
             const restaurantText = `${restaurant.name} ${restaurant.cuisine}`.toLocaleLowerCase();
             const queryMatch = !state.query || restaurantText.includes(state.query) || restaurantDishes.some((dish) => `${dish.name} ${dish.category} ${dish.description}`.toLocaleLowerCase().includes(state.query));
             const selectedMatch = !state.restaurantId || restaurant.id === state.restaurantId;
@@ -93,7 +93,7 @@
     function getVisibleDishes() {
         return dishes.filter((dish) => {
             const restaurant = restaurantById(dish.restaurantId);
-            const categoryMatch = state.category === "All" || dish.category === state.category;
+            const categoryMatch = state.category === "All" || state.category === "More" || dish.category === state.category;
             const queryMatch = !state.query || `${dish.name} ${dish.category} ${dish.description} ${restaurant?.name || ""}`.toLocaleLowerCase().includes(state.query);
             const restaurantMatch = !state.restaurantId || dish.restaurantId === state.restaurantId;
             return categoryMatch && queryMatch && restaurantMatch;
@@ -228,16 +228,7 @@
     function setupOrder() {
         document.getElementById("place-food-order").addEventListener("click", () => {
             if (!state.cart.length) return showToast("Add something to your food bag first.");
-            const number = `THF-${Date.now().toString().slice(-6)}`;
-            const order = { id: number, items: state.cart, total: state.cart.reduce((total, item) => total + (dishById(item.dishId)?.price || 0) * item.quantity, 0), createdAt: new Date().toISOString(), status: "Awaiting checkout" };
-            try {
-                const history = JSON.parse(localStorage.getItem("tha-one-food-orders") || "[]");
-                localStorage.setItem("tha-one-food-orders", JSON.stringify([order, ...history].slice(0, 10)));
-            } catch { showToast("We couldn’t save your order just now."); return; }
-            state.cart = [];
-            persistCart();
-            toggleFoodCart(false);
-            showToast(`${number} saved. Payment will be available when checkout is connected.`);
+            window.location.assign("checkout.html?service=food");
         });
     }
 

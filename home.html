@@ -8,9 +8,11 @@
     <title>THA ONE | A little more everyday</title>
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84">
     <link rel="stylesheet" href="storefront.css">
+    <script src="app-config.js" defer></script>
     <script src="kyc-config.js" defer></script>
     <script src="global-app-switcher.js" defer></script>
     <script src="kyc-access.js" defer></script>
+    <script src="app-api.js" defer></script>
     <script src="products.js" defer></script>
     <script src="storefront.js" defer></script>
 </head>
@@ -53,7 +55,7 @@
                 <span class="location-copy"><small>Delivering to</small><strong id="location-label">Set your location</strong></span>
             </button>
             <nav class="header-actions" aria-label="Account and shopping">
-                <a class="profile-link" href="intex.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Login / Profile</span></a>
+                <a class="profile-link" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Login / Profile</span></a>
                 <button class="icon-action wishlist-header" type="button" data-open-wishlist aria-label="View wishlist" title="Wishlist"><svg class="icon" aria-hidden="true"><use href="#icon-heart"/></svg><span class="count-badge" id="wishlist-count">0</span></button>
                 <button class="icon-action" type="button" data-open-cart aria-label="Open shopping cart" title="Cart"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="cart-count">0</span></button>
                 <button class="icon-action mobile-menu" id="menu-toggle" type="button" aria-label="Open categories" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg></button>
@@ -121,6 +123,8 @@
             <div class="trending-shell"><div class="trending-track" id="trending-track" aria-label="Trending products" tabindex="0"><p class="empty-state">Loading trending products…</p></div></div>
         </section>
 
+        <section class="section page-width recently-section" id="recently-viewed" aria-labelledby="recently-title" hidden><div class="section-heading"><div><h2 id="recently-title">Recently Viewed</h2><p>Pick up where you left off.</p></div></div><div class="product-grid" id="recently-grid"></div></section>
+
         <section class="section page-width personalized-section" id="recommended" aria-labelledby="recommended-title">
             <div class="section-heading"><div><h2 id="recommended-title">Recommended for You</h2><p class="personalized-note">A few picks, made around you.</p></div><svg class="icon" aria-hidden="true" style="color:#789365"><use href="#icon-spark"/></svg></div>
             <div class="product-grid" id="recommended-grid"></div>
@@ -149,7 +153,7 @@
         <button class="bottom-nav-item" type="button" data-open-categories><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg><span>Categories</span></button>
         <button class="bottom-nav-item" type="button" data-focus-search><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg><span>Search</span></button>
         <button class="bottom-nav-item" type="button" data-open-cart><span class="bottom-cart-wrap"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="mobile-cart-count">0</span></span><span>Cart</span></button>
-        <a class="bottom-nav-item" href="intex.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a>
+        <a class="bottom-nav-item" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a>
     </nav>
 
     <div class="cart-backdrop" id="cart-backdrop" data-close-cart></div>

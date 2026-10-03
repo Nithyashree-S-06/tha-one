@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f6f7f2">
+    <meta name="description" content="Track your THA ONE order using secure order updates.">
+    <title>Track Order | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <link rel="stylesheet" href="checkout.css">
+    <script src="app-config.js" defer></script>
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="app-api.js" defer></script>
+    <script src="order-tracking.js" defer></script>
+</head>
+<body class="order-tracking-page">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.5 9a7 7 0 0 1 11.8-2L20 12M4 12l2.7 5a7 7 0 0 0 11.8-2"/></symbol>
+        <symbol id="icon-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1V10Z"/></symbol>
+    </svg>
+    <tha-app-switcher current="auto"></tha-app-switcher>
+    <header class="ops-header checkout-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name" id="tracking-service-name">Order tracking</span><a class="ops-header-button" href="profile.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+    <main class="tracking-main page-width">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><a id="tracking-back-link" href="orders.html">My orders</a><span aria-hidden="true">/</span><span>Track order</span></nav>
+        <section class="tracking-card" id="tracking-card" aria-live="polite"><div class="orders-loading"><span></span><p>Loading secure order updates…</p></div></section>
+        <button class="service-button secondary" id="tracking-refresh" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg>Refresh status</button>
+    </main>
+    <footer class="ops-footer">THA ONE · Order tracking <span>Live updates are provided by the authenticated order service.</span></footer>
+</body>
+</html>

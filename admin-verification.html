@@ -8,9 +8,11 @@
     <title>Verification Review | THA ONE</title>
     <link rel="stylesheet" href="storefront.css">
     <link rel="stylesheet" href="services.css">
+    <script src="app-config.js" defer></script>
     <script src="kyc-config.js" defer></script>
     <script src="global-app-switcher.js" defer></script>
     <script src="kyc-access.js" defer></script>
+    <script src="app-api.js" defer></script>
     <script src="admin-review.js" defer></script>
 </head>
 <body class="ops-service admin-review-page" data-admin-page="verification">
@@ -21,7 +23,7 @@
         <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
     </svg>
     <tha-app-switcher current="admin"></tha-app-switcher>
-    <header class="ops-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Authorized verification review</span><a class="ops-header-button" href="intex.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
+    <header class="ops-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name">Authorized verification review</span><a class="ops-header-button" href="profile.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a></header>
 
     <main class="admin-main page-width">
         <section class="admin-gate" id="admin-gate" aria-live="polite"><div class="kyc-result-icon" aria-hidden="true"><svg class="icon"><use href="#icon-shield"/></svg></div><p class="service-eyebrow">Restricted workspace</p><h1 id="admin-gate-title">Verification queue unavailable</h1><p id="admin-gate-message">The authorized admin queue API is not configured. No verification requests or sensitive documents are exposed.</p><button class="service-button secondary" id="admin-retry" type="button"><svg class="icon" aria-hidden="true"><use href="#icon-refresh"/></svg>Refresh queue</button></section>

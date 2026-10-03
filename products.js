@@ -10,6 +10,7 @@ window.THA_ONE_PRODUCTS = [
         badge: "Bestseller",
         description: "Rich, balanced sound meets a soft, all-day fit. Arc headphones bring your playlists, calls and quiet moments into focus with long-lasting comfort and simple controls.",
         image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=82",
+        gallery: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=82", "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=900&q=82"],
         alt: "Over-ear headphones in a warm studio setting",
         deals: true,
         variants: ["Midnight", "Cloud", "Olive"]
@@ -40,6 +41,7 @@ window.THA_ONE_PRODUCTS = [
         badge: "Member favourite",
         description: "A bright, clear display, thoughtful activity tracking and a comfortable strap keep your day in view without getting in the way.",
         image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=82",
+        gallery: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=82", "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?auto=format&fit=crop&w=900&q=82"],
         alt: "Minimal wristwatch photographed on a light background",
         deals: true,
         variants: ["Black", "Silver", "Sage"]
@@ -100,6 +102,7 @@ window.THA_ONE_PRODUCTS = [
         badge: "Limited offer",
         description: "A bright edge-to-edge screen, a dependable all-day battery and a capable camera in a comfortable, pocket-friendly form.",
         image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=82",
+        gallery: ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=82", "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=900&q=82"],
         alt: "Modern smartphone photographed from the back",
         deals: true,
         variants: ["128 GB", "256 GB"]

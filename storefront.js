@@ -2,7 +2,7 @@
     "use strict";
 
     const products = Array.isArray(window.THA_ONE_PRODUCTS) ? window.THA_ONE_PRODUCTS : [];
-    const storageKeys = { cart: "tha-one-cart", wishlist: "tha-one-wishlist", location: "tha-one-location" };
+    const storageKeys = { cart: "tha-one-cart", wishlist: "tha-one-wishlist", location: "tha-one-location", recentlyViewed: "tha-one-recently-viewed" };
     const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const categories = ["All", "Electronics", "Fashion", "Mobiles", "Beauty", "Home", "Grocery", "Accessories", "Sports", "Offers"];
     const heroBanners = [
@@ -51,6 +51,7 @@
     const state = {
         cart: Array.isArray(readStorage(storageKeys.cart, [])) ? readStorage(storageKeys.cart, []) : [],
         wishlist: new Set(Array.isArray(readStorage(storageKeys.wishlist, [])) ? readStorage(storageKeys.wishlist, []) : []),
+        recentlyViewed: Array.isArray(readStorage(storageKeys.recentlyViewed, [])) ? readStorage(storageKeys.recentlyViewed, []).filter((id) => typeof id === "string") : [],
         category: "All",
         query: "",
         sort: "featured",
@@ -200,6 +201,7 @@
             renderDeals();
             renderFeatured();
             renderTrending();
+            renderRecentlyViewed();
             renderRecommendations();
         } else {
             renderRelatedProducts();
@@ -261,6 +263,21 @@
         track.innerHTML = trending.length ? trending.map((product) => productCard(product, { compact: true, showDescription: false })).join("") : '<p class="empty-state">Trending finds will be here soon.</p>';
     }
 
+    function renderRecentlyViewed() {
+        const section = document.getElementById("recently-viewed");
+        const grid = document.getElementById("recently-grid");
+        if (!section || !grid) return;
+        const viewed = state.recentlyViewed.map(productById).filter(Boolean).slice(0, 4);
+        section.hidden = !viewed.length;
+        grid.innerHTML = viewed.map((product) => productCard(product, { showDescription: false })).join("");
+    }
+
+    function recordRecentlyViewed(product) {
+        if (!product) return;
+        state.recentlyViewed = [product.id, ...state.recentlyViewed.filter((id) => id !== product.id)].slice(0, 12);
+        writeStorage(storageKeys.recentlyViewed, state.recentlyViewed);
+    }
+
     function renderRecommendations() {
         const section = document.getElementById("recommended");
         const grid = document.getElementById("recommended-grid");
@@ -294,12 +311,12 @@
             return;
         }
         const saved = state.wishlist.has(product.id);
+        const gallery = (Array.isArray(product.gallery) && product.gallery.length ? product.gallery : [product.image]).filter((image) => typeof image === "string").slice(0, 6);
+        const galleryMarkup = `<div class="detail-gallery"><div class="detail-image-wrap"><img class="detail-image" id="detail-gallery-main" src="${escapeHtml(gallery[0] || product.image)}" alt="${escapeHtml(product.alt)}" fetchpriority="high" decoding="async"><span class="product-badge">${escapeHtml(product.badge)}</span><button class="wishlist-button${saved ? " is-active" : ""}" type="button" data-toggle-wishlist="${escapeHtml(product.id)}" aria-label="${saved ? "Remove from" : "Add to"} wishlist: ${escapeHtml(product.name)}" aria-pressed="${saved}">${icon("heart")}</button></div>${gallery.length > 1 ? `<div class="detail-thumbnails" role="group" aria-label="Product images">${gallery.map((image, index) => `<button class="detail-thumbnail${index === 0 ? " active" : ""}" type="button" data-detail-image-index="${index}" data-detail-image="${escapeHtml(image)}" data-detail-alt="${escapeHtml(product.alt)}" aria-label="View image ${index + 1} of ${escapeHtml(product.name)}" aria-pressed="${index === 0}"><img src="${escapeHtml(image)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}</div>`;
         const variantMarkup = product.variants?.length ? `<div class="variant-group"><p class="variant-heading">Choose your option</p><div class="variant-options" role="group" aria-label="Choose a product option">${product.variants.map((variant, index) => `<button class="variant-option${index === 0 ? " is-selected" : ""}" type="button" data-variant="${escapeHtml(variant)}" aria-pressed="${index === 0}">${escapeHtml(variant)}</button>`).join("")}</div></div>` : "";
-        container.innerHTML = `<div class="detail-image-wrap">
-                <img class="detail-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.alt)}" fetchpriority="high" decoding="async">
-                <span class="product-badge">${escapeHtml(product.badge)}</span>
-                <button class="wishlist-button${saved ? " is-active" : ""}" type="button" data-toggle-wishlist="${escapeHtml(product.id)}" aria-label="${saved ? "Remove from" : "Add to"} wishlist: ${escapeHtml(product.name)}" aria-pressed="${saved}">${icon("heart")}</button>
-            </div>
+        const specifications = [["Category", product.category], ["Rating", `${Number(product.rating).toFixed(1)} / 5`], ["Options", (product.variants || []).join(", ") || "Standard"]];
+        const detailsMarkup = `<section class="detail-facts" aria-labelledby="detail-specifications-title"><h2 id="detail-specifications-title">Specifications</h2><dl>${specifications.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl><h3>Available offers</h3><ul><li>Free delivery on Shopping orders over ₹999</li><li>Easy 7-day returns on eligible items</li></ul></section>`;
+        container.innerHTML = `${galleryMarkup}
             <div class="detail-copy">
                 <p class="detail-category"><a href="home.html#featured">${escapeHtml(product.category)}</a> · THA ONE edit</p>
                 <h1 class="detail-title">${escapeHtml(product.name)}</h1>
@@ -307,6 +324,7 @@
                 <div class="detail-price"><span class="product-price">${money.format(product.price)}</span><span class="product-original">${money.format(product.originalPrice)}</span><span class="product-discount">${discountPercent(product)}% off</span></div>
                 <p class="detail-description">${escapeHtml(product.description)}</p>
                 ${variantMarkup}
+                ${detailsMarkup}
                 <div class="detail-buy-row"><div class="detail-quantity" aria-label="Quantity"><button type="button" data-detail-quantity="-1" aria-label="Decrease quantity">${icon("minus")}</button><output id="detail-quantity" aria-live="polite">1</output><button type="button" data-detail-quantity="1" aria-label="Increase quantity">${icon("plus")}</button></div><button class="detail-add" type="button" data-detail-add="${escapeHtml(product.id)}">${icon("bag")}Add to bag</button></div>
                 <button class="detail-buy-now" type="button" data-buy-now="${escapeHtml(product.id)}">Buy now</button>
                 <div class="detail-policies"><span class="policy-item">${icon("truck")}Free delivery over ₹999</span><span class="policy-item">${icon("refresh")}Easy 7-day returns</span></div>
@@ -507,7 +525,10 @@
                 persistCart();
             }
         });
-        document.getElementById("checkout-button")?.addEventListener("click", () => showToast("Secure checkout will be available when payments are connected."));
+        document.getElementById("checkout-button")?.addEventListener("click", () => {
+            if (!state.cart.length) return showToast("Add something to your bag first.");
+            window.location.assign("checkout.html?service=shopping");
+        });
         document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") closeCart();
             const drawer = document.getElementById("cart-drawer");
@@ -549,6 +570,7 @@
         renderDeals();
         renderFeatured();
         renderTrending();
+        renderRecentlyViewed();
         renderRecommendations();
         setupHero();
         setupDealTimer();
@@ -574,9 +596,21 @@
     function setupProductPage() {
         const id = new URLSearchParams(window.location.search).get("id");
         state.activeProduct = productById(id);
+        recordRecentlyViewed(state.activeProduct);
         renderProductDetail();
         setupSearch();
         document.getElementById("product-detail")?.addEventListener("click", (event) => {
+            const galleryButton = event.target.closest("[data-detail-image-index]");
+            if (galleryButton) {
+                const mainImage = document.getElementById("detail-gallery-main");
+                mainImage.src = galleryButton.dataset.detailImage;
+                mainImage.alt = galleryButton.dataset.detailAlt;
+                document.querySelectorAll(".detail-thumbnail").forEach((thumbnail) => {
+                    const selected = thumbnail === galleryButton;
+                    thumbnail.classList.toggle("active", selected);
+                    thumbnail.setAttribute("aria-pressed", String(selected));
+                });
+            }
             const variant = event.target.closest("[data-variant]");
             if (variant) {
                 document.querySelectorAll("#product-detail .variant-option").forEach((option) => {
