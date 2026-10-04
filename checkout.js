@@ -116,11 +116,6 @@
     }
 
     async function loadCustomerData() {
-        if (!config.profileEndpoint) {
-            setStatus("Your cart is safe, but checkout is unavailable until the shared account and checkout services are connected. No address or payment information was sent.", "warning");
-            document.getElementById("checkout-place-order").disabled = true;
-            return;
-        }
         try {
             const profile = await window.THA_ONE_API.request("profileEndpoint");
             if (profile.authenticated !== true) throw new Error("Sign in to continue checkout.");
@@ -133,37 +128,34 @@
             document.getElementById("checkout-place-order").disabled = true;
             return;
         }
-        if (config.addressesEndpoint) {
-            try {
-                const response = await window.THA_ONE_API.request("addressesEndpoint");
-                state.addresses = Array.isArray(response.addresses) ? response.addresses : [];
-                renderSavedAddresses();
-                const defaultAddress = state.addresses.find((address) => address.isDefault) || state.addresses[0];
-                if (defaultAddress) fillAddress(defaultAddress);
-            } catch {
-                setStatus("Saved addresses couldn’t be loaded. You can enter an address for this checkout.", "warning");
-            }
+
+        try {
+            const response = await window.THA_ONE_API.request("addressesEndpoint");
+            state.addresses = Array.isArray(response.addresses) ? response.addresses : [];
+            renderSavedAddresses();
+            const defaultAddress = state.addresses.find((address) => address.isDefault) || state.addresses[0];
+            if (defaultAddress) fillAddress(defaultAddress);
+        } catch {
+            setStatus("Saved addresses couldn’t be loaded. You can enter an address for this checkout.", "warning");
         }
-        const checkoutEndpoint = service === "food" ? config.foodCheckoutEndpoint : config.shoppingCheckoutEndpoint;
-        document.getElementById("checkout-place-order").disabled = !checkoutEndpoint;
-        if (!checkoutEndpoint) {
-            setStatus("Checkout and payment are not connected yet. Your cart is unchanged; no order was placed.", "warning");
-        } else {
-            setStatus("Your address and order are sent only when you continue to the secure checkout service.", "info");
-        }
+
+        const placeButton = document.getElementById("checkout-place-order");
+        placeButton.disabled = !state.items.length;
+        placeButton.textContent = "Place order securely";
+        setStatus("Your address and order are processed securely with your THA ONE shared session.", "info");
     }
 
     async function updateQuote() {
         const endpoint = service === "food" ? "foodQuoteEndpoint" : "shoppingQuoteEndpoint";
-        if (!config[endpoint] || !state.customerReady) return;
+        if (!state.customerReady) return;
         try {
             const quote = await window.THA_ONE_API.request(endpoint, { method: "POST", body: { items: state.items, address: currentAddress() } });
-            state.quote = quote.quote || null;
+            state.quote = quote.quote || quote || null;
             renderCart();
         } catch {
             state.quote = null;
             renderCart();
-            setStatus("Delivery, taxes and discounts will be calculated by the checkout service.", "warning");
+            setStatus("Delivery, taxes and discounts will be calculated at order placement.", "warning");
         }
     }
 
@@ -181,8 +173,9 @@
             row.append(label, amount);
             return row;
         }));
-        const endpoint = service === "food" ? config.foodCheckoutEndpoint : config.shoppingCheckoutEndpoint;
-        document.getElementById("checkout-place-order").disabled = !state.customerReady || !endpoint || !state.items.length;
+        const placeButton = document.getElementById("checkout-place-order");
+        placeButton.disabled = !state.customerReady || !state.items.length;
+        placeButton.textContent = "Place order securely";
     }
 
     async function placeOrder() {

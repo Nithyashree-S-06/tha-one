@@ -56,24 +56,16 @@
             const progress = ["Confirmed", "Preparing", "On the way", "Delivered"];
             const current = status === "delivered" ? 3 : Math.max(0, Number(order.progressIndex || 1));
             const progressMarkup = status === "cancelled" ? `<p class="order-cancel-note">This order was ${escapeHtml(order.status)}.</p>` : `<div class="order-progress" aria-label="Order progress">${progress.map((step, index) => `<span class="order-progress-step${index <= current ? " complete" : ""}"><i aria-hidden="true">${index < current ? "✓" : index + 1}</i><b>${step}</b></span>`).join("")}</div>`;
-            return `<article class="order-card"><header class="order-card-head"><div><p class="order-number">Order ${escapeHtml(order.orderNumber || order.id || "")}</p><p class="order-date">Placed ${escapeHtml(order.createdAt ? new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(new Date(order.createdAt)) : order.date || "recently")}</p></div><span class="order-status-pill ${status}">${escapeHtml(order.status || "Processing")}</span></header><div class="order-card-summary"><div><strong>${money(order.total ?? order.amount)}</strong><span>${itemNames.length || order.itemCount || 1} ${itemNames.length === 1 ? "item" : "items"}</span></div><span>${escapeHtml(order.estimatedDelivery || "Delivery updates from your order service")}</span></div>${progressMarkup}${itemNames.length ? `<details class="order-item-details"><summary>View items</summary><ul>${itemNames.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}</article>`;
+            return `<article class="order-card"><header class="order-card-head"><div><p class="order-number">Order ${escapeHtml(order.orderNumber || order.id || "")}</p><p class="order-date">Placed ${escapeHtml(order.createdAt ? new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(new Date(order.createdAt)) : order.date || "recently")}</p></div><span class="order-status-pill ${status}">${escapeHtml(order.status || "Processing")}</span></header><div class="order-card-summary"><div><strong>${money(order.total ?? order.amount)}</strong><span>${itemNames.length || order.itemCount || 1} ${itemNames.length === 1 ? "item" : "items"}</span></div><span>${escapeHtml(order.estimatedDelivery || "Delivery updates from your order service")}</span></div>${progressMarkup}${itemNames.length ? `<details class="order-item-details"><summary>View items</summary><ul>${itemNames.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details>` : ""}<div style="margin-top:14px;padding-top:10px;border-top:1px solid #eef2ec;display:flex;justify-content:flex-end;"><a class="service-button secondary" style="font-size:11px;min-height:30px;padding:0 12px;text-decoration:none;" href="order-tracking.html?service=${encodeURIComponent(order.service || "shopping")}&id=${encodeURIComponent(order.orderNumber || order.id || "")}">Track order updates →</a></div></article>`;
         }).join("");
     }
 
     async function loadOrders() {
-        if (!endpoint) {
-            states.loading = false;
-            states.error = "";
-            render();
-            return;
-        }
         states.loading = true;
         states.error = "";
         render();
         try {
-            const response = await fetch(endpoint, { credentials: "include", headers: { Accept: "application/json" } });
-            if (!response.ok) throw new Error(response.status === 401 ? "Sign in to view your order history." : "Please try again in a moment.");
-            const result = await response.json();
+            const result = await window.THA_ONE_API.request("ordersEndpoint");
             if (!Array.isArray(result.orders)) throw new Error("The orders service returned an unexpected response.");
             states.orders = result.orders;
         } catch (error) {

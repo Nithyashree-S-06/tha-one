@@ -282,23 +282,11 @@
         const section = document.getElementById("recommended");
         const grid = document.getElementById("recommended-grid");
         if (!section || !grid) return;
-        const config = window.THA_ONE_CONFIG || {};
-        if (!config.sessionEndpoint) {
-            section.classList.remove("is-visible");
-            return;
+        const recommendations = products.filter((product) => ["arc-headphones", "daylight-lamp", "daily-serum", "halo-watch"].includes(product.id));
+        if (recommendations.length) {
+            grid.innerHTML = recommendations.map((product) => productCard(product)).join("");
+            section.classList.add("is-visible");
         }
-        fetch(config.sessionEndpoint, { credentials: "include" })
-            .then((response) => response.ok ? response.json() : null)
-            .then((session) => {
-                if (!session?.isAuthenticated) return;
-                const recommendations = Array.isArray(session.recommendations)
-                    ? session.recommendations.map(productById).filter(Boolean)
-                    : products.filter((product) => ["arc-headphones", "daylight-lamp", "daily-serum"].includes(product.id));
-                if (!recommendations.length) return;
-                grid.innerHTML = recommendations.slice(0, 4).map((product) => productCard(product)).join("");
-                section.classList.add("is-visible");
-            })
-            .catch(() => section.classList.remove("is-visible"));
     }
 
     function renderProductDetail() {
@@ -631,7 +619,9 @@
                 const productId = (addButton || buyNow).dataset.detailAdd || (addButton || buyNow).dataset.buyNow;
                 const selectedVariant = document.querySelector("#product-detail .variant-option.is-selected")?.dataset.variant || "";
                 addToCart(productId, Number(document.getElementById("detail-quantity")?.value || 1), selectedVariant);
-                if (buyNow) openCart();
+                if (buyNow) {
+                    window.location.assign("checkout.html?service=shopping");
+                }
             }
         });
     }

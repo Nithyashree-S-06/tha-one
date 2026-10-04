@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="app-config.js" defer></script>
+    <script src="tha-one-core.js" defer></script>
     <script src="kyc-config.js" defer></script>
     <script src="global-app-switcher.js" defer></script>
     <script src="kyc-access.js" defer></script>
@@ -27,24 +28,30 @@
         }
         * { box-sizing: border-box; }
         body { display: grid; min-width: 320px; min-height: 100vh; place-items: center; margin: 0; padding: 24px; color: var(--ink); background: var(--canvas); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
-        .page { width: min(100%, 760px); overflow: hidden; border: 1px solid rgba(255,255,255,.8); border-radius: 10px; background: rgba(255,255,255,.68); box-shadow: 0 24px 80px rgba(32,55,46,.1); animation: rise .55s ease both; }
+        .page { width: min(100%, 780px); overflow: hidden; border: 1px solid rgba(255,255,255,.8); border-radius: 12px; background: rgba(255,255,255,.78); backdrop-filter: blur(12px); box-shadow: 0 24px 80px rgba(32,55,46,.1), 0 0 24px -2px rgba(185,239,88,.15); animation: rise .55s ease both; }
         .topline { height: 5px; background: linear-gradient(90deg, var(--green), #e2f5c2); }
-        .content { padding: clamp(30px, 7vw, 72px); }
-        .wordmark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 68px; color: var(--ink); text-decoration: none; }
+        .content { padding: clamp(28px, 6vw, 56px); }
+        .wordmark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 36px; color: var(--ink); text-decoration: none; }
         .symbol { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 11px 11px 11px 3px; color: var(--deep); background: var(--green); font-family: var(--display); font-size: 19px; font-weight: 800; }
         .name { font-family: var(--display); font-size: 14px; font-weight: 800; }
         .name span { color: #477044; }
-        .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 18px; color: #54764d; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 14px; color: #54764d; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
         .eyebrow::before { width: 20px; height: 2px; background: #8ebc51; content: ""; }
-        h1 { max-width: 590px; margin: 0; font-family: var(--display); font-size: clamp(36px, 7vw, 58px); font-weight: 600; line-height: 1.1; }
-        .description { max-width: 440px; margin: 20px 0 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
-        .status { display: inline-flex; align-items: center; gap: 9px; margin-top: 37px; padding: 10px 13px; border: 1px solid #dfe8d8; border-radius: 4px; color: #486b40; background: rgba(240,248,232,.72); font-size: 11px; font-weight: 600; }
+        h1 { max-width: 590px; margin: 0; font-family: var(--display); font-size: clamp(32px, 5.5vw, 48px); font-weight: 700; line-height: 1.15; }
+        .description { max-width: 520px; margin: 16px 0 28px; color: var(--muted); font-size: 14px; line-height: 1.7; }
+        .service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 32px; }
+        .service-card { display: flex; flex-direction: column; padding: 18px; border: 1px solid #e1e7df; border-radius: 10px; background: #ffffff; text-decoration: none; color: inherit; transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+        .service-card:hover { transform: translateY(-2px); border-color: #92b86f; box-shadow: 0 10px 24px rgba(32,55,46,.08); }
+        .card-icon { font-size: 26px; margin-bottom: 10px; }
+        .card-title { font-family: var(--display); font-size: 16px; font-weight: 700; margin: 0 0 4px; }
+        .card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin: 0; }
+        .status { display: inline-flex; align-items: center; gap: 9px; padding: 10px 14px; border: 1px solid #dfe8d8; border-radius: 6px; color: #486b40; background: rgba(240,248,232,.72); font-size: 12px; font-weight: 600; }
         .status::before { width: 7px; height: 7px; border-radius: 50%; background: #85b94d; content: ""; }
-        .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 52px; padding-top: 21px; border-top: 1px solid #e7ece5; color: #8a958c; font-size: 11px; }
+        .footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 36px; padding-top: 20px; border-top: 1px solid #e7ece5; color: #8a958c; font-size: 11px; }
         .footer a { color: #476b42; font-weight: 600; text-decoration: none; }
         .footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
         @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        @media (max-width: 520px) { body { padding: 14px; } .content { padding: 30px 23px; } .wordmark { margin-bottom: 54px; } .footer { align-items: flex-start; flex-direction: column; margin-top: 42px; } }
+        @media (max-width: 520px) { body { padding: 14px; } .content { padding: 24px 18px; } .wordmark { margin-bottom: 28px; } .service-grid { grid-template-columns: 1fr; } .footer { align-items: flex-start; flex-direction: column; margin-top: 28px; } }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
     </style>
 </head>
@@ -53,17 +60,41 @@
     <main class="page">
         <div class="topline" aria-hidden="true"></div>
         <div class="content">
-            <a class="wordmark" href="intex.html" aria-label="THA ONE sign in">
+            <a class="wordmark" href="index.html" aria-label="THA ONE sign in">
                 <span class="symbol" aria-hidden="true">T</span>
                 <span class="name">THA <span>ONE</span></span>
             </a>
-            <p class="eyebrow">Your next step</p>
+            <p class="eyebrow">Your single session</p>
             <h1>One good thing leads to another.</h1>
-            <p class="description">This is where your THA ONE journey continues. Account setup and role selection will be added here next.</p>
-            <div class="status">Next step coming soon</div>
+            <p class="description">Your shared THA ONE session is active. Choose your destination or switch anytime using the App Switcher in the top bar.</p>
+            
+            <div class="service-grid">
+                <a class="service-card" href="home.html">
+                    <span class="card-icon">🛒</span>
+                    <h3 class="card-title">Shopping</h3>
+                    <p class="card-desc">Everyday essentials, electronics, fashion & curated deals. Zero KYC required.</p>
+                </a>
+                <a class="service-card" href="food.html">
+                    <span class="card-icon">🍔</span>
+                    <h3 class="card-title">Food</h3>
+                    <p class="card-desc">Cuisines, top restaurants, custom dishes & 8-step live order tracking.</p>
+                </a>
+                <a class="service-card" href="seller.html">
+                    <span class="card-icon">🏪</span>
+                    <h3 class="card-title">Seller</h3>
+                    <p class="card-desc">Manage store products, orders, sales and verified partner earnings.</p>
+                </a>
+                <a class="service-card" href="delivery.html">
+                    <span class="card-icon">🛵</span>
+                    <h3 class="card-title">Delivery</h3>
+                    <p class="card-desc">Partner dispatch, route tracking, live requests and earnings.</p>
+                </a>
+            </div>
+
+            <div class="status">Shared session active across all services</div>
             <footer class="footer">
                 <span>THA ONE · Thoughtfully made for what’s next.</span>
-                <a href="intex.html">Return to sign in</a>
+                <a href="profile.html">Manage THA ONE Account & Addresses →</a>
             </footer>
         </div>
     </main>

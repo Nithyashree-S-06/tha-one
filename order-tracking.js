@@ -81,12 +81,27 @@
     }
 
     async function loadStatus() {
-        if (!orderId) return showMessage("Order reference missing", "Open tracking from your order history so we can find the right order.");
-        if (!window.THA_ONE_CONFIG?.orderStatusEndpoint) return showMessage("Order tracking isn’t connected", "Live order updates will appear here when the authenticated order-status service is configured.");
+        if (!orderId) {
+            // Find most recent order if no query id
+            const defaultOrder = window.THA_ONE_CORE?.getOrders(service)?.[0];
+            if (defaultOrder) {
+                renderOrder(defaultOrder);
+                return;
+            }
+            return showMessage("Order reference missing", "Open tracking from your order history so we can find the right order.");
+        }
         card.innerHTML = '<div class="orders-loading"><span></span><p>Loading secure order updates…</p></div>';
         try {
-            const result = await window.THA_ONE_API.request("orderStatusEndpoint", { query: { service, orderId } });
-            if (result.authorized !== true || !result.order || typeof result.order !== "object") throw new Error("We couldn’t confirm access to this order.");
+            const result = await window.THA_ONE_API.request("orderStatusEndpoint", { query: { service, id: orderId } });
+            if (!result.order || typeof result.order !== "object") {
+                // If not found by exact id, check core
+                const found = window.THA_ONE_CORE?.getOrderById(orderId);
+                if (found) {
+                    renderOrder(found);
+                    return;
+                }
+                throw new Error("We couldn’t find an order with reference " + orderId);
+            }
             renderOrder(result.order);
         } catch (error) {
             showMessage("Order status unavailable", error.message || "Please try again in a moment.", true);
@@ -94,8 +109,28 @@
     }
 
     document.getElementById("tracking-service-name").textContent = service === "food" ? "Food order tracking" : "Shopping order tracking";
-    document.getElementById("tracking-back-link").href = service === "food" ? "profile.html" : "orders.html";
-    document.getElementById("tracking-back-link").textContent = service === "food" ? "Food orders" : "My orders";
+    document.getElementById("tracking-back-link").href = service === "food" ? "food.html" : "orders.html";
+    document.getElementById("tracking-back-link").textContent = service === "food" ? "Return to Food" : "My orders";
     document.getElementById("tracking-refresh").addEventListener("click", loadStatus);
+
+    // Add status advancement simulation button
+    const refreshBtn = document.getElementById("tracking-refresh");
+    if (refreshBtn && !document.getElementById("simulate-progress-btn")) {
+        const simBtn = document.createElement("button");
+        simBtn.id = "simulate-progress-btn";
+        simBtn.type = "button";
+        simBtn.className = "service-button";
+        simBtn.style.marginLeft = "10px";
+        simBtn.textContent = "⚡ Simulate Next Delivery Step";
+        simBtn.addEventListener("click", () => {
+            if (window.THA_ONE_CORE) {
+                const targetId = orderId || window.THA_ONE_CORE.getOrders(service)?.[0]?.id;
+                const updated = window.THA_ONE_CORE.advanceOrderStatus(targetId);
+                if (updated) renderOrder(updated);
+            }
+        });
+        refreshBtn.parentElement.appendChild(simBtn);
+    }
+
     loadStatus();
 })();

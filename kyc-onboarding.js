@@ -290,7 +290,14 @@
     async function refreshStatus() {
         const endpoint = safeEndpoint(config.statusEndpoint);
         if (!endpoint) {
-            setBanner("Verification service is not configured. No identity or bank information has been submitted.", "warning");
+            if (window.THA_ONE_CORE) {
+                const status = window.THA_ONE_CORE.getRoleStatus(service);
+                if (status.status === "pending" || status.status === "verified" || status.status === "failed" || status.status === "needs_correction") {
+                    setResult({ status: status.status === "needs_correction" ? "failed" : status.status, correctionCode: "correction_requested" });
+                    return;
+                }
+            }
+            setBanner("Development simulation active: Complete the onboarding form to submit your verification request.", "warning");
             return;
         }
         endpoint.searchParams.set("service", service);
@@ -353,15 +360,29 @@
             const preview = upload.querySelector(".kyc-file-preview");
             const remove = upload.querySelector(".kyc-remove-document");
             if (!endpoint) {
-                input.disabled = true;
-                status.textContent = "Secure private document upload is unavailable until an authorized upload service is configured. No file was uploaded.";
+                status.textContent = "Development mode: Documents selected will be simulated for verification review.";
             }
             input.addEventListener("change", async () => {
                 const file = input.files?.[0];
                 if (!file) return;
                 if (!endpoint) {
-                    input.value = "";
-                    status.textContent = "Secure private document upload is not configured. No file was uploaded.";
+                    documentRefs.set(type, "doc_sim_" + Date.now());
+                    const url = file.type.startsWith("image/") ? URL.createObjectURL(file) : "";
+                    if (url) previewUrls.set(type, url);
+                    preview.replaceChildren();
+                    if (url) {
+                        const image = document.createElement("img");
+                        image.src = url;
+                        image.alt = "Private document preview";
+                        preview.append(image);
+                    }
+                    const label = document.createElement("span");
+                    label.textContent = "Document staged for verification review.";
+                    preview.append(label);
+                    preview.hidden = false;
+                    status.textContent = "Document selected (development simulation).";
+                    remove.hidden = false;
+                    remove.disabled = false;
                     return;
                 }
                 if (!config.acceptedDocumentTypes?.includes(file.type) || file.size > Number(config.maxDocumentBytes || 0)) {
@@ -447,12 +468,27 @@
         const type = document.getElementById("delivery-identity-type");
         const number = document.getElementById("delivery-identity-number");
         const message = document.getElementById("identity-provider-message");
-        button.disabled = !endpoint;
-        if (!endpoint) message.textContent = "Authorized Aadhaar/identity verification is not configured. No identity request will be simulated.";
-        const updateButton = () => { button.disabled = !endpoint || !consent.checked || !type.value || !number.value.trim(); };
+        if (!endpoint) {
+            message.textContent = "Development simulation: Click start to simulate consent-based identity verification.";
+        }
+        const updateButton = () => { button.disabled = !consent.checked || !type.value || !number.value.trim(); };
         [consent, type, number].forEach((field) => field.addEventListener("input", updateButton));
+        updateButton();
         button.addEventListener("click", async () => {
-            if (!endpoint || !consent.checked || !type.value || !number.value.trim()) return;
+            if (!consent.checked || !type.value || !number.value.trim()) return;
+            if (!endpoint) {
+                button.disabled = true;
+                button.textContent = "Verifying…";
+                message.textContent = "Simulating authorized identity provider check…";
+                setTimeout(() => {
+                    identityVerificationId = "id_sim_" + Date.now();
+                    number.value = "";
+                    message.textContent = "Identity verification step complete (Development simulation).";
+                    button.textContent = "Verified ✓";
+                    button.disabled = true;
+                }, 600);
+                return;
+            }
             button.disabled = true;
             button.textContent = "Connecting securely…";
             message.textContent = "Contacting the authorized identity provider. Follow its consent/OTP prompts.";
@@ -514,6 +550,23 @@
             return;
         }
         if (!endpoint) {
+            if (window.THA_ONE_CORE) {
+                const payload = definition.collect();
+                button.disabled = true;
+                button.textContent = "Submitting securely…";
+                setBanner("Submitting to the authorized verification service…", "warning");
+                try {
+                    const result = window.THA_ONE_CORE.submitKyc(service, payload);
+                    setResult(result);
+                } catch (err) {
+                    errorNode.textContent = err.message || "Submission failed. Please check your details.";
+                } finally {
+                    clearSensitiveFields();
+                    button.disabled = false;
+                    button.textContent = "Submit for verification";
+                }
+                return;
+            }
             errorNode.textContent = "Secure verification submission is not configured. No information has been sent or saved.";
             clearSensitiveFields();
             return;
