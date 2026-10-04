@@ -455,8 +455,9 @@
                     case "passwordReset":
                         return core.resetPassword(payload);
                     case "googleStart":
-                        core.loginWithGoogle();
-                        return { authorizationUrl: getRedirectDestination() };
+                        const gRes = core.loginWithGoogle();
+                        const gDest = !gRes.user?.experienceSelected ? "experience.html" : getRedirectDestination();
+                        return { authorizationUrl: gDest };
                     default:
                         throw new Error("Unsupported authentication action.");
                 }
@@ -518,7 +519,20 @@
             }
         }
 
-        function navigateAfterAuthentication() {
+        function navigateAfterAuthentication(authResult) {
+            const core = window.THA_ONE_CORE;
+            const user = core?.getUser?.() || authResult?.user;
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get("redirect") || params.get("returnUrl");
+
+            // On first login / before experience selection, show Choose Your Experience screen
+            if (!user?.experienceSelected) {
+                const target = "experience.html" + (redirect ? "?redirect=" + encodeURIComponent(redirect) : "");
+                window.location.assign(target);
+                return;
+            }
+
+            // Existing users who already completed or skipped selection go directly to destination
             window.location.assign(getRedirectDestination());
         }
 

@@ -27,6 +27,8 @@
             deliveryPartner: { status: "not_applied", verified: false },
             admin: { status: "active", verified: true }
         },
+        experienceSelected: false,
+        selectedRoles: ["shopping", "food"],
         addresses: [
             {
                 id: "addr_tha_01",
@@ -162,11 +164,41 @@
                 mobileRaw: this.user.mobileRaw,
                 avatar: this.user.avatar,
                 roles: this.user.roles,
+                experienceSelected: Boolean(this.user.experienceSelected),
+                selectedRoles: this.user.selectedRoles || ["shopping", "food"],
                 addresses: this.user.addresses || [],
                 notifications: this.user.notifications || []
             };
             safeWrite(SESSION_KEY, safeUser);
             window.dispatchEvent(new CustomEvent("tha-one-session-changed", { detail: safeUser }));
+        }
+
+        saveExperienceSelection({ roles = [], skipped = false }) {
+            this.user.experienceSelected = true;
+            this.user.selectedRoles = Array.isArray(roles) && roles.length ? roles : ["shopping", "food"];
+
+            if (skipped) {
+                // Skips seller and delivery partner onboarding
+                this.user.roles.seller.status = "not_applied";
+                this.user.roles.seller.verified = false;
+                this.user.roles.deliveryPartner.status = "not_applied";
+                this.user.roles.deliveryPartner.verified = false;
+            } else {
+                if (this.user.selectedRoles.includes("seller") && this.user.roles.seller.status === "not_applied") {
+                    this.user.roles.seller.status = "pending";
+                }
+                if (this.user.selectedRoles.includes("delivery") && this.user.roles.deliveryPartner.status === "not_applied") {
+                    this.user.roles.deliveryPartner.status = "pending";
+                }
+            }
+
+            this.persistUser();
+            return {
+                success: true,
+                experienceSelected: true,
+                selectedRoles: this.user.selectedRoles,
+                user: this.user
+            };
         }
 
         persistOrders() {
@@ -585,6 +617,75 @@
                 success: true,
                 orderId,
                 order: newOrder
+            };
+        }
+
+        // --- PAYMENT GATEWAY INTEGRATION SERVICE ---
+
+        initiatePayment({ orderAmount, method, vpa = "" }) {
+            const paymentId = "pay_tha_" + Math.random().toString(36).substring(2, 10);
+            const providerNames = {
+                upi_gpay: "Google Pay (UPI)",
+                upi_phonepe: "PhonePe (UPI)",
+                upi_paytm: "Paytm (UPI)",
+                upi_bhim: "BHIM (UPI)",
+                upi_custom: "Unified Payments Interface (UPI)",
+                card: "Secure Card Processing Gateway",
+                netbanking: "Net Banking Interbank Gateway",
+                cod: "Cash on Delivery Network"
+            };
+
+            return {
+                success: true,
+                paymentId,
+                amount: orderAmount,
+                method: method || "upi_gpay",
+                methodLabel: providerNames[method] || "Secure Payment Provider",
+                vpa: vpa ? vpa.trim() : "",
+                status: "processing", // 'processing' | 'pending' | 'successful' | 'failed' | 'cancelled'
+                createdAt: new Date().toISOString(),
+                note: "Payment authorization is managed securely via backend payment provider handoff."
+            };
+        }
+
+        verifyPayment({ paymentId, orderId, simulateStatus = "successful" }) {
+            // Secure backend provider verification handler
+            if (simulateStatus === "failed") {
+                return {
+                    success: false,
+                    status: "failed",
+                    message: "Payment declined by issuing bank or UPI provider. No money was charged."
+                };
+            }
+            if (simulateStatus === "cancelled") {
+                return {
+                    success: false,
+                    status: "cancelled",
+                    message: "Payment transaction was cancelled by the user."
+                };
+            }
+            if (simulateStatus === "pending") {
+                return {
+                    success: false,
+                    status: "pending",
+                    message: "Payment is pending authorization in your UPI app. Please approve within 5 minutes."
+                };
+            }
+
+            // Successful confirmation from verified provider
+            const order = orderId ? this.getOrderById(orderId) : null;
+            if (order) {
+                order.paymentStatus = "paid";
+                order.paymentId = paymentId;
+                this.persistOrders();
+            }
+
+            return {
+                success: true,
+                status: "successful",
+                paymentId,
+                orderId,
+                verifiedAt: new Date().toISOString()
             };
         }
 

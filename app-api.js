@@ -60,6 +60,12 @@
                         return core.placeOrder({ service: "shopping", ...body });
                     case "foodCheckoutEndpoint":
                         return core.placeOrder({ service: "food", ...body });
+                    case "experienceSelectEndpoint":
+                        return core.saveExperienceSelection(body || {});
+                    case "paymentStartEndpoint":
+                        return core.initiatePayment(body || {});
+                    case "paymentVerifyEndpoint":
+                        return core.verifyPayment(body || {});
                     case "orderStatusEndpoint":
                         return { order: core.getOrderById(query?.id || body?.id) };
                     case "recommendationEndpoint":
