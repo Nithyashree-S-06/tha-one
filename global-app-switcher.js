@@ -1,10 +1,47 @@
 (() => {
-    const services = [
-        { id: "shopping", label: "Shopping", icon: "🛒", description: "Find good things for everyday.", href: "home.html" },
-        { id: "food", label: "Food", icon: "🍔", description: "Discover a good meal nearby.", href: "food.html" },
-        { id: "seller", label: "Seller", icon: "🏪", description: "Manage your store and orders.", href: "seller.html" },
-        { id: "delivery", label: "Delivery Partner", icon: "🛵", description: "Manage deliveries and earnings.", href: "delivery.html" }
-    ];
+    function getAvailableServices() {
+        const core = window.THA_ONE_CORE;
+        const user = core?.getUser?.();
+
+        const base = [
+            { id: "shopping", label: "Shopping", icon: "🛒", description: "Find good things for everyday.", href: "home.html" },
+            { id: "food", label: "Food", icon: "🍔", description: "Discover a good meal nearby.", href: "food.html" }
+        ];
+
+        // Check seller authorization / preference
+        const sellerStatus = user?.roles?.seller?.status;
+        const sellerVerified = user?.roles?.seller?.verified === true;
+        const sellerApplied = sellerStatus && sellerStatus !== "not_applied";
+        const hasSeller = (user?.selectedRoles?.includes("seller") && sellerApplied) || sellerVerified;
+
+        if (hasSeller) {
+            base.push({
+                id: "seller",
+                label: "Seller",
+                icon: "🏪",
+                description: sellerVerified ? "Seller Dashboard" : "Seller Verification",
+                href: sellerVerified ? "seller.html" : "seller-onboarding.html"
+            });
+        }
+
+        // Check delivery partner authorization / preference
+        const deliveryStatus = user?.roles?.deliveryPartner?.status;
+        const deliveryVerified = user?.roles?.deliveryPartner?.verified === true;
+        const deliveryApplied = deliveryStatus && deliveryStatus !== "not_applied";
+        const hasDelivery = (user?.selectedRoles?.includes("delivery") && deliveryApplied) || deliveryVerified;
+
+        if (hasDelivery) {
+            base.push({
+                id: "delivery",
+                label: "Delivery Partner",
+                icon: "🛵",
+                description: deliveryVerified ? "Delivery Dashboard" : "Partner Verification",
+                href: deliveryVerified ? "delivery.html" : "delivery-onboarding.html"
+            });
+        }
+
+        return base;
+    }
 
     class ThaAppSwitcher extends HTMLElement {
         static get observedAttributes() { return ["current"]; }
@@ -15,13 +52,16 @@
             this.render();
             this.handleDocumentClick = this.handleDocumentClick.bind(this);
             this.handleKeydown = this.handleKeydown.bind(this);
+            this.handleSessionChanged = () => this.render();
             this.ownerDocument.addEventListener("click", this.handleDocumentClick);
             this.ownerDocument.addEventListener("keydown", this.handleKeydown);
+            window.addEventListener("tha-one-session-changed", this.handleSessionChanged);
         }
 
         disconnectedCallback() {
             this.ownerDocument.removeEventListener("click", this.handleDocumentClick);
             this.ownerDocument.removeEventListener("keydown", this.handleKeydown);
+            window.removeEventListener("tha-one-session-changed", this.handleSessionChanged);
         }
 
         attributeChangedCallback(name) {
@@ -29,15 +69,17 @@
         }
 
         get currentService() {
+            const availableServices = getAvailableServices();
             const attribute = this.getAttribute("current");
             if (attribute === "admin") return { id: "admin", label: "Admin review", icon: "✓" };
             const current = attribute === "auto" ? new URLSearchParams(window.location.search).get("service") : attribute;
-            return services.find((service) => service.id === current) || services[0];
+            return availableServices.find((service) => service.id === current) || availableServices[0];
         }
 
         render() {
+            const availableServices = getAvailableServices();
             const active = this.currentService;
-            const serviceOptions = services.map((service) => `
+            const serviceOptions = availableServices.map((service) => `
                 <a class="service-option${service.id === active.id ? " is-current" : ""}" data-service="${service.id}" href="${service.href}" ${service.id === active.id ? 'aria-current="page"' : ""} role="menuitem">
                     <span class="service-icon" aria-hidden="true">${service.icon}</span>
                     <span class="service-copy"><strong>${service.label}</strong><small data-service-description>${service.description}</small></span>
@@ -122,7 +164,7 @@
             this.shadowRoot.querySelectorAll(".service-option").forEach((link) => {
                 link.addEventListener("click", (event) => {
                     event.preventDefault();
-                    const service = services.find((item) => item.id === link.dataset.service);
+                    const service = getAvailableServices().find((item) => item.id === link.dataset.service);
                     if (service) this.navigateService(service);
                 });
             });

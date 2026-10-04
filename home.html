@@ -47,7 +47,7 @@
     </svg>
 
     <tha-app-switcher current="shopping"></tha-app-switcher>
-    <div class="announcement"><strong>One less thing to look for.</strong>&nbsp; Free delivery on your first order over ₹999</div>
+    <div class="announcement"><strong>One less thing to look for.</strong>&nbsp; Free delivery on your first order over ₹999 &nbsp;·&nbsp; Hungry? <a href="food.html" style="color:var(--green);font-weight:700;text-decoration:underline;">Order from top restaurants →</a></div>
     <header class="site-header">
         <div class="header-main page-width">
             <a class="wordmark" href="home.html" aria-label="THA ONE home"><span class="brand-symbol" aria-hidden="true">T</span><span class="brand-name">THA <span>ONE</span></span></a>
@@ -56,7 +56,9 @@
                 <span class="location-copy"><small>Delivering to</small><strong id="location-label">Set your location</strong></span>
             </button>
             <nav class="header-actions" aria-label="Account and shopping">
-                <a class="profile-link" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Login / Profile</span></a>
+                <a class="profile-link" href="food.html" title="Discover Restaurants and Food" style="color:#2d5835;font-weight:700;"><span style="font-size:16px;">🍔</span><span>Food</span></a>
+                <a class="profile-link" href="orders.html" title="View Order History"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span>My Orders</span></a>
+                <a class="profile-link" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a>
                 <button class="icon-action wishlist-header" type="button" data-open-wishlist aria-label="View wishlist" title="Wishlist"><svg class="icon" aria-hidden="true"><use href="#icon-heart"/></svg><span class="count-badge" id="wishlist-count">0</span></button>
                 <button class="icon-action" type="button" data-open-cart aria-label="Open shopping cart" title="Cart"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="cart-count">0</span></button>
                 <button class="icon-action mobile-menu" id="menu-toggle" type="button" aria-label="Open categories" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg></button>
@@ -65,13 +67,14 @@
         <div class="header-search-row page-width">
             <form class="search-form" id="search-form" role="search">
                 <label class="visually-hidden" for="product-search">Search products</label>
-                <input id="product-search" type="search" placeholder="Search for something good..." autocomplete="off">
+                <input id="product-search" type="search" placeholder="Search for products, deals, essentials..." autocomplete="off">
                 <button class="search-submit" type="submit" aria-label="Search products"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg></button>
             </form>
         </div>
         <nav class="category-nav" id="category-nav" aria-label="Shop by category">
             <div class="category-list page-width" id="category-list">
                 <button class="category-link active" type="button" data-category="All"><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>All</button>
+                <a class="category-link" href="food.html" style="text-decoration:none;color:inherit;"><span style="font-size:15px;line-height:1;margin-right:4px;">🍔</span>Restaurants &amp; Food</a>
                 <button class="category-link" type="button" data-category="Electronics"><svg class="icon" aria-hidden="true"><use href="#icon-electronics"/></svg>Electronics</button>
                 <button class="category-link" type="button" data-category="Fashion"><svg class="icon" aria-hidden="true"><use href="#icon-fashion"/></svg>Fashion</button>
                 <button class="category-link" type="button" data-category="Mobiles"><svg class="icon" aria-hidden="true"><use href="#icon-mobile"/></svg>Mobiles</button>
@@ -81,7 +84,6 @@
                 <button class="category-link" type="button" data-category="Accessories"><svg class="icon" aria-hidden="true"><use href="#icon-accessories"/></svg>Accessories</button>
                 <button class="category-link" type="button" data-category="Sports"><svg class="icon" aria-hidden="true"><use href="#icon-sports"/></svg>Sports</button>
                 <button class="category-link" type="button" data-category="Offers"><svg class="icon" aria-hidden="true"><use href="#icon-tag"/></svg>Offers</button>
-                <button class="category-link" type="button" data-category="More"><svg class="icon" aria-hidden="true"><use href="#icon-grid"/></svg>More</button>
             </div>
         </nav>
     </header>

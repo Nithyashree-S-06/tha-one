@@ -87,20 +87,41 @@
             const statusNode = document.getElementById(`${prefix}-role-status`);
             const pill = document.getElementById(`${prefix}-role-pill`);
             const link = document.getElementById(`${prefix}-role-link`);
+            const teaser = document.getElementById(`profile-${prefix}-teaser`);
+
             const labels = {
                 verified: ["Verified", "available"],
-                pending: ["Pending verification", "pending"],
-                needs_correction: ["Needs correction", "pending"],
-                rejected: ["Verification needs attention", "failed"],
-                failed: ["Verification needs attention", "failed"],
+                pending: ["Pending", "pending"],
+                needs_correction: ["Needs Correction", "pending"],
+                rejected: ["Rejected", "failed"],
+                failed: ["Rejected", "failed"],
                 not_applied: [role === "seller" ? "Apply to sell on THA ONE" : "Apply to deliver with THA ONE", ""]
             };
             const [label, className] = labels[status] || labels.not_applied;
             statusNode.textContent = label;
             pill.textContent = labels[status] ? labels[status][0] : "Not applied";
             pill.className = `role-state ${className}`;
-            link.textContent = status === "verified" ? "Open dashboard" : status === "pending" ? "View status" : status === "needs_correction" || status === "failed" || status === "rejected" ? "Review details" : role === "seller" ? "Become a Seller" : "Become a Partner";
-            if (status === "verified") link.href = role === "seller" ? "seller.html" : "delivery.html";
+
+            if (status === "verified") {
+                link.textContent = role === "seller" ? "Open Seller Dashboard" : "Open Delivery Dashboard";
+                link.href = role === "seller" ? "seller.html" : "delivery.html";
+                if (teaser) teaser.textContent = "Verified partner · Open workspace";
+            } else if (status === "pending") {
+                link.textContent = "View Status";
+                link.href = role === "seller" ? "seller-onboarding.html" : "delivery-onboarding.html";
+                if (teaser) teaser.textContent = "Application submitted · Pending verification";
+            } else if (status === "needs_correction") {
+                link.textContent = "Correct Details";
+                link.href = role === "seller" ? "seller-onboarding.html" : "delivery-onboarding.html";
+                if (teaser) teaser.textContent = "Corrections requested by verification provider";
+            } else if (status === "rejected" || status === "failed") {
+                link.textContent = "Review & Reapply";
+                link.href = role === "seller" ? "seller-onboarding.html" : "delivery-onboarding.html";
+                if (teaser) teaser.textContent = "Verification rejected · Click to review criteria";
+            } else {
+                link.textContent = role === "seller" ? "Become a Seller" : "Become a Partner";
+                link.href = role === "seller" ? "seller-onboarding.html" : "delivery-onboarding.html";
+            }
         });
     }
 

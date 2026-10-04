@@ -121,7 +121,8 @@
     function normalizedStatus(status) {
         const value = String(status || "").toLowerCase().replace(/[ _-]+/g, "");
         if (value === "verified" || value === "approved") return "verified";
-        if (value === "failed" || value === "rejected" || value === "verificationfailed") return "failed";
+        if (value === "needscorrection" || value === "correctionrequested" || value === "needs_correction") return "needs_correction";
+        if (value === "rejected" || value === "failed" || value === "declined" || value === "verificationfailed") return "rejected";
         if (value === "pending" || value === "pendingverification" || value === "submitted" || value === "inreview") return "pending";
         return "unknown";
     }
@@ -251,13 +252,15 @@
         const retry = document.getElementById("onboarding-retry");
         const details = document.getElementById("onboarding-masked-details");
         details.replaceChildren();
-        panel.classList.toggle("failed", status === "failed");
-        panel.classList.toggle("pending", status === "pending");
+        panel.classList.toggle("failed", status === "rejected" || status === "failed");
+        panel.classList.toggle("pending", status === "pending" || status === "needs_correction");
+        
         if (status === "verified") {
-            title.textContent = "Verified";
-            message.textContent = "Your verification is complete. You can continue to your THA ONE service dashboard.";
-            setBanner(`${definition.statusHeading}: Verified`, "success");
+            title.textContent = "Status: Verified";
+            message.textContent = "Your verification is complete and authorized. You can now access your service dashboard.";
+            setBanner(`${definition.statusHeading}: Verified ✓`, "success");
             dashboard.href = definition.dashboard;
+            dashboard.textContent = service === "seller" ? "Open Seller Dashboard" : "Open Delivery Dashboard";
             dashboard.hidden = false;
             retry.hidden = true;
             form.hidden = true;
@@ -266,18 +269,28 @@
                 if (typeof value === "string" && /[Xx*•]/.test(value)) appendSummaryRow(details, label, value);
             });
         } else if (status === "pending") {
-            title.textContent = "Pending Verification";
-            message.textContent = "Your information has been received. We’ll update this page when the authorized verification service responds.";
-            setBanner(`${definition.statusHeading}: Pending Verification`, "warning");
+            title.textContent = "Status: Pending";
+            message.textContent = "Your information has been received and is awaiting authorized review by the verification service.";
+            setBanner(`${definition.statusHeading}: Pending Verification ⏳`, "warning");
             dashboard.hidden = true;
             retry.hidden = false;
+            retry.textContent = "Check Verification Status";
             form.hidden = true;
-        } else if (status === "failed") {
-            title.textContent = "Verification Failed";
-            message.textContent = correctionMessage(messageCode || result.correctionCode);
-            setBanner(`${definition.statusHeading}: Verification Failed. Review the correction guidance and update your details.`, "error");
+        } else if (status === "needs_correction") {
+            title.textContent = "Status: Needs Correction";
+            message.textContent = "The verification provider requested updates to specific details (e.g. document clarity or holder name mismatch). Please review and resubmit.";
+            setBanner(`${definition.statusHeading}: Needs Correction ✏️`, "warning");
             dashboard.hidden = true;
             retry.hidden = false;
+            retry.textContent = "Update & Resubmit";
+            form.hidden = false;
+        } else if (status === "rejected" || status === "failed") {
+            title.textContent = "Status: Rejected";
+            message.textContent = correctionMessage(messageCode || result.correctionCode) || "Verification could not be approved with the submitted details. You may review and submit new details.";
+            setBanner(`${definition.statusHeading}: Verification Rejected ❌`, "error");
+            dashboard.hidden = true;
+            retry.hidden = false;
+            retry.textContent = "Reapply with New Details";
             form.hidden = false;
         } else {
             panel.hidden = true;
@@ -285,6 +298,38 @@
             dashboard.hidden = true;
         }
         panel.hidden = false;
+
+        // Developer test triggers on the result panel
+        let simBox = panel.querySelector(".onboarding-sim-box");
+        if (!simBox && window.THA_ONE_CORE) {
+            simBox = document.createElement("div");
+            simBox.className = "onboarding-sim-box";
+            simBox.style.cssText = "margin-top: 18px; padding: 12px; border: 1px dashed #b2cbb0; border-radius: 8px; background: #f8faf6; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;";
+            const lbl = document.createElement("span");
+            lbl.style.cssText = "font-size: 11px; font-weight: 700; color: #20372e; text-transform: uppercase;";
+            lbl.textContent = "Simulator:";
+            simBox.appendChild(lbl);
+
+            const items = [
+                { id: "pending", label: "⏳ Pending", color: "#8f621a", bg: "#fdf2dc" },
+                { id: "needs_correction", label: "✏️ Needs Correction", color: "#9a4b08", bg: "#fceddf" },
+                { id: "rejected", label: "❌ Rejected", color: "#a5281b", bg: "#feebe9" },
+                { id: "verified", label: "✓ Verified", color: "#24611e", bg: "#e5f6e0" }
+            ];
+
+            items.forEach(it => {
+                const b = document.createElement("button");
+                b.type = "button";
+                b.style.cssText = `padding: 4px 10px; border: 1px solid ${it.color}; border-radius: 4px; background: ${it.bg}; color: ${it.color}; font-size: 11px; font-weight: 700; cursor: pointer;`;
+                b.textContent = it.label;
+                b.addEventListener("click", () => {
+                    window.THA_ONE_CORE.setRoleStatus(service, it.id);
+                    setResult({ status: it.id, maskedDetails: result.maskedDetails || {} });
+                });
+                simBox.appendChild(b);
+            });
+            panel.appendChild(simBox);
+        }
     }
 
     async function refreshStatus() {

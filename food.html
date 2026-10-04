@@ -42,7 +42,13 @@
         <div class="header-main page-width">
             <a class="wordmark" href="food.html" aria-label="THA ONE Food home"><span class="brand-symbol food-brand-mark" aria-hidden="true">T</span><span class="brand-name">THA <span>ONE</span></span><span class="food-service-tag">FOOD</span></a>
             <button class="location-select" type="button" id="food-location-open" aria-label="Choose food delivery location"><svg class="icon" aria-hidden="true"><use href="#icon-pin"/></svg><span class="location-copy"><small>Delivering to</small><strong id="food-location-label">Set your location</strong></span></button>
-            <nav class="header-actions" aria-label="Food account and cart"><a class="profile-link" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a><button class="icon-action" type="button" id="food-cart-open" aria-label="Open food cart"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="food-cart-count">0</span></button><button class="icon-action mobile-menu" id="food-menu-toggle" type="button" aria-label="Open food categories" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg></button></nav>
+            <nav class="header-actions" aria-label="Food account and cart">
+                <a class="profile-link" href="home.html" title="Go to Shopping"><span style="font-size:16px;">🛒</span><span>Shopping</span></a>
+                <a class="profile-link" href="orders.html" title="My Orders"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span>My Orders</span></a>
+                <a class="profile-link" href="profile.html"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg><span>Profile</span></a>
+                <button class="icon-action" type="button" id="food-cart-open" aria-label="Open food cart"><svg class="icon" aria-hidden="true"><use href="#icon-bag"/></svg><span class="count-badge" id="food-cart-count">0</span></button>
+                <button class="icon-action mobile-menu" id="food-menu-toggle" type="button" aria-label="Open food categories" aria-expanded="false"><svg class="icon" aria-hidden="true"><use href="#icon-menu"/></svg></button>
+            </nav>
         </div>
         <div class="header-search-row page-width"><form class="search-form" id="food-search-form" role="search"><label class="visually-hidden" for="food-search">Search restaurants or dishes</label><input id="food-search" type="search" placeholder="Search restaurants or dishes" autocomplete="off"><button class="search-submit food-search-submit" type="submit" aria-label="Search food"><svg class="icon" aria-hidden="true"><use href="#icon-search"/></svg></button></form></div>
         <nav class="category-nav" id="food-category-nav" aria-label="Browse food categories"><div class="category-list page-width" id="food-category-list"></div></nav>

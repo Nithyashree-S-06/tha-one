@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f6f7f2">
-    <meta name="description" content="Complete your THA ONE order securely.">
-    <title>Checkout | THA ONE</title>
+    <meta name="description" content="Complete your THA ONE order securely with UPI, Cards, Net Banking, or Cash on Delivery.">
+    <title>Secure Checkout | THA ONE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="storefront.css">
     <link rel="stylesheet" href="services.css">
     <link rel="stylesheet" href="checkout.css">
@@ -26,25 +29,473 @@
         <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 6h11v12H3zM14 10h4l3 3v5h-7"/><circle cx="7.5" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></symbol>
         <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
         <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5m6 6-6-6 6-6"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
     </svg>
+
     <tha-app-switcher current="auto"></tha-app-switcher>
-    <header class="ops-header checkout-header"><a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a><span class="ops-service-name" id="checkout-service-name">Secure checkout</span><span class="checkout-secure"><svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>Secure account session</span></header>
+
+    <header class="ops-header checkout-header">
+        <a href="home.html" class="ops-brand">
+            <span class="ops-brand-mark">T</span>THA ONE
+        </a>
+        <span class="ops-service-name" id="checkout-service-name">Secure Checkout</span>
+        <span class="checkout-secure">
+            <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>
+            Zero KYC Customer Checkout
+        </span>
+    </header>
+
     <main class="checkout-main page-width">
-        <nav class="breadcrumbs" aria-label="Breadcrumb"><a id="checkout-return-link" href="home.html">Shopping</a><span aria-hidden="true">/</span><span>Checkout</span></nav>
-        <header class="checkout-page-heading"><p class="service-eyebrow">Your order, one step at a time</p><h1>Checkout</h1><p>No customer KYC is required to shop or order food.</p></header>
-        <div class="checkout-progress" aria-label="Checkout progress"><span class="active" data-checkout-progress="address">1 <b>Address</b></span><span data-checkout-progress="payment">2 <b>Payment</b></span><span data-checkout-progress="review">3 <b>Review</b></span></div>
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a id="checkout-return-link" href="home.html">Shopping</a>
+            <span aria-hidden="true">/</span>
+            <span>Checkout &amp; Payment</span>
+        </nav>
+
+        <header class="checkout-page-heading">
+            <p class="service-eyebrow">Unified THA ONE Checkout</p>
+            <h1>Complete Your Order</h1>
+            <p>Select your delivery address and payment method. Normal customers are never asked for KYC, identity, or bank documents.</p>
+        </header>
+
+        <div class="checkout-progress" aria-label="Checkout progress">
+            <span class="active" data-checkout-progress="address">1 <b>Delivery Address</b></span>
+            <span data-checkout-progress="payment">2 <b>Payment Method</b></span>
+            <span data-checkout-progress="review">3 <b>Review &amp; Pay</b></span>
+        </div>
+
         <div class="checkout-layout">
             <section class="checkout-content">
                 <div class="checkout-status" id="checkout-status" role="status" aria-live="polite"></div>
-                <section class="checkout-step active" data-checkout-step="address" aria-labelledby="checkout-address-title"><div class="checkout-step-title"><span>01</span><div><h2 id="checkout-address-title">Delivery address</h2><p>Use a saved address or add one for this order.</p></div></div><div id="saved-addresses" class="saved-addresses"></div><div class="checkout-address-form" id="checkout-address-form"><div class="checkout-field-grid"><div class="service-form-field"><label for="checkout-recipient">Full name</label><input class="service-input" id="checkout-recipient" autocomplete="name" required maxlength="100"></div><div class="service-form-field"><label for="checkout-phone">Mobile number</label><input class="service-input" id="checkout-phone" type="tel" autocomplete="tel" required maxlength="20"></div><div class="service-form-field full-width"><label for="checkout-address-line">Address</label><textarea class="service-textarea" id="checkout-address-line" autocomplete="street-address" required maxlength="300"></textarea></div><div class="service-form-field"><label for="checkout-city">City</label><input class="service-input" id="checkout-city" autocomplete="address-level2" required maxlength="80"></div><div class="service-form-field"><label for="checkout-state">State</label><input class="service-input" id="checkout-state" autocomplete="address-level1" required maxlength="80"></div><div class="service-form-field"><label for="checkout-pincode">Pincode</label><input class="service-input" id="checkout-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required></div></div></div><p class="checkout-step-error" id="address-error" role="alert"></p><div class="checkout-step-actions"><a class="service-button secondary" id="continue-shopping" href="home.html">Back to shopping</a><button class="service-button" type="button" data-checkout-next="payment">Continue to payment <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div></section>
 
-                <section class="checkout-step" data-checkout-step="payment" aria-labelledby="checkout-payment-title" hidden><div class="checkout-step-title"><span>02</span><div><h2 id="checkout-payment-title">Payment method</h2><p>Payment details are collected only by the connected payment provider.</p></div></div><fieldset class="payment-options"><legend class="visually-hidden">Choose a payment method</legend><label class="payment-option"><input type="radio" name="payment-method" value="upi" checked><span class="payment-option-mark">UPI</span><span><strong>UPI</strong><small>Continue with your UPI app</small></span></label><label class="payment-option"><input type="radio" name="payment-method" value="card"><span class="payment-option-mark">CARD</span><span><strong>Credit or debit card</strong><small>Card details are entered on the secure provider page</small></span></label><label class="payment-option" id="cod-option"><input type="radio" name="payment-method" value="cash"><span class="payment-option-mark">COD</span><span><strong>Cash on delivery</strong><small>Available only if supported for this address and order</small></span></label></fieldset><div class="checkout-step-actions"><button class="service-button secondary" type="button" data-checkout-back="address">Back to address</button><button class="service-button" type="button" data-checkout-next="review">Review order <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button></div></section>
+                <!-- STEP 1: DELIVERY ADDRESS -->
+                <section class="checkout-step active" data-checkout-step="address" aria-labelledby="checkout-address-title">
+                    <div class="checkout-step-title">
+                        <span>01</span>
+                        <div>
+                            <h2 id="checkout-address-title">Delivery Address</h2>
+                            <p>Choose where you'd like your order delivered or add a new location.</p>
+                        </div>
+                    </div>
 
-                <section class="checkout-step" data-checkout-step="review" aria-labelledby="checkout-review-title" hidden><div class="checkout-step-title"><span>03</span><div><h2 id="checkout-review-title">Review your order</h2><p>Confirm the order summary before continuing to secure payment.</p></div></div><div class="checkout-review-address" id="checkout-review-address"></div><div class="checkout-review-items" id="checkout-review-items"></div><div class="checkout-step-actions"><button class="service-button secondary" type="button" data-checkout-back="payment">Back to payment</button><button class="service-button" type="button" id="checkout-place-order" disabled>Checkout not connected</button></div></section>
+                    <div id="saved-addresses" class="saved-addresses"></div>
+
+                    <div class="checkout-address-form" id="checkout-address-form">
+                        <div class="address-form-toggle-bar">
+                            <span class="section-subheading">Or enter a new address:</span>
+                        </div>
+                        <div class="checkout-field-grid">
+                            <div class="service-form-field">
+                                <label for="checkout-recipient">Recipient Full Name</label>
+                                <input class="service-input" id="checkout-recipient" autocomplete="name" required maxlength="100" placeholder="e.g. Aarav Sharma">
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-phone">Contact Mobile Number</label>
+                                <input class="service-input" id="checkout-phone" type="tel" autocomplete="tel" required maxlength="20" placeholder="e.g. 9876543210">
+                            </div>
+                            <div class="service-form-field full-width">
+                                <label for="checkout-address-line">Street Address / Flat / Building</label>
+                                <textarea class="service-textarea" id="checkout-address-line" autocomplete="street-address" required maxlength="300" placeholder="e.g. Flat 402, Green Glen Layout, Outer Ring Road"></textarea>
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-city">City</label>
+                                <input class="service-input" id="checkout-city" autocomplete="address-level2" required maxlength="80" placeholder="e.g. Bengaluru">
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-state">State</label>
+                                <input class="service-input" id="checkout-state" autocomplete="address-level1" required maxlength="80" placeholder="e.g. Karnataka">
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-pincode">Pincode</label>
+                                <input class="service-input" id="checkout-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required placeholder="560103">
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="checkout-step-error" id="address-error" role="alert"></p>
+
+                    <div class="checkout-step-actions">
+                        <a class="service-button secondary" id="continue-shopping" href="home.html">
+                            <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Back to Shopping
+                        </a>
+                        <button class="service-button" type="button" data-checkout-next="payment">
+                            Continue to Payment <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- STEP 2: SELECT PAYMENT METHOD -->
+                <section class="checkout-step" data-checkout-step="payment" aria-labelledby="checkout-payment-title" hidden>
+                    <div class="checkout-step-title">
+                        <span>02</span>
+                        <div>
+                            <h2 id="checkout-payment-title">Select Payment Method</h2>
+                            <p>Choose how you want to pay. All payments are verified securely via trusted provider gateways.</p>
+                        </div>
+                    </div>
+
+                    <fieldset class="payment-options-fieldset" id="payment-options-group">
+                        <legend class="visually-hidden">Choose a payment method</legend>
+
+                        <!-- SECTION: UPI PAYMENTS -->
+                        <div class="payment-group-header">
+                            <span class="group-pill">UPI</span>
+                            <span>Instant, Zero-Surcharge Bank Transfer</span>
+                        </div>
+
+                        <div class="payment-cards-grid">
+                            <!-- 1. Google Pay -->
+                            <label class="payment-card selected" data-method="upi_gpay">
+                                <input type="radio" name="payment-method" value="upi_gpay" checked>
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol gpay-badge">GPay</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Google Pay</strong>
+                                    <small class="payment-card-hint">Approve payment in Google Pay app</small>
+                                </div>
+                                <span class="method-tag fast">Fast UPI</span>
+                            </label>
+
+                            <!-- 2. PhonePe -->
+                            <label class="payment-card" data-method="upi_phonepe">
+                                <input type="radio" name="payment-method" value="upi_phonepe">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol phonepe-badge">PhonePe</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">PhonePe</strong>
+                                    <small class="payment-card-hint">Instant UPI collect request</small>
+                                </div>
+                                <span class="method-tag fast">Fast UPI</span>
+                            </label>
+
+                            <!-- 3. Paytm -->
+                            <label class="payment-card" data-method="upi_paytm">
+                                <input type="radio" name="payment-method" value="upi_paytm">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol paytm-badge">Paytm</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Paytm</strong>
+                                    <small class="payment-card-hint">Pay via Paytm UPI or Wallet</small>
+                                </div>
+                            </label>
+
+                            <!-- 4. BHIM -->
+                            <label class="payment-card" data-method="upi_bhim">
+                                <input type="radio" name="payment-method" value="upi_bhim">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol bhim-badge">BHIM</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">BHIM</strong>
+                                    <small class="payment-card-hint">Official NPCI UPI interface</small>
+                                </div>
+                            </label>
+
+                            <!-- 5. Other UPI -->
+                            <label class="payment-card" data-method="upi_custom">
+                                <input type="radio" name="payment-method" value="upi_custom">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol upi-badge">UPI ID</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Other UPI</strong>
+                                    <small class="payment-card-hint">Enter any UPI ID / VPA</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- SECTION: OTHER PAYMENT METHODS -->
+                        <div class="payment-group-header" style="margin-top: 24px;">
+                            <span class="group-pill secondary">Cards &amp; Banking</span>
+                            <span>Cards, Net Banking &amp; Cash on Delivery</span>
+                        </div>
+
+                        <div class="payment-cards-grid">
+                            <!-- 6. Credit Card -->
+                            <label class="payment-card" data-method="card_credit">
+                                <input type="radio" name="payment-method" value="card_credit">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol card-badge">Credit</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Credit Card</strong>
+                                    <small class="payment-card-hint">Visa, Mastercard, RuPay, Amex</small>
+                                </div>
+                            </label>
+
+                            <!-- 7. Debit Card -->
+                            <label class="payment-card" data-method="card_debit">
+                                <input type="radio" name="payment-method" value="card_debit">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol card-badge">Debit</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Debit Card</strong>
+                                    <small class="payment-card-hint">All major Indian banks supported</small>
+                                </div>
+                            </label>
+
+                            <!-- 8. Net Banking -->
+                            <label class="payment-card" data-method="netbanking">
+                                <input type="radio" name="payment-method" value="netbanking">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol netbank-badge">Banking</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Net Banking</strong>
+                                    <small class="payment-card-hint">HDFC, SBI, ICICI, Axis &amp; 50+ banks</small>
+                                </div>
+                            </label>
+
+                            <!-- 9. Cash on Delivery -->
+                            <label class="payment-card" id="cod-option-card" data-method="cod">
+                                <input type="radio" name="payment-method" value="cod">
+                                <span class="radio-indicator" aria-hidden="true"></span>
+                                <div class="payment-brand-symbol cod-badge">COD</div>
+                                <div class="payment-card-text">
+                                    <strong class="payment-card-name">Cash on Delivery</strong>
+                                    <small class="payment-card-hint">Pay cash or QR code on delivery</small>
+                                </div>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- DYNAMIC PAYMENT DETAILS SUB-PANEL -->
+                    <div class="payment-subpanel" id="payment-subpanel" aria-live="polite">
+                        <!-- Content dynamically rendered based on selected payment method -->
+                    </div>
+
+                    <!-- SECURITY NOTICE GUARANTEE -->
+                    <div class="checkout-security-banner">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-lock"/></svg>
+                        <div>
+                            <strong>THA ONE Payment Security Guarantee</strong>
+                            <p>We <b>never</b> store UPI PINs, card CVVs, or bank passwords. All payments are verified securely through trusted, authorized payment providers.</p>
+                        </div>
+                    </div>
+
+                    <div class="checkout-step-actions">
+                        <button class="service-button secondary" type="button" data-checkout-back="address">
+                            <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Back to Address
+                        </button>
+                        <button class="service-button" type="button" data-checkout-next="review">
+                            Review Order <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- STEP 3: REVIEW & PAY -->
+                <section class="checkout-step" data-checkout-step="review" aria-labelledby="checkout-review-title" hidden>
+                    <div class="checkout-step-title">
+                        <span>03</span>
+                        <div>
+                            <h2 id="checkout-review-title">Review &amp; Pay Securely</h2>
+                            <p>Check your order details before proceeding to payment verification.</p>
+                        </div>
+                    </div>
+
+                    <div class="checkout-review-card">
+                        <div class="review-block">
+                            <span class="review-label">Delivering To:</span>
+                            <div class="review-value" id="checkout-review-address">Loading address…</div>
+                        </div>
+                        <div class="review-block">
+                            <span class="review-label">Payment Method:</span>
+                            <div class="review-value" id="checkout-review-payment">
+                                <span class="payment-method-badge" id="review-method-badge">Google Pay (UPI)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkout-review-items-heading">
+                        <span>Items in Your Order</span>
+                    </div>
+                    <div class="checkout-review-items" id="checkout-review-items"></div>
+
+                    <div class="checkout-step-actions">
+                        <button class="service-button secondary" type="button" data-checkout-back="payment">
+                            <svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Change Payment Method
+                        </button>
+                        <button class="service-button primary-pay" type="button" id="checkout-place-order" disabled>
+                            <svg class="icon" aria-hidden="true"><use href="#icon-lock"/></svg>
+                            <span id="place-order-text">Pay Securely</span>
+                        </button>
+                    </div>
+                </section>
             </section>
-            <aside class="checkout-summary" aria-labelledby="checkout-summary-title"><h2 id="checkout-summary-title">Order summary</h2><div id="checkout-cart-items" class="checkout-cart-items"></div><div class="checkout-totals"><div><span>Items subtotal</span><strong id="checkout-subtotal">₹0</strong></div><div><span>Delivery</span><strong id="checkout-delivery">Calculated at checkout</strong></div><div><span>Discount</span><strong id="checkout-discount">Applied at checkout</strong></div><div class="checkout-grand-total"><span>Estimated total</span><strong id="checkout-total">Calculated at checkout</strong></div></div><p class="checkout-provider-note" id="checkout-provider-note">Delivery, taxes and discounts are confirmed by the connected checkout service.</p></aside>
+
+            <!-- ORDER SUMMARY SIDEBAR -->
+            <aside class="checkout-summary" aria-labelledby="checkout-summary-title">
+                <h2 id="checkout-summary-title">Order Summary</h2>
+                <div id="checkout-cart-items" class="checkout-cart-items"></div>
+
+                <div class="checkout-totals">
+                    <div>
+                        <span>Items Subtotal</span>
+                        <strong id="checkout-subtotal">₹0</strong>
+                    </div>
+                    <div>
+                        <span>Thoughtful Delivery</span>
+                        <strong id="checkout-delivery">Calculated at checkout</strong>
+                    </div>
+                    <div>
+                        <span>Savings / Discount</span>
+                        <strong id="checkout-discount">Applied at checkout</strong>
+                    </div>
+                    <div class="checkout-grand-total">
+                        <span>Amount to Pay</span>
+                        <strong id="checkout-total">₹0</strong>
+                    </div>
+                </div>
+
+                <div class="checkout-summary-badges">
+                    <div class="summary-badge-item">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>
+                        <span>Zero KYC Needed for Customers</span>
+                    </div>
+                    <div class="summary-badge-item">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-lock"/></svg>
+                        <span>256-Bit SSL Encrypted Payment</span>
+                    </div>
+                </div>
+
+                <p class="checkout-provider-note" id="checkout-provider-note">
+                    All prices are inclusive of taxes. Real-time payment verification is managed securely by the backend payment provider.
+                </p>
+            </aside>
         </div>
     </main>
-    <footer class="ops-footer"><span id="checkout-footer-brand">THA ONE Checkout · Secure provider handoff</span><span>Addresses stay in your account service, never browser storage.</span></footer>
+
+    <!-- SECURE PAYMENT GATEWAY MODAL / HANDOFF -->
+    <div class="payment-modal-backdrop" id="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="gateway-title">
+        <div class="payment-modal-card">
+            <header class="payment-modal-header">
+                <div class="modal-brand">
+                    <span class="modal-brand-symbol">T</span>
+                    <div>
+                        <strong id="gateway-title">THA ONE Secure Payment Handoff</strong>
+                        <small id="gateway-session-id">Connecting...</small>
+                    </div>
+                </div>
+                <button type="button" class="modal-close-btn" id="modal-close" aria-label="Cancel payment">
+                    <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
+                </button>
+            </header>
+
+            <div class="payment-modal-body">
+                <!-- Transaction Header -->
+                <div class="payment-amount-display">
+                    <small>Amount Authorized</small>
+                    <span class="amount-number" id="modal-amount">₹0</span>
+                    <span class="order-ref-pill" id="modal-order-ref">Order: THA-00000</span>
+                </div>
+
+                <!-- 1. PROCESSING STATE -->
+                <div class="payment-state-view" id="state-processing">
+                    <div class="gateway-spinner" aria-hidden="true"></div>
+                    <h3>Connecting to Payment Gateway...</h3>
+                    <p>Securing handshake with <span id="processing-provider-name">payment provider</span>. Please do not refresh.</p>
+                </div>
+
+                <!-- 2. PAYMENT PENDING (UPI Collect / Approval) -->
+                <div class="payment-state-view" id="state-pending" hidden>
+                    <div class="pending-icon-wrap" aria-hidden="true">
+                        <span class="pulse-ring"></span>
+                        <span class="pending-symbol">📱</span>
+                    </div>
+                    <h3>Payment Pending Approval</h3>
+                    <p id="pending-instruction">
+                        We sent a collect request to your UPI app. Open <strong id="pending-app-name">Google Pay</strong> to approve the payment.
+                    </p>
+                    <div class="countdown-timer-box">
+                        <span class="timer-clock">⏱</span>
+                        <span>Complete authorization in: <b id="upi-countdown">04:59</b></span>
+                    </div>
+                    <div class="upi-pin-reminder">
+                        <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>
+                        <span>Enter your UPI PIN <b>only inside your official UPI app</b>. THA ONE never asks for your PIN.</span>
+                    </div>
+
+                    <!-- Integration-ready simulation test panel -->
+                    <div class="gateway-dev-suite">
+                        <div class="dev-suite-header">
+                            <span>Integration-Ready Gateway Test Suite</span>
+                            <small>Simulate provider webhook confirmation</small>
+                        </div>
+                        <div class="dev-suite-buttons">
+                            <button type="button" class="dev-sim-btn success" id="sim-approve-btn">
+                                ✓ Simulate Bank Approval (Success)
+                            </button>
+                            <button type="button" class="dev-sim-btn error" id="sim-decline-btn">
+                                ✗ Simulate Bank Decline (Failed)
+                            </button>
+                            <button type="button" class="dev-sim-btn warning" id="sim-cancel-btn">
+                                ⊘ Simulate User Cancel (Cancelled)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PAYMENT SUCCESSFUL -->
+                <div class="payment-state-view" id="state-successful" hidden>
+                    <div class="success-icon-wrap" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h3 class="success-title">Payment Successful!</h3>
+                    <p>Your payment has been verified by the authorized banking network.</p>
+                    <div class="payment-receipt-info">
+                        <div><span>Transaction ID:</span><b id="success-payment-id">pay_tha_0000</b></div>
+                        <div><span>Status:</span><b style="color: #27791f;">Verified &amp; Paid</b></div>
+                    </div>
+                    <div class="success-actions">
+                        <a class="service-button" id="track-order-link" href="#">
+                            Track Your Order Live <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. PAYMENT FAILED -->
+                <div class="payment-state-view" id="state-failed" hidden>
+                    <div class="failed-icon-wrap" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <h3 class="failed-title">Payment Declined</h3>
+                    <p id="failed-reason">
+                        The transaction was declined by your bank or UPI provider. No money was deducted from your account.
+                    </p>
+                    <div class="state-actions">
+                        <button type="button" class="service-button" id="retry-payment-btn">
+                            Retry Payment
+                        </button>
+                        <button type="button" class="service-button secondary" id="switch-method-btn">
+                            Choose Another Payment Method
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5. PAYMENT CANCELLED -->
+                <div class="payment-state-view" id="state-cancelled" hidden>
+                    <div class="cancelled-icon-wrap" aria-hidden="true">
+                        <span>⚠️</span>
+                    </div>
+                    <h3>Payment Cancelled</h3>
+                    <p>The transaction was cancelled before completion. Your cart items are preserved.</p>
+                    <div class="state-actions">
+                        <button type="button" class="service-button secondary" id="cancelled-back-btn">
+                            Return to Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="payment-modal-footer">
+                <span>🔒 Powered by THA ONE Unified Secure Gateway Handoff</span>
+                <span>PCI-DSS &amp; RBI Compliant</span>
+            </footer>
+        </div>
+    </div>
+
+    <footer class="ops-footer">
+        <span id="checkout-footer-brand">THA ONE Checkout · Secure Provider Handoff</span>
+        <span>Delivery addresses stay in your account service, never local storage.</span>
+    </footer>
 </body>
 </html>

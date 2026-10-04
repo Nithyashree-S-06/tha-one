@@ -165,6 +165,7 @@
                 avatar: this.user.avatar,
                 roles: this.user.roles,
                 experienceSelected: Boolean(this.user.experienceSelected),
+                experienceSkipped: Boolean(this.user.experienceSkipped),
                 selectedRoles: this.user.selectedRoles || ["shopping", "food"],
                 addresses: this.user.addresses || [],
                 notifications: this.user.notifications || []
@@ -176,19 +177,35 @@
         saveExperienceSelection({ roles = [], skipped = false }) {
             this.user.experienceSelected = true;
             this.user.selectedRoles = Array.isArray(roles) && roles.length ? roles : ["shopping", "food"];
+            this.user.experienceSkipped = Boolean(skipped);
 
-            if (skipped) {
-                // Skips seller and delivery partner onboarding
+            const hasSeller = this.user.selectedRoles.includes("seller");
+            const hasDelivery = this.user.selectedRoles.includes("delivery");
+
+            if (skipped || (!hasSeller && !hasDelivery)) {
+                // Normal Customer: Shopping and/or Food Customer
+                // Normal customers must NOT be asked for PAN, Aadhaar, Driving Licence, bank details or KYC
                 this.user.roles.seller.status = "not_applied";
                 this.user.roles.seller.verified = false;
                 this.user.roles.deliveryPartner.status = "not_applied";
                 this.user.roles.deliveryPartner.verified = false;
             } else {
-                if (this.user.selectedRoles.includes("seller") && this.user.roles.seller.status === "not_applied") {
-                    this.user.roles.seller.status = "pending";
+                if (hasSeller) {
+                    if (this.user.roles.seller.status === "not_applied") {
+                        this.user.roles.seller.status = "pending";
+                    }
+                } else {
+                    this.user.roles.seller.status = "not_applied";
+                    this.user.roles.seller.verified = false;
                 }
-                if (this.user.selectedRoles.includes("delivery") && this.user.roles.deliveryPartner.status === "not_applied") {
-                    this.user.roles.deliveryPartner.status = "pending";
+
+                if (hasDelivery) {
+                    if (this.user.roles.deliveryPartner.status === "not_applied") {
+                        this.user.roles.deliveryPartner.status = "pending";
+                    }
+                } else {
+                    this.user.roles.deliveryPartner.status = "not_applied";
+                    this.user.roles.deliveryPartner.verified = false;
                 }
             }
 
@@ -622,38 +639,49 @@
 
         // --- PAYMENT GATEWAY INTEGRATION SERVICE ---
 
-        initiatePayment({ orderAmount, method, vpa = "" }) {
+        initiatePayment({ orderAmount, method, vpa = "", orderId = "", service = "shopping" }) {
             const paymentId = "pay_tha_" + Math.random().toString(36).substring(2, 10);
             const providerNames = {
                 upi_gpay: "Google Pay (UPI)",
                 upi_phonepe: "PhonePe (UPI)",
                 upi_paytm: "Paytm (UPI)",
                 upi_bhim: "BHIM (UPI)",
-                upi_custom: "Unified Payments Interface (UPI)",
-                card: "Secure Card Processing Gateway",
-                netbanking: "Net Banking Interbank Gateway",
-                cod: "Cash on Delivery Network"
+                upi_custom: "Other UPI",
+                card_credit: "Credit Card Gateway",
+                card_debit: "Debit Card Gateway",
+                card: "Credit/Debit Card Gateway",
+                netbanking: "Net Banking Gateway",
+                cod: "Cash on Delivery"
             };
+
+            const isUpi = (method || "").startsWith("upi_");
+            const cleanVpa = String(vpa || "").trim().toLowerCase();
 
             return {
                 success: true,
                 paymentId,
-                amount: orderAmount,
+                orderId: orderId || null,
+                service,
+                amount: Number(orderAmount) || 0,
                 method: method || "upi_gpay",
+                isUpi,
                 methodLabel: providerNames[method] || "Secure Payment Provider",
-                vpa: vpa ? vpa.trim() : "",
-                status: "processing", // 'processing' | 'pending' | 'successful' | 'failed' | 'cancelled'
+                vpa: isUpi && cleanVpa ? cleanVpa : "",
+                status: "processing", // Real provider lifecycle: 'processing' -> 'pending' -> 'successful' | 'failed' | 'cancelled'
                 createdAt: new Date().toISOString(),
-                note: "Payment authorization is managed securely via backend payment provider handoff."
+                expiresInSeconds: 300,
+                securityGuarantee: "THA ONE never asks for or stores UPI PIN, card CVV, or netbanking passwords. Payment is authorized solely via secure bank / UPI gateway."
             };
         }
 
         verifyPayment({ paymentId, orderId, simulateStatus = "successful" }) {
-            // Secure backend provider verification handler
+            // Strictly check verification status from simulated backend/gateway
             if (simulateStatus === "failed") {
                 return {
                     success: false,
                     status: "failed",
+                    paymentId,
+                    orderId,
                     message: "Payment declined by issuing bank or UPI provider. No money was charged."
                 };
             }
@@ -661,6 +689,8 @@
                 return {
                     success: false,
                     status: "cancelled",
+                    paymentId,
+                    orderId,
                     message: "Payment transaction was cancelled by the user."
                 };
             }
@@ -668,6 +698,8 @@
                 return {
                     success: false,
                     status: "pending",
+                    paymentId,
+                    orderId,
                     message: "Payment is pending authorization in your UPI app. Please approve within 5 minutes."
                 };
             }
@@ -677,6 +709,9 @@
             if (order) {
                 order.paymentStatus = "paid";
                 order.paymentId = paymentId;
+                if (!order.status || order.status === "Pending Payment") {
+                    order.status = order.service === "food" ? "Order placed" : "Confirmed";
+                }
                 this.persistOrders();
             }
 
