@@ -1,4 +1,5 @@
 window.THA_ONE_CONFIG = Object.freeze({
+    demoMode: true,
     apiOrigin: "",
     sessionEndpoint: "",
     profileEndpoint: "",

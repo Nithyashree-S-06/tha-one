@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6f0">
+    <meta name="description" content="Presentation-only THA ONE partner demo sign in.">
+    <title>Demo Partner Sign In | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <link rel="stylesheet" href="demo-partner-login.css">
+    <script src="app-config.js" defer></script>
+    <script src="tha-one-core.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="demo-partner-login.js" defer></script>
+</head>
+<body class="demo-partner-page">
+    <tha-app-switcher current="shopping"></tha-app-switcher>
+    <header class="ops-header profile-header">
+        <a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a>
+        <span class="ops-service-name">Presentation mode</span>
+        <a class="ops-header-button" href="intex.html">Back to sign in</a>
+    </header>
+    <main class="demo-login-shell">
+        <section class="demo-login-panel" aria-labelledby="demo-login-title">
+            <p class="service-eyebrow">THA ONE · Demo account</p>
+            <div class="demo-role-icon" id="demo-role-icon" aria-hidden="true">🏪</div>
+            <h1 id="demo-login-title">Demo Seller Login</h1>
+            <p class="demo-login-copy">Enter a valid-looking Indian mobile number to open the presentation dashboard.</p>
+            <form id="demo-partner-form" novalidate>
+                <div class="service-form-field">
+                    <label for="demo-mobile">Mobile Number</label>
+                    <input class="service-input" id="demo-mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="9876543210" pattern="[6-9][0-9]{9}" maxlength="10" required>
+                </div>
+                <div class="service-form-field">
+                    <label for="demo-password">Password</label>
+                    <input class="service-input" id="demo-password" name="password" type="password" autocomplete="off" placeholder="Optional for this demo">
+                    <small>This demo does not verify or store a password.</small>
+                </div>
+                <p class="demo-login-message" id="demo-login-message" role="alert" aria-live="polite"></p>
+                <button class="service-button" type="submit" id="demo-partner-continue">Continue as Seller</button>
+            </form>
+            <p class="demo-auth-notice">Demo authentication only. No SMS OTP, KYC, bank, payout, or production verification service is contacted.</p>
+        </section>
+    </main>
+</body>
+</html>

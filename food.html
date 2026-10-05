@@ -15,6 +15,7 @@
     <script src="kyc-access.js" defer></script>
     <script src="app-api.js" defer></script>
     <script src="food-data.js" defer></script>
+    <script src="image-assets.js" defer></script>
     <script src="customer-location.js" defer></script>
     <script src="food.js" defer></script>
 </head>
@@ -57,7 +58,7 @@
 
     <main class="food-main page-width">
         <section class="food-hero" aria-labelledby="food-hero-title">
-            <img class="food-hero-image" src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1800&q=84" alt="A table set with a colourful meal to share" fetchpriority="high">
+            <img class="food-hero-image" data-image-kind="banner" data-image-fallback="assets/fallback-banner.svg" src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1800&q=84" alt="A table set with a colourful meal to share" fetchpriority="high">
             <div class="food-hero-content"><p class="food-eyebrow">A good meal, close by</p><h1 id="food-hero-title">Hungry? Order your favourite food.</h1><p>Good kitchens, comforting classics and little treats, delivered to your door.</p><a class="food-hero-button" href="#restaurants">Order now <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></a></div>
             <div class="food-hero-stamp"><span>Made nearby</span><strong>Made for you</strong></div>
         </section>

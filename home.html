@@ -15,6 +15,7 @@
     <script src="kyc-access.js" defer></script>
     <script src="app-api.js" defer></script>
     <script src="products.js" defer></script>
+    <script src="image-assets.js" defer></script>
     <script src="customer-location.js" defer></script>
     <script src="storefront.js" defer></script>
 </head>
@@ -84,6 +85,14 @@
                 <button class="category-link" type="button" data-category="Grocery"><svg class="icon" aria-hidden="true"><use href="#icon-grocery"/></svg>Grocery</button>
                 <button class="category-link" type="button" data-category="Accessories"><svg class="icon" aria-hidden="true"><use href="#icon-accessories"/></svg>Accessories</button>
                 <button class="category-link" type="button" data-category="Sports"><svg class="icon" aria-hidden="true"><use href="#icon-sports"/></svg>Sports</button>
+                <button class="category-link" type="button" data-category="Laptops">Laptops</button>
+                <button class="category-link" type="button" data-category="Earbuds &amp; Headphones">Earbuds &amp; Headphones</button>
+                <button class="category-link" type="button" data-category="Smart Watches">Smart Watches</button>
+                <button class="category-link" type="button" data-category="Footwear">Footwear</button>
+                <button class="category-link" type="button" data-category="Bags">Bags</button>
+                <button class="category-link" type="button" data-category="Cameras">Cameras</button>
+                <button class="category-link" type="button" data-category="Home Appliances">Home Appliances</button>
+                <button class="category-link" type="button" data-category="Gaming">Gaming</button>
                 <button class="category-link" type="button" data-category="Offers"><svg class="icon" aria-hidden="true"><use href="#icon-tag"/></svg>Offers</button>
             </div>
         </nav>
@@ -91,7 +100,7 @@
 
     <main>
         <section class="hero page-width" id="hero" aria-label="Featured offers" aria-roledescription="carousel">
-            <img class="hero-image" id="hero-image" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84" alt="A considered edit of clothing and everyday essentials" fetchpriority="high">
+            <img class="hero-image" id="hero-image" data-image-kind="banner" data-image-fallback="assets/fallback-banner.svg" src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84" alt="A considered edit of clothing and everyday essentials" fetchpriority="high">
             <div class="hero-content" aria-live="polite" aria-atomic="true">
                 <p class="hero-kicker" id="hero-kicker">The THA ONE edit</p>
                 <h1 class="hero-title" id="hero-title">Good things for your everyday.</h1>
@@ -103,6 +112,11 @@
                 <div class="hero-dots" id="hero-dots" aria-label="Choose banner"></div>
                 <button class="hero-arrow" id="hero-next" type="button" aria-label="Next banner"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"/></svg></button>
             </div>
+        </section>
+
+        <section class="section page-width shopping-category-section" aria-labelledby="shopping-categories-title">
+            <div class="section-heading"><div><h2 id="shopping-categories-title">Shop by category</h2><p>Good picks for workdays, weekends and everything between.</p></div></div>
+            <div class="shopping-category-grid" id="shopping-category-grid" aria-label="Shopping categories"></div>
         </section>
 
         <section class="section page-width" id="deals" aria-labelledby="deals-title">

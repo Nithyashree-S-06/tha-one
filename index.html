@@ -280,6 +280,7 @@
                         <h2>Welcome to THA ONE</h2>
                         <p>Sign in to pick up right where you belong.</p>
                     </header>
+                    <p class="trust-note demo-auth-notice hidden" data-demo-auth-notice="login">Presentation mode only. This sign-in is not production authentication.</p>
 
                     <button class="social-button" id="google-login" type="button">
                         <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.4 9.4 0 0 1-4.1 6.2v5h6.6c3.9-3.6 6.1-8.8 6.1-14.9Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5c-1.8 1.2-4.1 2-6.9 2-5.3 0-9.8-3.6-11.4-8.4H5.8v5.2A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.7a12 12 0 0 1 0-7.4v-5.2H5.8a20 20 0 0 0 0 17.8l6.8-5.2Z"/><path fill="#EA4335" d="M24 11.9c3 0 5.6 1 7.7 3.1l5.8-5.8C34 5.9 29.5 4 24 4A20 20 0 0 0 5.8 15.1l6.8 5.2c1.6-4.8 6.1-8.4 11.4-8.4Z"/></svg>
@@ -319,6 +320,17 @@
                     <p class="legal">By continuing, you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</p>
                 </section>
 
+                <section id="google-demo-view" class="auth-view hidden" aria-labelledby="google-demo-title">
+                    <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
+                    <header class="welcome"><p class="step-label">Presentation mode</p><h2 id="google-demo-title">Continue with Google</h2><p>Enter the email you want to use for your THA ONE demo account.</p></header>
+                    <form id="google-demo-form" novalidate>
+                        <div class="field"><div class="field-label-row"><label for="google-demo-email">Email</label></div><input id="google-demo-email" name="email" type="email" autocomplete="email" placeholder="example@gmail.com" required aria-describedby="google-demo-email-error"><p class="form-message" id="google-demo-email-error" aria-live="polite"></p></div>
+                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Continue with Google</span></button>
+                        <p class="form-message" id="google-demo-message" role="status" aria-live="polite"></p>
+                    </form>
+                    <p class="trust-note">Demo authentication only. No Google OAuth verification happened.</p>
+                </section>
+
                 <section id="phone-view" class="auth-view hidden" aria-labelledby="phone-title">
                     <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
                     <header class="welcome">
@@ -326,6 +338,7 @@
                         <h2 id="phone-title">Sign in with your phone</h2>
                         <p id="phone-description">We’ll text you a one-time code to verify it’s you.</p>
                     </header>
+                    <p class="trust-note demo-auth-notice hidden" data-demo-auth-notice="phone">Presentation mode only. Mobile verification is simulated and does not authenticate a production account.</p>
                     <form id="phone-form" novalidate>
                         <div class="field" id="phone-number-field">
                             <div class="field-label-row"><label for="phone-number">Mobile number</label></div>
@@ -382,6 +395,7 @@
                 <section id="signup-view" class="auth-view hidden" aria-labelledby="signup-title">
                     <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
                     <header class="welcome"><p class="step-label">A good place to start</p><h2 id="signup-title">Create your account</h2><p>One account opens the door to THA ONE.</p></header>
+                    <p class="trust-note demo-auth-notice hidden" data-demo-auth-notice="signup">Presentation mode only. This account is a local demo identity.</p>
                     <form id="signup-form" novalidate>
                         <div class="field"><div class="field-label-row"><label for="signup-name">Your name</label></div><input id="signup-name" name="name" type="text" autocomplete="name" placeholder="How should we call you?" required aria-describedby="signup-name-error"><p class="form-message" id="signup-name-error" aria-live="polite"></p></div>
                         <div class="field"><div class="field-label-row"><label for="signup-email">Email address</label></div><input id="signup-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required aria-describedby="signup-email-error"><p class="form-message" id="signup-email-error" aria-live="polite"></p></div>
@@ -455,7 +469,7 @@
                     case "passwordReset":
                         return core.resetPassword(payload);
                     case "googleStart":
-                        const gRes = core.loginWithGoogle();
+                        const gRes = core.loginWithGoogle(payload?.email);
                         const hasDefaultAddress = gRes.user?.addresses?.some((address) => address.isDefault === true);
                         const returnTo = getRedirectDestination();
                         const locationTarget = `customer-location-setup.html?returnTo=${encodeURIComponent(returnTo)}`;
@@ -474,6 +488,13 @@
         };
 
         const views = [...document.querySelectorAll(".auth-view")];
+        document.querySelectorAll("[data-demo-auth-notice]").forEach((notice) => {
+            const method = notice.dataset.demoAuthNotice;
+            const configured = method === "phone"
+                ? Boolean(AUTH_CONFIG.endpoints.requestOtp && AUTH_CONFIG.endpoints.verifyOtp)
+                : Boolean(AUTH_CONFIG.endpoints[method]);
+            notice.classList.toggle("hidden", window.THA_ONE_CONFIG?.demoMode !== true || configured);
+        });
         const showView = (id) => {
             if (id !== "verify-view") stopOtpTimer();
             views.forEach((view) => view.classList.toggle("hidden", view.id !== id));
@@ -550,6 +571,15 @@
         }
 
         const loginForm = document.getElementById("login-form");
+        const googleDemoForm = document.getElementById("google-demo-form");
+        googleDemoForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const email = document.getElementById("google-demo-email");
+            if (!validateField(email, "google-demo-email-error", "Enter a valid email address.")) return email.focus();
+            handleSubmit(googleDemoForm, googleDemoForm.querySelector(".submit-button"), "google-demo-message", "Continuing...", async () => {
+                return window.THA_ONE_CORE.loginWithGoogle(email.value.trim());
+            }, navigateAfterAuthentication);
+        });
         loginForm.addEventListener("submit", (event) => {
             event.preventDefault();
             const identity = document.getElementById("identity");
@@ -566,6 +596,10 @@
         document.getElementById("create-account").addEventListener("click", () => showView("signup-view"));
         document.getElementById("google-login").addEventListener("click", async (event) => {
             const button = event.currentTarget;
+            if (!AUTH_CONFIG.endpoints.googleStart && window.THA_ONE_CONFIG?.demoMode === true) {
+                showView("google-demo-view");
+                return;
+            }
             button.disabled = true;
             setMessage("social-message", "");
             try {

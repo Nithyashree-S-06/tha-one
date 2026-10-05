@@ -4,7 +4,7 @@
     const catalog = window.THA_ONE_FOOD || { categories: [], restaurants: [], dishes: [] };
     const restaurants = catalog.restaurants || [];
     const dishes = catalog.dishes || [];
-    const categoryIcons = { Pizza: "🍕", Burgers: "🍔", Chicken: "🍗", Chinese: "🍜", "South Indian": "🍛", Healthy: "🥗", Desserts: "🍰", Beverages: "🥤" };
+    const categoryIcons = { Pizza: "🍕", Burgers: "🍔", Chicken: "🍗", Chinese: "🍜", "South Indian": "🍛", "North Indian": "🥘", "Healthy Food": "🥗", Desserts: "🍰", Beverages: "🥤", Snacks: "🥟" };
     const storageKey = "tha-one-food-cart";
     const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const state = {
@@ -61,7 +61,7 @@
         const tiles = document.getElementById("food-category-tiles");
         const allCategories = ["All", ...catalog.categories];
         topList.innerHTML = allCategories.map((category) => `<button class="category-link${state.category === category ? " active" : ""}" type="button" data-food-category="${escapeHtml(category)}" aria-pressed="${state.category === category}"><span aria-hidden="true">${categoryIcons[category] || "✳"}</span>${escapeHtml(category)}</button>`).join("");
-        tiles.innerHTML = catalog.categories.map((category) => `<button class="food-category-tile${state.category === category ? " active" : ""}" type="button" data-food-category="${escapeHtml(category)}" aria-pressed="${state.category === category}"><span class="food-category-icon" aria-hidden="true">${categoryIcons[category] || "✳"}</span><span>${escapeHtml(category)}</span></button>`).join("");
+        tiles.innerHTML = catalog.categories.map((category) => `<button class="food-category-tile${state.category === category ? " active" : ""}" type="button" data-food-category="${escapeHtml(category)}" aria-pressed="${state.category === category}">${window.THA_ONE_IMAGES.markup("food", catalog.categoryImages?.[category], category, "food-category-image")}<span>${escapeHtml(category)}</span></button>`).join("");
     }
 
     function getVisibleRestaurants() {
@@ -84,7 +84,7 @@
         const visible = getVisibleRestaurants();
         document.getElementById("restaurant-count").textContent = `${visible.length} nearby ${visible.length === 1 ? "kitchen" : "kitchens"} worth knowing.`;
         grid.innerHTML = visible.length ? visible.map((restaurant) => `<article class="restaurant-card" data-restaurant-card="${escapeHtml(restaurant.id)}">
-            <a class="restaurant-image-link" href="#popular-dishes" data-browse-restaurant="${escapeHtml(restaurant.id)}" aria-label="Browse ${escapeHtml(restaurant.name)} menu"><img class="restaurant-image" src="${escapeHtml(restaurant.image)}" alt="${escapeHtml(restaurant.alt)}" loading="lazy" decoding="async"><span class="restaurant-offer">${escapeHtml(restaurant.offer)}</span></a>
+            <a class="restaurant-image-link" href="#popular-dishes" data-browse-restaurant="${escapeHtml(restaurant.id)}" aria-label="Browse ${escapeHtml(restaurant.name)} menu">${window.THA_ONE_IMAGES.markup("restaurant", restaurant.image, restaurant.alt, "restaurant-image")}<span class="restaurant-offer">${escapeHtml(restaurant.offer)}</span></a>
             <div class="restaurant-info"><div class="restaurant-title-row"><h3>${escapeHtml(restaurant.name)}</h3><span class="restaurant-rating">${icon("star")}${Number(restaurant.rating).toFixed(1)}</span></div><p class="restaurant-cuisine">${escapeHtml(restaurant.cuisine)}</p><div class="restaurant-meta"><span>${icon("clock")}${escapeHtml(restaurant.time)}</span><span>${icon("bike")}${money.format(restaurant.fee)} delivery</span><span>${escapeHtml(restaurant.priceRange)}</span></div><button class="restaurant-open" type="button" data-browse-restaurant="${escapeHtml(restaurant.id)}">Browse menu</button></div>
         </article>`).join("") : '<p class="service-empty">No nearby restaurants match just yet. Try another category or search.</p>';
     }
@@ -106,7 +106,7 @@
             ? `${visible.length} dishes from ${restaurantById(state.restaurantId)?.name || "this kitchen"}.`
             : state.query ? `${visible.length} good ${visible.length === 1 ? "find" : "finds"} for “${state.query}”.` : "Something delicious for later, or right now.";
         grid.innerHTML = visible.length ? visible.map((dish) => `<article class="food-dish-card">
-            <div class="food-dish-image-wrap"><img class="food-dish-image" src="${escapeHtml(dish.image)}" alt="${escapeHtml(dish.alt)}" loading="lazy" decoding="async">${dish.vegetarian ? '<span class="food-veg-mark" role="img" aria-label="Vegetarian"></span>' : ""}</div>
+            <div class="food-dish-image-wrap">${window.THA_ONE_IMAGES.markup("food", dish.image, dish.alt, "food-dish-image")}${dish.vegetarian ? '<span class="food-veg-mark" role="img" aria-label="Vegetarian"></span>' : ""}</div>
             <div class="food-dish-info"><p class="food-dish-restaurant">${escapeHtml(restaurantById(dish.restaurantId)?.name || "THA ONE kitchen")}</p><button class="food-dish-name" type="button" data-food-detail="${escapeHtml(dish.id)}">${escapeHtml(dish.name)}</button><p>${escapeHtml(dish.description)}</p><div class="food-dish-bottom"><span><span class="food-dish-price">${money.format(dish.price)}</span><span class="food-dish-rating"> · ★ ${Number(dish.rating).toFixed(1)}</span></span><button class="food-add-button" type="button" data-food-add="${escapeHtml(dish.id)}" aria-label="Add ${escapeHtml(dish.name)} to food bag">${icon("plus")}</button></div></div>
         </article>`).join("") : '<p class="service-empty">No dishes match this selection. Try another category or search.</p>';
     }
@@ -128,7 +128,7 @@
         cartItems.innerHTML = state.cart.map((item) => {
             const dish = dishById(item.dishId);
             if (!dish) return "";
-            return `<div class="cart-line"><img src="${escapeHtml(dish.image)}" alt="" loading="lazy"><div class="cart-line-info"><span class="cart-line-name">${escapeHtml(dish.name)}</span><span class="cart-line-price">${item.option ? `${escapeHtml(item.option)} · ` : ""}${money.format(dish.price)}</span><div class="quantity-control"><button type="button" data-food-quantity="-1" data-dish-id="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Decrease ${escapeHtml(dish.name)} quantity">${icon("minus")}</button><span>${item.quantity}</span><button type="button" data-food-quantity="1" data-dish-id="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Increase ${escapeHtml(dish.name)} quantity">${icon("plus")}</button></div></div><button class="remove-line" type="button" data-food-remove="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Remove ${escapeHtml(dish.name)}">${icon("close")}</button></div>`;
+            return `<div class="cart-line">${window.THA_ONE_IMAGES.markup("food", dish.image, "", "cart-line-image")}<div class="cart-line-info"><span class="cart-line-name">${escapeHtml(dish.name)}</span><span class="cart-line-price">${item.option ? `${escapeHtml(item.option)} · ` : ""}${money.format(dish.price)}</span><div class="quantity-control"><button type="button" data-food-quantity="-1" data-dish-id="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Decrease ${escapeHtml(dish.name)} quantity">${icon("minus")}</button><span>${item.quantity}</span><button type="button" data-food-quantity="1" data-dish-id="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Increase ${escapeHtml(dish.name)} quantity">${icon("plus")}</button></div></div><button class="remove-line" type="button" data-food-remove="${escapeHtml(dish.id)}" data-option="${escapeHtml(item.option || "")}" aria-label="Remove ${escapeHtml(dish.name)}">${icon("close")}</button></div>`;
         }).join("");
     }
 
@@ -168,7 +168,7 @@
         const restaurant = restaurantById(dish.restaurantId);
         const dialog = document.getElementById("food-detail-dialog");
         const optionMarkup = (dish.options || []).map((option, index) => `<option value="${escapeHtml(option)}"${index === 0 ? " selected" : ""}>${escapeHtml(option)}</option>`).join("");
-        document.getElementById("food-detail-content").innerHTML = `<img class="food-detail-image" src="${escapeHtml(dish.image)}" alt="${escapeHtml(dish.alt)}"><div class="food-detail-content"><div class="service-dialog-heading"><div><p class="food-eyebrow">${escapeHtml(dish.category)} · ${escapeHtml(restaurant?.name || "THA ONE kitchen")}</p><h2 id="food-detail-title">${escapeHtml(dish.name)}</h2><p>${escapeHtml(dish.description)}</p><div class="food-detail-meta"><span>★ ${Number(dish.rating).toFixed(1)}</span><span>${money.format(dish.price)}</span></div></div><button class="dialog-close" type="button" data-food-detail-close aria-label="Close dish details">${icon("close")}</button></div><div class="food-detail-controls"><label>Choose an option<select id="food-option">${optionMarkup}</select></label><label>Quantity<input id="food-quantity" type="number" min="1" max="20" value="1" inputmode="numeric"></label></div><div class="food-detail-actions"><button type="button" id="food-detail-add">Add to food bag · ${money.format(dish.price)}</button><button class="dialog-close" type="button" data-food-detail-close aria-label="Close dish details">${icon("close")}</button></div></div>`;
+        document.getElementById("food-detail-content").innerHTML = `${window.THA_ONE_IMAGES.markup("food", dish.image, dish.alt, "food-detail-image")}<div class="food-detail-content"><div class="service-dialog-heading"><div><p class="food-eyebrow">${escapeHtml(dish.category)} · ${escapeHtml(restaurant?.name || "THA ONE kitchen")}</p><h2 id="food-detail-title">${escapeHtml(dish.name)}</h2><p>${escapeHtml(dish.description)}</p><div class="food-detail-meta"><span>★ ${Number(dish.rating).toFixed(1)}</span><span>${money.format(dish.price)}</span></div></div><button class="dialog-close" type="button" data-food-detail-close aria-label="Close dish details">${icon("close")}</button></div><div class="food-detail-controls"><label>Choose an option<select id="food-option">${optionMarkup}</select></label><label>Quantity<input id="food-quantity" type="number" min="1" max="20" value="1" inputmode="numeric"></label></div><div class="food-detail-actions"><button type="button" id="food-detail-add">Add to food bag · ${money.format(dish.price)}</button><button class="dialog-close" type="button" data-food-detail-close aria-label="Close dish details">${icon("close")}</button></div></div>`;
         dialog.showModal();
     }
 

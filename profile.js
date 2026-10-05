@@ -65,7 +65,7 @@
         const session = document.getElementById("session-state");
         session.textContent = "Connected";
         session.classList.add("available");
-        renderRoles(profile.roles || {});
+        renderRoles(profile.roles || {}, profile);
         renderAddresses();
         renderWishlist();
         renderActivity(Array.isArray(profile.notifications) ? profile.notifications : []);
@@ -80,7 +80,7 @@
         }
     }
 
-    function renderRoles(roles) {
+    function renderRoles(roles, profile = {}) {
         ["seller", "deliveryPartner"].forEach((role) => {
             const prefix = role === "seller" ? "seller" : "delivery";
             const status = String(roles[role]?.status || "not_applied").toLowerCase();
@@ -88,6 +88,17 @@
             const pill = document.getElementById(`${prefix}-role-pill`);
             const link = document.getElementById(`${prefix}-role-link`);
             const teaser = document.getElementById(`profile-${prefix}-teaser`);
+
+            const demoRole = role === "seller" ? "seller" : "delivery";
+            if (profile.demoMode === true && profile.demoRole === demoRole) {
+                statusNode.textContent = "Demo account · Not production verified";
+                pill.textContent = "Demo account";
+                pill.className = "role-state pending";
+                link.textContent = role === "seller" ? "Open Demo Seller Dashboard" : "Open Demo Delivery Dashboard";
+                link.href = role === "seller" ? "seller.html" : "delivery.html";
+                if (teaser) teaser.textContent = "Presentation-only workspace · No production KYC or payout service";
+                return;
+            }
 
             const labels = {
                 verified: ["Verified", "available"],

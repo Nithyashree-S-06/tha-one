@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 740" role="img" aria-label="THA ONE food image placeholder">
+  <rect width="800" height="740" fill="#f6eee2"/>
+  <circle cx="400" cy="332" r="188" fill="#ead8bf"/>
+  <circle cx="400" cy="332" r="134" fill="#fffaf1" stroke="#a57b4a" stroke-width="10"/>
+  <circle cx="400" cy="332" r="83" fill="#e6aa53"/>
+  <circle cx="366" cy="306" r="12" fill="#66834b"/><circle cx="431" cy="347" r="12" fill="#b84f39"/><circle cx="386" cy="368" r="10" fill="#66834b"/>
+  <text x="400" y="590" text-anchor="middle" fill="#785531" font-family="Arial,sans-serif" font-size="32" font-weight="700">THA ONE FOOD</text>
+</svg>

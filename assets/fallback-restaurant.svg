@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" role="img" aria-label="THA ONE restaurant image placeholder">
+  <rect width="1000" height="560" fill="#edf0e7"/>
+  <circle cx="500" cy="245" r="158" fill="#dce6d5"/>
+  <path d="M363 250h274l-24-95H387l-24 95Zm26 0v132h222V250M457 382V286h88v96" fill="#fff" stroke="#5f7859" stroke-linejoin="round" stroke-width="13"/>
+  <path d="M350 250c0 24 38 32 58 0 20 32 58 24 58 0 0 24 68 24 68 0 0 24 58 32 58 0" fill="none" stroke="#9b6443" stroke-linecap="round" stroke-width="13"/>
+  <text x="500" y="482" text-anchor="middle" fill="#47634a" font-family="Arial,sans-serif" font-size="30" font-weight="700">THA ONE KITCHEN</text>
+</svg>

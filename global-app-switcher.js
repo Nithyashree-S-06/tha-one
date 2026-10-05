@@ -12,15 +12,16 @@
         const sellerStatus = user?.roles?.seller?.status;
         const sellerVerified = user?.roles?.seller?.verified === true;
         const sellerApplied = sellerStatus && sellerStatus !== "not_applied";
-        const hasSeller = (user?.selectedRoles?.includes("seller") && sellerApplied) || sellerVerified;
+        const demoSeller = window.THA_ONE_CONFIG?.demoMode === true && user?.demoMode === true && user.demoRole === "seller";
+        const hasSeller = demoSeller || (user?.selectedRoles?.includes("seller") && sellerApplied) || sellerVerified;
 
         if (hasSeller) {
             base.push({
                 id: "seller",
                 label: "Seller",
                 icon: "🏪",
-                description: sellerVerified ? "Seller Dashboard" : "Seller Verification",
-                href: sellerVerified ? "seller.html" : "seller-onboarding.html"
+                description: demoSeller ? "Demo Seller Account" : sellerVerified ? "Seller Dashboard" : "Seller Verification",
+                href: demoSeller || sellerVerified ? "seller.html" : "seller-onboarding.html"
             });
         }
 
@@ -28,15 +29,16 @@
         const deliveryStatus = user?.roles?.deliveryPartner?.status;
         const deliveryVerified = user?.roles?.deliveryPartner?.verified === true;
         const deliveryApplied = deliveryStatus && deliveryStatus !== "not_applied";
-        const hasDelivery = (user?.selectedRoles?.includes("delivery") && deliveryApplied) || deliveryVerified;
+        const demoDelivery = window.THA_ONE_CONFIG?.demoMode === true && user?.demoMode === true && user.demoRole === "delivery";
+        const hasDelivery = demoDelivery || (user?.selectedRoles?.includes("delivery") && deliveryApplied) || deliveryVerified;
 
         if (hasDelivery) {
             base.push({
                 id: "delivery",
                 label: "Delivery Partner",
                 icon: "🛵",
-                description: deliveryVerified ? "Delivery Dashboard" : "Partner Verification",
-                href: deliveryVerified ? "delivery.html" : "delivery-onboarding.html"
+                description: demoDelivery ? "Demo Delivery Partner" : deliveryVerified ? "Delivery Dashboard" : "Partner Verification",
+                href: demoDelivery || deliveryVerified ? "delivery.html" : "delivery-onboarding.html"
             });
         }
 

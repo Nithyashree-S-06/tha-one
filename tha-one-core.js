@@ -182,6 +182,8 @@
                 experienceSelected: Boolean(this.user.experienceSelected),
                 experienceSkipped: Boolean(this.user.experienceSkipped),
                 selectedRoles: this.user.selectedRoles || ["shopping", "food"],
+                demoMode: this.user.demoMode === true,
+                demoRole: this.user.demoRole || "",
                 addresses: this.user.addresses || [],
                 notifications: this.user.notifications || []
             };
@@ -273,6 +275,8 @@
 
             this.user.email = cleanIdentity.includes("@") ? cleanIdentity : `${cleanIdentity}@thaone.in`;
             this.user.fullName = this.user.fullName || name;
+            this.user.demoMode = window.THA_ONE_CONFIG?.demoMode === true;
+            this.user.demoRole = "";
             this.user.avatar = this.user.fullName.split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2);
             this.persistUser();
 
@@ -304,6 +308,11 @@
                     deliveryPartner: { status: "not_applied", verified: false },
                     admin: { status: "active", verified: true }
                 },
+                experienceSelected: false,
+                experienceSkipped: false,
+                selectedRoles: ["shopping", "food"],
+                demoMode: window.THA_ONE_CONFIG?.demoMode === true,
+                demoRole: "",
                 addresses: [],
                 notifications: [
                     { id: "notif_" + Date.now(), title: "Account Created", message: "Welcome to THA ONE! Your multi-service account is ready." }
@@ -318,20 +327,81 @@
             };
         }
 
-        loginWithGoogle() {
-            // Simulated secure OAuth handshake
-            const googleName = "Aarav Sharma";
-            const googleEmail = "aarav.sharma@gmail.com";
-            this.user.fullName = googleName;
-            this.user.email = googleEmail;
-            this.user.avatar = "AS";
+        // Demo email selection only; real OAuth remains owned by the configured auth endpoint.
+        loginWithGoogle(email) {
+            const googleEmail = String(email || "").trim().toLowerCase();
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(googleEmail)) {
+                throw new Error("Enter a valid email address.");
+            }
+            const googleName = googleEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
+            if (String(this.user.email || "").toLowerCase() !== googleEmail) {
+                this.user = {
+                    id: "demo_google_" + Math.random().toString(36).slice(2, 10),
+                    fullName: googleName || "THA ONE Customer",
+                    email: googleEmail,
+                    mobile: "",
+                    mobileRaw: "",
+                    avatar: (googleName || "THA ONE Customer").split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2),
+                    roles: {
+                        customer: { status: "active", verified: true },
+                        seller: { status: "not_applied", verified: false },
+                        deliveryPartner: { status: "not_applied", verified: false }
+                    },
+                    experienceSelected: false,
+                    experienceSkipped: false,
+                    selectedRoles: ["shopping", "food"],
+                    addresses: [],
+                    notifications: [{ id: "demo_google_" + Date.now(), title: "Demo account", message: "This email sign-in is a presentation-only demo; Google OAuth was not performed." }]
+                };
+            } else {
+                this.user.email = googleEmail;
+                this.user.fullName = googleName || this.user.fullName || "THA ONE Customer";
+            }
+            this.user.demoMode = window.THA_ONE_CONFIG?.demoMode === true;
+            this.user.demoRole = "";
+            this.user.avatar = this.user.fullName.split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2);
             this.persistUser();
 
             return {
                 success: true,
-                provider: "google",
+                provider: "demo_google_email",
+                demoAuthentication: true,
                 user: this.user
             };
+        }
+
+        openDemoPartnerSession({ role, mobile }) {
+            if (window.THA_ONE_CONFIG?.demoMode !== true) {
+                throw new Error("Demo partner sign-in is disabled.");
+            }
+            const digits = String(mobile || "").replace(/\D/g, "");
+            if (!/^[6-9]\d{9}$/.test(digits)) throw new Error("Enter a valid 10-digit Indian mobile number.");
+            if (role !== "seller" && role !== "delivery") throw new Error("Choose a valid demo partner role.");
+
+            const seller = role === "seller";
+            const fullName = seller ? "Demo Seller" : "Demo Delivery Partner";
+            this.user = {
+                id: `demo_${role}_${digits.slice(-4)}_${Math.random().toString(36).slice(2, 7)}`,
+                fullName,
+                email: `demo-${role}-${digits.slice(-4)}@thaone.example`,
+                mobile: `+91 ${digits}`,
+                mobileRaw: digits,
+                avatar: seller ? "DS" : "DP",
+                roles: {
+                    customer: { status: "active", verified: true },
+                    seller: { status: "not_applied", verified: false },
+                    deliveryPartner: { status: "not_applied", verified: false }
+                },
+                experienceSelected: true,
+                experienceSkipped: false,
+                selectedRoles: seller ? ["shopping", "food", "seller"] : ["shopping", "food", "delivery"],
+                demoMode: true,
+                demoRole: role,
+                addresses: [],
+                notifications: [{ id: `demo_${Date.now()}`, title: `Demo ${seller ? "Seller" : "Delivery Partner"} Account`, message: "This account is for presentation only. No production verification or payout service is connected." }]
+            };
+            this.persistUser();
+            return { success: true, demoAuthentication: true, user: this.user };
         }
 
         requestOtp({ phone }) {
@@ -432,6 +502,8 @@
 
         logout() {
             // Keep this account's role preference and verification state for its next login.
+            this.user.demoMode = false;
+            this.user.demoRole = "";
             this.persistUser();
             return { success: true };
         }

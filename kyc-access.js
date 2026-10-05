@@ -34,6 +34,20 @@
     }
 
     async function requireVerified(service, gate, dashboard) {
+        const demoRole = service === "delivery" ? "delivery" : "seller";
+        const demoUser = window.THA_ONE_CORE?.getUser?.();
+        if (window.THA_ONE_CONFIG?.demoMode === true && demoUser?.demoMode === true && demoUser.demoRole === demoRole) {
+            gate.hidden = true;
+            dashboard.hidden = false;
+            const onlineToggle = document.querySelector(".delivery-online-toggle");
+            const storeOpenIndicator = document.querySelector(".ops-status-open");
+            const demoBadge = document.querySelector("[data-demo-account-badge]");
+            if (onlineToggle) onlineToggle.hidden = false;
+            if (storeOpenIndicator) storeOpenIndicator.hidden = false;
+            if (demoBadge) demoBadge.hidden = false;
+            return true;
+        }
+
         const status = await checkStatus(service);
         const onlineToggle = document.querySelector(".delivery-online-toggle");
         const storeOpenIndicator = document.querySelector(".ops-status-open");

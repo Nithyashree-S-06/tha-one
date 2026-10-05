@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 740" role="img" aria-label="THA ONE product image placeholder">
+  <rect width="800" height="740" fill="#edf2e8"/>
+  <circle cx="400" cy="338" r="170" fill="#dce8d3"/>
+  <rect x="277" y="250" width="246" height="178" rx="20" fill="#fff" stroke="#76916f" stroke-width="10"/>
+  <path d="M316 382h168M350 217h100" fill="none" stroke="#76916f" stroke-linecap="round" stroke-width="12"/>
+  <text x="400" y="572" text-anchor="middle" fill="#47634a" font-family="Arial,sans-serif" font-size="32" font-weight="700">THA ONE</text>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 720" role="img" aria-label="THA ONE promotional banner placeholder">
+  <rect width="1800" height="720" fill="#e8efe2"/>
+  <path d="M0 520 470 150l340 300 340-360 650 430v200H0Z" fill="#d4e2ca"/>
+  <circle cx="1430" cy="200" r="110" fill="#f2d9a7"/>
+  <rect x="180" y="164" width="300" height="360" rx="30" fill="#fff" stroke="#6e8966" stroke-width="15"/>
+  <path d="M260 250h140M260 314h140M260 378h95" stroke="#8da584" stroke-linecap="round" stroke-width="19"/>
+  <text x="900" y="620" text-anchor="middle" fill="#294a35" font-family="Arial,sans-serif" font-size="54" font-weight="700">THA ONE · GOOD THINGS FOR EVERYDAY</text>
+</svg>

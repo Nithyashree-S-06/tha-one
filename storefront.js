@@ -4,34 +4,61 @@
     const products = Array.isArray(window.THA_ONE_PRODUCTS) ? window.THA_ONE_PRODUCTS : [];
     const storageKeys = { cart: "tha-one-cart", wishlist: "tha-one-wishlist", recentlyViewed: "tha-one-recently-viewed" };
     const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
-    const categories = ["All", "Electronics", "Fashion", "Mobiles", "Beauty", "Home", "Grocery", "Accessories", "Sports", "Offers"];
+    const categories = ["All", "Mobiles", "Laptops", "Earbuds & Headphones", "Smart Watches", "Fashion", "Footwear", "Bags", "Cameras", "Home Appliances", "Beauty", "Gaming", "Sports", "Electronics", "Home", "Grocery", "Accessories", "Offers"];
     const heroBanners = [
         {
-            kicker: "The THA ONE edit",
-            title: "Good things for your everyday.",
-            description: "Small upgrades, thoughtful finds and the pieces you’ll reach for again tomorrow.",
-            cta: "Explore the edit",
+            kicker: "Big Electronics Sale",
+            title: "Good tech, thoughtfully priced.",
+            description: "Everyday upgrades for brighter screens, clearer sound and smoother workdays.",
+            cta: "Explore electronics",
             href: "#featured",
-            image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84",
-            alt: "A considered edit of clothing and everyday essentials"
+            image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&w=1800&q=84",
+            alt: "A curated range of consumer electronics"
         },
         {
-            kicker: "A little less ordinary",
-            title: "Find your next favourite thing.",
-            description: "Good design, useful details and a few surprises for wherever the day takes you.",
-            cta: "Shop the collection",
+            kicker: "New Smartphone Deals",
+            title: "A little more in every moment.",
+            description: "Discover pocket-ready phones, useful accessories and everyday camera upgrades.",
+            cta: "See mobile picks",
             href: "#featured",
-            image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=84",
-            alt: "A thoughtful collection of wardrobe pieces"
+            image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1800&q=84",
+            alt: "A modern smartphone displayed in soft natural light"
         },
         {
-            kicker: "Everyday, made better",
-            title: "Small finds. Big good energy.",
-            description: "Discover useful little upgrades chosen to make the everyday feel a bit more yours.",
-            cta: "See what’s new",
+            kicker: "Fashion Week · THA ONE edit",
+            title: "Wear the day your way.",
+            description: "Easy layers, everyday footwear and carry pieces picked for wherever you’re headed.",
+            cta: "Browse the edit",
             href: "#deals",
-            image: "https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=1800&q=84",
-            alt: "A warm, carefully arranged home and lifestyle collection"
+            image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=84",
+            alt: "A considered fashion collection in a bright studio"
+        },
+        {
+            kicker: "Gaming Deals",
+            title: "Make room for play.",
+            description: "Controllers, audio and screen-time essentials for the next friendly match.",
+            cta: "Find gaming gear",
+            href: "#featured",
+            image: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=1800&q=84",
+            alt: "A home gaming setup with console and controller"
+        },
+        {
+            kicker: "Home Appliance Offers",
+            title: "A little easier around home.",
+            description: "Thoughtful appliances and useful details for the spaces you use every day.",
+            cta: "Shop home finds",
+            href: "#featured",
+            image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=1800&q=84",
+            alt: "A warm, modern kitchen with useful home details"
+        },
+        {
+            kicker: "Weekend Mega Sale",
+            title: "Find a good thing for today.",
+            description: "Fresh offers across tech, home, beauty and the small things that make a day.",
+            cta: "Shop weekend offers",
+            href: "#deals",
+            image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1800&q=84",
+            alt: "A bright curated shopping space with everyday essentials"
         }
     ];
 
@@ -87,7 +114,7 @@
         const label = `${isSaved ? "Remove from" : "Add to"} wishlist: ${product.name}`;
         return `<article class="product-card${compact ? " compact-card" : ""}">
             <a class="product-image-link" href="${productUrl(product)}" aria-label="View ${escapeHtml(product.name)}">
-                <img class="product-image" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.alt)}" loading="lazy" decoding="async">
+                ${window.THA_ONE_IMAGES.markup("product", product.image, product.alt, "product-image")}
                 <span class="product-badge">${escapeHtml(product.badge)}</span>
             </a>
             <button class="wishlist-button${isSaved ? " is-active" : ""}" type="button" data-toggle-wishlist="${escapeHtml(product.id)}" aria-label="${escapeHtml(label)}" aria-pressed="${isSaved}" title="${escapeHtml(isSaved ? "Remove from wishlist" : "Add to wishlist")}">${icon("heart")}</button>
@@ -192,7 +219,7 @@
             const product = productById(item.id);
             if (!product) return "";
             return `<div class="cart-line">
-                <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.name)}"><img src="${escapeHtml(product.image)}" alt="" loading="lazy"></a>
+                <a href="${productUrl(product)}" aria-label="View ${escapeHtml(product.name)}">${window.THA_ONE_IMAGES.markup("product", product.image, "", "cart-line-image")}</a>
                 <div class="cart-line-info"><a class="cart-line-name" href="${productUrl(product)}">${escapeHtml(product.name)}</a>${item.variant ? `<span class="cart-line-price">${escapeHtml(item.variant)} · </span>` : ""}<span class="cart-line-price">${money.format(product.price)}</span><div class="quantity-control" aria-label="Quantity for ${escapeHtml(product.name)}"><button type="button" data-quantity="-1" data-id="${escapeHtml(item.id)}" data-variant="${escapeHtml(item.variant)}" aria-label="Decrease quantity">${icon("minus")}</button><span>${item.quantity}</span><button type="button" data-quantity="1" data-id="${escapeHtml(item.id)}" data-variant="${escapeHtml(item.variant)}" aria-label="Increase quantity">${icon("plus")}</button></div></div>
                 <button class="remove-line" type="button" data-remove-cart="${escapeHtml(item.id)}" data-variant="${escapeHtml(item.variant)}" aria-label="Remove ${escapeHtml(product.name)} from cart">${icon("close")}</button>
             </div>`;
@@ -232,6 +259,17 @@
         if (state.sort === "price-high") result.sort((a, b) => b.price - a.price);
         if (state.sort === "rating") result.sort((a, b) => b.rating - a.rating);
         return result;
+    }
+
+    function renderShoppingCategories() {
+        const grid = document.getElementById("shopping-category-grid");
+        if (!grid) return;
+        const categories = window.THA_ONE_SHOPPING_CATEGORIES || [];
+        grid.innerHTML = categories.map((category) => `<button class="shopping-category-tile" type="button" data-category="${escapeHtml(category.name)}" aria-label="Browse ${escapeHtml(category.name)}">${window.THA_ONE_IMAGES.markup("product", category.image, category.alt, "", "lazy")}<span>${escapeHtml(category.name)}</span></button>`).join("");
+        grid.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-category]");
+            if (button) setCategory(button.dataset.category);
+        });
     }
 
     function renderCategoryChips() {
@@ -304,7 +342,7 @@
         }
         const saved = state.wishlist.has(product.id);
         const gallery = (Array.isArray(product.gallery) && product.gallery.length ? product.gallery : [product.image]).filter((image) => typeof image === "string").slice(0, 6);
-        const galleryMarkup = `<div class="detail-gallery"><div class="detail-image-wrap"><img class="detail-image" id="detail-gallery-main" src="${escapeHtml(gallery[0] || product.image)}" alt="${escapeHtml(product.alt)}" fetchpriority="high" decoding="async"><span class="product-badge">${escapeHtml(product.badge)}</span><button class="wishlist-button${saved ? " is-active" : ""}" type="button" data-toggle-wishlist="${escapeHtml(product.id)}" aria-label="${saved ? "Remove from" : "Add to"} wishlist: ${escapeHtml(product.name)}" aria-pressed="${saved}">${icon("heart")}</button></div>${gallery.length > 1 ? `<div class="detail-thumbnails" role="group" aria-label="Product images">${gallery.map((image, index) => `<button class="detail-thumbnail${index === 0 ? " active" : ""}" type="button" data-detail-image-index="${index}" data-detail-image="${escapeHtml(image)}" data-detail-alt="${escapeHtml(product.alt)}" aria-label="View image ${index + 1} of ${escapeHtml(product.name)}" aria-pressed="${index === 0}"><img src="${escapeHtml(image)}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}</div>`;
+        const galleryMarkup = `<div class="detail-gallery"><div class="detail-image-wrap">${window.THA_ONE_IMAGES.markup("product", gallery[0] || product.image, product.alt, "detail-image", "eager")}<span class="product-badge">${escapeHtml(product.badge)}</span><button class="wishlist-button${saved ? " is-active" : ""}" type="button" data-toggle-wishlist="${escapeHtml(product.id)}" aria-label="${saved ? "Remove from" : "Add to"} wishlist: ${escapeHtml(product.name)}" aria-pressed="${saved}">${icon("heart")}</button></div>${gallery.length > 1 ? `<div class="detail-thumbnails" role="group" aria-label="Product images">${gallery.map((image, index) => `<button class="detail-thumbnail${index === 0 ? " active" : ""}" type="button" data-detail-image-index="${index}" data-detail-image="${escapeHtml(image)}" data-detail-alt="${escapeHtml(product.alt)}" aria-label="View image ${index + 1} of ${escapeHtml(product.name)}" aria-pressed="${index === 0}">${window.THA_ONE_IMAGES.markup("product", image, "", "detail-thumbnail-image")}</button>`).join("")}</div>` : ""}</div>`;
         const variantMarkup = product.variants?.length ? `<div class="variant-group"><p class="variant-heading">Choose your option</p><div class="variant-options" role="group" aria-label="Choose a product option">${product.variants.map((variant, index) => `<button class="variant-option${index === 0 ? " is-selected" : ""}" type="button" data-variant="${escapeHtml(variant)}" aria-pressed="${index === 0}">${escapeHtml(variant)}</button>`).join("")}</div></div>` : "";
         const specifications = [["Category", product.category], ["Rating", `${Number(product.rating).toFixed(1)} / 5`], ["Options", (product.variants || []).join(", ") || "Standard"]];
         const detailsMarkup = `<section class="detail-facts" aria-labelledby="detail-specifications-title"><h2 id="detail-specifications-title">Specifications</h2><dl>${specifications.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl><h3>Available offers</h3><ul><li>Free delivery on Shopping orders over ₹999</li><li>Easy 7-day returns on eligible items</li></ul></section>`;
@@ -428,6 +466,8 @@
             state.heroIndex = (index + heroBanners.length) % heroBanners.length;
             const banner = heroBanners[state.heroIndex];
             const image = document.getElementById("hero-image");
+            image.dataset.fallbackAttempted = "false";
+            image.classList.remove("image-unavailable");
             image.src = banner.image;
             image.alt = banner.alt;
             document.getElementById("hero-kicker").textContent = banner.kicker;
@@ -575,6 +615,8 @@
             const galleryButton = event.target.closest("[data-detail-image-index]");
             if (galleryButton) {
                 const mainImage = document.getElementById("detail-gallery-main");
+                mainImage.dataset.fallbackAttempted = "false";
+                mainImage.classList.remove("image-unavailable");
                 mainImage.src = galleryButton.dataset.detailImage;
                 mainImage.alt = galleryButton.dataset.detailAlt;
                 document.querySelectorAll(".detail-thumbnail").forEach((thumbnail) => {
@@ -617,11 +659,6 @@
             const wishlist = event.target.closest("[data-toggle-wishlist]");
             if (wishlist) toggleWishlist(wishlist.dataset.toggleWishlist);
         });
-        document.addEventListener("error", (event) => {
-            if (!(event.target instanceof HTMLImageElement)) return;
-            event.target.classList.add("image-unavailable");
-            event.target.alt = event.target.alt || "Product image unavailable";
-        }, true);
     }
 
     function initialize() {
@@ -635,7 +672,10 @@
         setupLocation();
         setupMobileNavigation();
         setupDelegatedActions();
-        if (document.body.dataset.page === "home") setupHome();
+        if (document.body.dataset.page === "home") {
+            renderShoppingCategories();
+            setupHome();
+        }
         if (document.body.dataset.page === "product") setupProductPage();
         updateBadges();
     }
