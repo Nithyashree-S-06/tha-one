@@ -36,7 +36,7 @@
     async function requireVerified(service, gate, dashboard) {
         const demoRole = service === "delivery" ? "delivery" : "seller";
         const demoUser = window.THA_ONE_CORE?.getUser?.();
-        if (window.THA_ONE_CONFIG?.demoMode === true && demoUser?.demoMode === true && demoUser.demoRole === demoRole) {
+        if (window.THA_ONE_CONFIG?.DEMO_MODE === true && demoUser?.demoMode === true && demoUser.demoRole === demoRole) {
             gate.hidden = true;
             dashboard.hidden = false;
             const onlineToggle = document.querySelector(".delivery-online-toggle");

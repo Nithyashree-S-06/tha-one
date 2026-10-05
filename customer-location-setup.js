@@ -20,15 +20,6 @@
         return value;
     }
 
-    function setMode(mode) {
-        document.querySelectorAll("[data-location-mode]").forEach((panel) => {
-            panel.hidden = panel.dataset.locationMode !== mode;
-        });
-        document.querySelectorAll("[data-location-mode-button]").forEach((button) => {
-            button.setAttribute("aria-pressed", String(button.dataset.locationModeButton === mode));
-        });
-    }
-
     function updatePreview(result, target) {
         const location = result.location || result;
         const pincode = String(location.pincode || "");
@@ -183,63 +174,12 @@
         node("manual-phone").value = state.profile.mobile || "";
     }
 
-    function bindCurrentLocation() {
-        node("edit-detected-address").addEventListener("click", () => setMode("manual"));
-        node("detect-location").addEventListener("click", () => {
-            const message = node("current-location-message");
-            const button = node("detect-location");
-            if (!navigator.geolocation) {
-                setMessage(message, "Location is not available in this browser. Enter a pincode or address instead.", "error");
-                return;
-            }
-            button.disabled = true;
-            setMessage(message, "Requesting location permission…");
-            navigator.geolocation.getCurrentPosition(async (position) => {
-                setMessage(message, "Checking this location with the address service…");
-                try {
-                    const result = await api.request("reverseGeocodeEndpoint", {
-                        method: "POST",
-                        body: {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude
-                        }
-                    });
-                    updatePreview(result, {
-                        container: node("detected-result"),
-                        area: node("detected-area"),
-                        city: node("detected-city"),
-                        state: node("detected-state"),
-                        pincode: node("detected-pincode")
-                    });
-                    populateManualFields(state.preview);
-                    setMessage(message, "Review the detected result and edit your address before confirming.");
-                } catch (error) {
-                    setMessage(message, error.message || "We couldn’t resolve this location. Enter a pincode or address instead.", "error");
-                } finally {
-                    button.disabled = false;
-                }
-            }, (error) => {
-                const reason = error.code === error.PERMISSION_DENIED
-                    ? "Location permission was denied. You can enter a pincode or address manually."
-                    : "We couldn’t access your location. Enter a pincode or address manually.";
-                setMessage(message, reason, "error");
-                button.disabled = false;
-            }, { enableHighAccuracy: false, maximumAge: 0, timeout: 12000 });
-        });
-
-        node("confirm-detected-location").addEventListener("click", async () => {
-            try {
-                const address = addressFromFields("manual", state.preview?.area || "");
-                await persistAddress(address);
-            } catch (error) {
-                setMessage(node("current-location-message"), error.message, "error");
-                setMode("manual");
-            }
-        });
-    }
-
     function bindPincodeLookup() {
-        node("edit-pincode-address").addEventListener("click", () => setMode("manual"));
+        node("edit-pincode-address").addEventListener("click", () => node("manual-location-panel").scrollIntoView({ behavior: "smooth", block: "start" }));
+        node("lookup-pincode").addEventListener("input", () => {
+            state.preview = null;
+            node("pincode-result").hidden = true;
+        });
         node("pincode-lookup-form").addEventListener("submit", async (event) => {
             event.preventDefault();
             const input = node("lookup-pincode");
@@ -274,11 +214,14 @@
 
         node("confirm-pincode-location").addEventListener("click", async () => {
             try {
+                if (!state.preview || node("manual-pincode").value.trim() !== state.preview.pincode) {
+                    throw new Error("Search and confirm the current pincode before saving its location.");
+                }
                 const address = addressFromFields("manual", state.preview?.area || "");
                 await persistAddress(address);
             } catch (error) {
                 setMessage(node("pincode-message"), error.message, "error");
-                setMode("manual");
+                node("manual-location-panel").scrollIntoView({ behavior: "smooth", block: "start" });
             }
         });
     }
@@ -315,10 +258,7 @@
     }
 
     function init() {
-        document.querySelectorAll("[data-location-mode-button]").forEach((button) => {
-            button.addEventListener("click", () => setMode(button.dataset.locationModeButton));
-        });
-        bindCurrentLocation();
+        node("select-manual-location").addEventListener("click", () => node("manual-location-panel").scrollIntoView({ behavior: "smooth", block: "start" }));
         bindPincodeLookup();
         bindManualAddress();
         bindSavedAddress();

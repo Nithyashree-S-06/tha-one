@@ -7,7 +7,7 @@
         window.location.replace("experience.html");
         return;
     }
-    if (window.THA_ONE_CONFIG?.demoMode !== true) {
+    if (window.THA_ONE_CONFIG?.DEMO_MODE !== true) {
         window.location.replace(role === "seller" ? "seller-onboarding.html" : "delivery-onboarding.html");
         return;
     }
@@ -21,15 +21,17 @@
 
     document.getElementById("demo-partner-form").addEventListener("submit", (event) => {
         event.preventDefault();
-        const mobile = document.getElementById("demo-mobile").value.trim();
+        const identifier = document.getElementById("demo-identifier").value.trim();
         const message = document.getElementById("demo-login-message");
-        if (!/^[6-9]\d{9}$/.test(mobile)) {
-            message.textContent = "Enter a valid-looking 10-digit Indian mobile number.";
-            document.getElementById("demo-mobile").focus();
+        const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+        const digits = identifier.replace(/\D/g, "");
+        if (!isEmail && !/^[6-9]\d{9}$/.test(digits)) {
+            message.textContent = "Enter a valid-looking 10-digit Indian mobile number or email address.";
+            document.getElementById("demo-identifier").focus();
             return;
         }
         try {
-            window.THA_ONE_CORE.openDemoPartnerSession({ role, mobile });
+            window.THA_ONE_CORE.openDemoPartnerSession({ role, identifier });
             window.location.assign(seller ? "seller.html" : "delivery.html");
         } catch (error) {
             message.textContent = error.message || "The demo partner account could not be opened.";

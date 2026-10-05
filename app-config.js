@@ -1,6 +1,13 @@
 window.THA_ONE_CONFIG = Object.freeze({
-    demoMode: true,
+    // Presentation builds only; disable for deployments that use real authentication and KYC.
+    DEMO_MODE: true,
     apiOrigin: "",
+    loginEndpoint: "",
+    signupEndpoint: "",
+    requestOtpEndpoint: "",
+    verifyOtpEndpoint: "",
+    passwordResetEndpoint: "",
+    googleOAuthStartEndpoint: "",
     sessionEndpoint: "",
     profileEndpoint: "",
     profileUpdateEndpoint: "",

@@ -34,8 +34,8 @@
         <header class="location-heading">
             <div>
                 <p class="service-eyebrow">Shopping and Food delivery</p>
-                <h1>Set your delivery location</h1>
-                <p>Choose a saved address or use a pincode, your current location, or a manually entered address.</p>
+                <h1>Choose your delivery location</h1>
+                <p>Select a saved address, search by pincode, or enter your address manually. No device location is requested.</p>
             </div>
             <a class="location-heading-back" href="home.html"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Back to Shopping</a>
         </header>
@@ -50,54 +50,33 @@
         </section>
 
         <section class="location-section" aria-labelledby="choose-method-title">
-            <h2 id="choose-method-title">Choose how to set your location</h2>
-            <div class="location-methods" role="group" aria-label="Location setup method">
-                <button class="location-method" type="button" data-location-mode-button="current" aria-pressed="true"><span class="location-method-icon" aria-hidden="true">📍</span>Use Current Location</button>
-                <button class="location-method" type="button" data-location-mode-button="pincode" aria-pressed="false"><span class="location-method-icon" aria-hidden="true">🏠</span>Enter Pincode</button>
-                <button class="location-method" type="button" data-location-mode-button="manual" aria-pressed="false"><span class="location-method-icon" aria-hidden="true">✏️</span>Enter Address Manually</button>
-            </div>
+            <h2 id="choose-method-title">Select Location Manually</h2>
+            <p>Choose your address yourself. You can search the pincode first, then review and confirm the result.</p>
+            <button class="location-method" type="button" id="select-manual-location"><span class="location-method-icon" aria-hidden="true">📍</span>Enter your address manually</button>
 
-            <section class="location-mode" data-location-mode="current" aria-labelledby="current-location-title">
-                <h3 id="current-location-title">Use your current location</h3>
-                <p>Location access is requested only after you choose this option. Your coordinates are used for lookup and are not saved.</p>
-                <button class="service-button" type="button" id="detect-location">Detect my location</button>
-                <p class="location-status" id="current-location-message" role="status" aria-live="polite"></p>
-                <div class="location-result" id="detected-result" hidden>
-                    <h3>Your Location</h3>
-                    <dl class="location-result-grid">
-                        <div><dt>Area</dt><dd id="detected-area"></dd></div>
-                        <div><dt>City</dt><dd id="detected-city"></dd></div>
-                        <div><dt>State</dt><dd id="detected-state"></dd></div>
-                        <div><dt>Pincode</dt><dd id="detected-pincode"></dd></div>
-                    </dl>
-                    <button class="service-button secondary" type="button" id="edit-detected-address">Edit address</button>
-                    <button class="service-button" type="button" id="confirm-detected-location">Confirm Location</button>
-                </div>
-            </section>
-
-            <section class="location-mode" data-location-mode="pincode" aria-labelledby="pincode-location-title" hidden>
-                <h3 id="pincode-location-title">Enter your Pincode</h3>
-                <p>We’ll check the pincode with the location service before showing its area and city.</p>
+            <section class="location-mode" id="pincode-location-panel" aria-labelledby="pincode-location-title">
+                <h3 id="pincode-location-title">Search by Pincode</h3>
+                <p>Enter a 6-digit Indian pincode. Matching area, city and state are shown only when the pincode service responds.</p>
                 <form class="location-lookup-row" id="pincode-lookup-form" novalidate>
                     <div class="service-form-field"><label for="lookup-pincode">6-digit Indian pincode</label><input class="service-input" id="lookup-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required></div>
                     <button class="service-button" type="submit" id="lookup-pincode-button">Find location</button>
                 </form>
                 <p class="location-status" id="pincode-message" role="status" aria-live="polite"></p>
                 <div class="location-result" id="pincode-result" hidden>
-                    <h3>Pincode location</h3>
+                    <h3>Review Pincode Location</h3>
                     <dl class="location-result-grid">
                         <div><dt>Area</dt><dd id="pincode-area"></dd></div>
                         <div><dt>City</dt><dd id="pincode-city"></dd></div>
                         <div><dt>State</dt><dd id="pincode-state"></dd></div>
                         <div><dt>Pincode</dt><dd id="pincode-value"></dd></div>
                     </dl>
-                    <button class="service-button secondary" type="button" id="edit-pincode-address">Edit address</button>
-                    <button class="service-button" type="button" id="confirm-pincode-location">Confirm</button>
+                    <button class="service-button secondary" type="button" id="edit-pincode-address">Edit address below</button>
+                    <button class="service-button" type="button" id="confirm-pincode-location">Confirm Location</button>
                 </div>
             </section>
 
-            <section class="location-mode" data-location-mode="manual" aria-labelledby="manual-location-title" hidden>
-                <h3 id="manual-location-title">Enter Address Manually</h3>
+            <section class="location-mode" id="manual-location-panel" aria-labelledby="manual-location-title">
+                <h3 id="manual-location-title">Enter your address manually</h3>
                 <form id="manual-address-form" novalidate>
                     <div class="location-form-grid">
                         <div class="service-form-field"><label for="manual-label">Address type</label><select class="service-select-input" id="manual-label"><option>Home</option><option>Work</option><option>Other</option></select></div>
@@ -111,7 +90,7 @@
                         <div class="service-form-field"><label for="manual-pincode">Pincode</label><input class="service-input" id="manual-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required></div>
                     </div>
                     <p class="location-status" id="manual-message" role="status" aria-live="polite"></p>
-                    <div class="location-form-actions"><button class="service-button" type="submit">Save Address</button></div>
+                    <div class="location-form-actions"><button class="service-button" type="submit">Confirm Location</button></div>
                 </form>
             </section>
         </section>

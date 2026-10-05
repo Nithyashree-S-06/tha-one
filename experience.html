@@ -488,11 +488,11 @@
                 const hasDelivery = roles.includes("delivery");
 
                 if (hasSeller) {
-                    window.location.assign(window.THA_ONE_CONFIG?.demoMode === true
+                    window.location.assign(window.THA_ONE_CONFIG?.DEMO_MODE === true
                         ? "demo-partner-login.html?role=seller"
                         : "seller-onboarding.html" + (hasDelivery ? "?dualRole=delivery" : ""));
                 } else if (hasDelivery) {
-                    window.location.assign(window.THA_ONE_CONFIG?.demoMode === true ? "demo-partner-login.html?role=delivery" : "delivery-onboarding.html");
+                    window.location.assign(window.THA_ONE_CONFIG?.DEMO_MODE === true ? "demo-partner-login.html?role=delivery" : "delivery-onboarding.html");
                 } else {
                     window.location.assign(getLocationSetupDestination());
                 }

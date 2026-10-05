@@ -275,7 +275,7 @@
 
             this.user.email = cleanIdentity.includes("@") ? cleanIdentity : `${cleanIdentity}@thaone.in`;
             this.user.fullName = this.user.fullName || name;
-            this.user.demoMode = window.THA_ONE_CONFIG?.demoMode === true;
+            this.user.demoMode = window.THA_ONE_CONFIG?.DEMO_MODE === true;
             this.user.demoRole = "";
             this.user.avatar = this.user.fullName.split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2);
             this.persistUser();
@@ -311,7 +311,7 @@
                 experienceSelected: false,
                 experienceSkipped: false,
                 selectedRoles: ["shopping", "food"],
-                demoMode: window.THA_ONE_CONFIG?.demoMode === true,
+                demoMode: window.THA_ONE_CONFIG?.DEMO_MODE === true,
                 demoRole: "",
                 addresses: [],
                 notifications: [
@@ -327,64 +327,25 @@
             };
         }
 
-        // Demo email selection only; real OAuth remains owned by the configured auth endpoint.
-        loginWithGoogle(email) {
-            const googleEmail = String(email || "").trim().toLowerCase();
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(googleEmail)) {
-                throw new Error("Enter a valid email address.");
-            }
-            const googleName = googleEmail.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
-            if (String(this.user.email || "").toLowerCase() !== googleEmail) {
-                this.user = {
-                    id: "demo_google_" + Math.random().toString(36).slice(2, 10),
-                    fullName: googleName || "THA ONE Customer",
-                    email: googleEmail,
-                    mobile: "",
-                    mobileRaw: "",
-                    avatar: (googleName || "THA ONE Customer").split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2),
-                    roles: {
-                        customer: { status: "active", verified: true },
-                        seller: { status: "not_applied", verified: false },
-                        deliveryPartner: { status: "not_applied", verified: false }
-                    },
-                    experienceSelected: false,
-                    experienceSkipped: false,
-                    selectedRoles: ["shopping", "food"],
-                    addresses: [],
-                    notifications: [{ id: "demo_google_" + Date.now(), title: "Demo account", message: "This email sign-in is a presentation-only demo; Google OAuth was not performed." }]
-                };
-            } else {
-                this.user.email = googleEmail;
-                this.user.fullName = googleName || this.user.fullName || "THA ONE Customer";
-            }
-            this.user.demoMode = window.THA_ONE_CONFIG?.demoMode === true;
-            this.user.demoRole = "";
-            this.user.avatar = this.user.fullName.split(" ").map(p => p[0]).join("").toUpperCase().slice(0, 2);
-            this.persistUser();
-
-            return {
-                success: true,
-                provider: "demo_google_email",
-                demoAuthentication: true,
-                user: this.user
-            };
-        }
-
-        openDemoPartnerSession({ role, mobile }) {
-            if (window.THA_ONE_CONFIG?.demoMode !== true) {
+        openDemoPartnerSession({ role, identifier, mobile }) {
+            if (window.THA_ONE_CONFIG?.DEMO_MODE !== true) {
                 throw new Error("Demo partner sign-in is disabled.");
             }
-            const digits = String(mobile || "").replace(/\D/g, "");
-            if (!/^[6-9]\d{9}$/.test(digits)) throw new Error("Enter a valid 10-digit Indian mobile number.");
+            const value = String(identifier || mobile || "").trim();
+            const email = value.toLowerCase();
+            const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            const digits = isEmail ? "" : value.replace(/\D/g, "");
+            if (!isEmail && !/^[6-9]\d{9}$/.test(digits)) throw new Error("Enter a valid-looking Indian mobile number or email address.");
             if (role !== "seller" && role !== "delivery") throw new Error("Choose a valid demo partner role.");
 
             const seller = role === "seller";
             const fullName = seller ? "Demo Seller" : "Demo Delivery Partner";
+            const identityTag = isEmail ? email.split("@")[0].replace(/[^a-z0-9]+/g, "-").slice(0, 24) : digits.slice(-4);
             this.user = {
-                id: `demo_${role}_${digits.slice(-4)}_${Math.random().toString(36).slice(2, 7)}`,
+                id: `demo_${role}_${identityTag}_${Math.random().toString(36).slice(2, 7)}`,
                 fullName,
-                email: `demo-${role}-${digits.slice(-4)}@thaone.example`,
-                mobile: `+91 ${digits}`,
+                email: isEmail ? email : `demo-${role}-${digits.slice(-4)}@thaone.example`,
+                mobile: isEmail ? "" : `+91 ${digits}`,
                 mobileRaw: digits,
                 avatar: seller ? "DS" : "DP",
                 roles: {

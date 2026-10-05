@@ -320,17 +320,6 @@
                     <p class="legal">By continuing, you agree to our <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</p>
                 </section>
 
-                <section id="google-demo-view" class="auth-view hidden" aria-labelledby="google-demo-title">
-                    <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
-                    <header class="welcome"><p class="step-label">Presentation mode</p><h2 id="google-demo-title">Continue with Google</h2><p>Enter the email you want to use for your THA ONE demo account.</p></header>
-                    <form id="google-demo-form" novalidate>
-                        <div class="field"><div class="field-label-row"><label for="google-demo-email">Email</label></div><input id="google-demo-email" name="email" type="email" autocomplete="email" placeholder="example@gmail.com" required aria-describedby="google-demo-email-error"><p class="form-message" id="google-demo-email-error" aria-live="polite"></p></div>
-                        <button class="submit-button" type="submit"><span class="spinner" aria-hidden="true"></span><span class="button-text">Continue with Google</span></button>
-                        <p class="form-message" id="google-demo-message" role="status" aria-live="polite"></p>
-                    </form>
-                    <p class="trust-note">Demo authentication only. No Google OAuth verification happened.</p>
-                </section>
-
                 <section id="phone-view" class="auth-view hidden" aria-labelledby="phone-title">
                     <button class="back-button" type="button" data-show-view="login-view"><span aria-hidden="true">←</span> Back to sign in</button>
                     <header class="welcome">
@@ -422,6 +411,19 @@
             successUrl: "home.html"
         };
 
+        const AUTH_ENDPOINT_CONFIG_KEYS = {
+            login: "loginEndpoint",
+            signup: "signupEndpoint",
+            requestOtp: "requestOtpEndpoint",
+            verifyOtp: "verifyOtpEndpoint",
+            passwordReset: "passwordResetEndpoint",
+            googleStart: "googleOAuthStartEndpoint"
+        };
+
+        function configuredAuthEndpoint(name) {
+            return AUTH_CONFIG.endpoints[name] || window.THA_ONE_CONFIG?.[AUTH_ENDPOINT_CONFIG_KEYS[name]] || "";
+        }
+
         function getRedirectDestination() {
             const params = new URLSearchParams(window.location.search);
             const redirect = params.get("redirect") || params.get("returnUrl");
@@ -433,7 +435,7 @@
 
         const AuthService = {
             async request(endpoint, payload) {
-                const url = AUTH_CONFIG.endpoints[endpoint];
+                const url = configuredAuthEndpoint(endpoint);
                 if (url) {
                     const response = await fetch(url, {
                         method: "POST",
@@ -449,6 +451,10 @@
                         throw error;
                     }
                     return result;
+                }
+
+                if (window.THA_ONE_CONFIG?.DEMO_MODE !== true) {
+                    throw new Error("Real authentication is not configured. Demo sign-in is disabled in this environment.");
                 }
 
                 // Production-ready integration fallback to shared THA_ONE_CORE session & auth
@@ -469,12 +475,7 @@
                     case "passwordReset":
                         return core.resetPassword(payload);
                     case "googleStart":
-                        const gRes = core.loginWithGoogle(payload?.email);
-                        const hasDefaultAddress = gRes.user?.addresses?.some((address) => address.isDefault === true);
-                        const returnTo = getRedirectDestination();
-                        const locationTarget = `customer-location-setup.html?returnTo=${encodeURIComponent(returnTo)}`;
-                        const gDest = !gRes.user?.experienceSelected ? "experience.html" : hasDefaultAddress ? returnTo : locationTarget;
-                        return { authorizationUrl: gDest };
+                        throw new Error("Google OAuth is not configured for this THA ONE deployment.");
                     default:
                         throw new Error("Unsupported authentication action.");
                 }
@@ -488,12 +489,14 @@
         };
 
         const views = [...document.querySelectorAll(".auth-view")];
-        document.querySelectorAll("[data-demo-auth-notice]").forEach((notice) => {
-            const method = notice.dataset.demoAuthNotice;
-            const configured = method === "phone"
-                ? Boolean(AUTH_CONFIG.endpoints.requestOtp && AUTH_CONFIG.endpoints.verifyOtp)
-                : Boolean(AUTH_CONFIG.endpoints[method]);
-            notice.classList.toggle("hidden", window.THA_ONE_CONFIG?.demoMode !== true || configured);
+        window.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll("[data-demo-auth-notice]").forEach((notice) => {
+                const method = notice.dataset.demoAuthNotice;
+                const configured = method === "phone"
+                    ? Boolean(configuredAuthEndpoint("requestOtp") && configuredAuthEndpoint("verifyOtp"))
+                    : Boolean(configuredAuthEndpoint(method));
+                notice.classList.toggle("hidden", window.THA_ONE_CONFIG?.DEMO_MODE !== true || configured);
+            });
         });
         const showView = (id) => {
             if (id !== "verify-view") stopOtpTimer();
@@ -571,15 +574,6 @@
         }
 
         const loginForm = document.getElementById("login-form");
-        const googleDemoForm = document.getElementById("google-demo-form");
-        googleDemoForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            const email = document.getElementById("google-demo-email");
-            if (!validateField(email, "google-demo-email-error", "Enter a valid email address.")) return email.focus();
-            handleSubmit(googleDemoForm, googleDemoForm.querySelector(".submit-button"), "google-demo-message", "Continuing...", async () => {
-                return window.THA_ONE_CORE.loginWithGoogle(email.value.trim());
-            }, navigateAfterAuthentication);
-        });
         loginForm.addEventListener("submit", (event) => {
             event.preventDefault();
             const identity = document.getElementById("identity");
@@ -596,8 +590,11 @@
         document.getElementById("create-account").addEventListener("click", () => showView("signup-view"));
         document.getElementById("google-login").addEventListener("click", async (event) => {
             const button = event.currentTarget;
-            if (!AUTH_CONFIG.endpoints.googleStart && window.THA_ONE_CONFIG?.demoMode === true) {
-                showView("google-demo-view");
+            if (!configuredAuthEndpoint("googleStart")) {
+                const message = window.THA_ONE_CONFIG?.DEMO_MODE === true
+                    ? "Google OAuth is not configured for this THA ONE demo. Demo email sign-in is disabled; configure the OAuth client and authorization endpoint."
+                    : "Google OAuth is not configured. Demo authentication is disabled in this environment.";
+                setMessage("social-message", message);
                 return;
             }
             button.disabled = true;
@@ -606,6 +603,9 @@
                 const result = await AuthService.startGoogleSignIn();
                 if (!result.authorizationUrl) throw new Error("Google sign-in is not configured yet.");
                 const authorizationUrl = new URL(result.authorizationUrl, window.location.href);
+                if (authorizationUrl.hostname === "accounts.google.com" || authorizationUrl.hostname.endsWith(".google.com")) {
+                    authorizationUrl.searchParams.set("prompt", "select_account");
+                }
                 const isLocal = ["localhost", "127.0.0.1"].includes(authorizationUrl.hostname);
                 const isSameOrigin = authorizationUrl.origin === window.location.origin;
                 if (!isSameOrigin && !isLocal && authorizationUrl.protocol !== "https:") {

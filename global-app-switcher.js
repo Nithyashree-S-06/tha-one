@@ -12,7 +12,7 @@
         const sellerStatus = user?.roles?.seller?.status;
         const sellerVerified = user?.roles?.seller?.verified === true;
         const sellerApplied = sellerStatus && sellerStatus !== "not_applied";
-        const demoSeller = window.THA_ONE_CONFIG?.demoMode === true && user?.demoMode === true && user.demoRole === "seller";
+        const demoSeller = window.THA_ONE_CONFIG?.DEMO_MODE === true && user?.demoMode === true && user.demoRole === "seller";
         const hasSeller = demoSeller || (user?.selectedRoles?.includes("seller") && sellerApplied) || sellerVerified;
 
         if (hasSeller) {
@@ -29,7 +29,7 @@
         const deliveryStatus = user?.roles?.deliveryPartner?.status;
         const deliveryVerified = user?.roles?.deliveryPartner?.verified === true;
         const deliveryApplied = deliveryStatus && deliveryStatus !== "not_applied";
-        const demoDelivery = window.THA_ONE_CONFIG?.demoMode === true && user?.demoMode === true && user.demoRole === "delivery";
+        const demoDelivery = window.THA_ONE_CONFIG?.DEMO_MODE === true && user?.demoMode === true && user.demoRole === "delivery";
         const hasDelivery = demoDelivery || (user?.selectedRoles?.includes("delivery") && deliveryApplied) || deliveryVerified;
 
         if (hasDelivery) {
