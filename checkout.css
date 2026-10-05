@@ -345,6 +345,7 @@
     user-select: none;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.payment-card[hidden] { display: none; }
 .payment-card:hover {
     border-color: #a4c98c;
     transform: translateY(-1px);

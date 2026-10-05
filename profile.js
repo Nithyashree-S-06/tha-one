@@ -141,9 +141,34 @@
             card.append(heading);
             card.append(text("p", "", safeText(address.recipientName, 100)));
             card.append(text("p", "", safeText(address.line1, 300)));
-            card.append(text("p", "profile-address-location", [safeText(address.city, 80), safeText(address.state, 80), safeText(address.pincode, 12)].filter(Boolean).join(", ")));
+            card.append(text("p", "profile-address-location", [safeText(address.area, 120), safeText(address.landmark, 120), safeText(address.city, 80), safeText(address.state, 80), safeText(address.pincode, 12)].filter(Boolean).join(", ")));
             const actions = document.createElement("div");
             actions.className = "profile-address-actions";
+            const edit = text("button", "profile-inline-button", "Edit");
+            edit.type = "button";
+            edit.addEventListener("click", () => {
+                const form = document.getElementById("address-form");
+                Object.entries({
+                    id: address.id,
+                    label: address.label,
+                    recipientName: address.recipientName,
+                    phone: address.phone,
+                    line1: address.line1,
+                    area: address.area,
+                    landmark: address.landmark,
+                    city: address.city,
+                    state: address.state,
+                    pincode: address.pincode
+                }).forEach(([name, value]) => {
+                    const field = form.elements.namedItem(name);
+                    if (field) field.value = value || "";
+                });
+                document.getElementById("address-dialog-title").textContent = "Edit an address";
+                document.getElementById("address-save-button").textContent = "Update address";
+                document.getElementById("address-form-message").textContent = "";
+                document.getElementById("address-dialog").showModal();
+            });
+            actions.append(edit);
             const remove = text("button", "profile-inline-button danger", "Remove");
             remove.type = "button";
             remove.addEventListener("click", () => deleteAddress(address.id));
@@ -254,13 +279,20 @@
         document.getElementById("profile-edit-open").addEventListener("click", () => document.getElementById("profile-edit-dialog").showModal());
         document.querySelectorAll("[data-close-profile-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById("profile-edit-dialog").close()));
         document.getElementById("profile-edit-form").addEventListener("submit", saveProfile);
-        document.getElementById("address-add-open").addEventListener("click", () => document.getElementById("address-dialog").showModal());
+        document.getElementById("address-add-open").addEventListener("click", () => {
+            document.getElementById("address-form").reset();
+            document.getElementById("address-dialog-title").textContent = "Add an address";
+            document.getElementById("address-save-button").textContent = "Save address";
+            document.getElementById("address-form-message").textContent = "";
+            document.getElementById("address-dialog").showModal();
+        });
         document.querySelectorAll("[data-close-address-dialog]").forEach((button) => button.addEventListener("click", () => document.getElementById("address-dialog").close()));
         document.getElementById("address-form").addEventListener("submit", (event) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const address = Object.fromEntries(formData.entries());
-            address.isDefault = state.addresses.length === 0;
+            const existing = state.addresses.find((item) => item.id === address.id);
+            address.isDefault = existing?.isDefault === true || state.addresses.length === 0;
             saveAddress(address);
         });
         document.getElementById("profile-sign-out").addEventListener("click", signOut);

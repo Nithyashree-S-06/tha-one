@@ -19,9 +19,13 @@
         step: "address",
         customerReady: false,
         quote: null,
+        serviceability: null,
         activePayment: null,
         activeOrder: null,
-        timerInterval: null
+        pollTimeout: null,
+        paymentPolling: false,
+        codEnabled: false,
+        addressPickerOpen: false
     };
 
     const methodLabels = {
@@ -64,6 +68,10 @@
         return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
     }
 
+    function hasValidAmount(value) {
+        return value !== null && value !== undefined && String(value).trim() !== "" && Number.isFinite(Number(value));
+    }
+
     // --- CART & QUOTE RENDERING ---
 
     function renderCart() {
@@ -97,23 +105,27 @@
 
         container.innerHTML = lines || '<div class="checkout-empty">Cart items are currently unavailable.</div>';
 
-        const subtotal = state.items.reduce((sum, item) => sum + (Number(productFor(item)?.price) || 0) * Number(item.quantity), 0);
+        const localSubtotal = state.items.reduce((sum, item) => sum + (Number(productFor(item)?.price) || 0) * Number(item.quantity), 0);
+        const subtotal = Number.isFinite(Number(state.quote?.subtotal)) ? Number(state.quote.subtotal) : localSubtotal;
+        const quoteReady = hasValidAmount(state.quote?.total) && hasValidAmount(state.quote?.deliveryFee);
+        const deliveryFee = quoteReady ? Number(state.quote.deliveryFee) : null;
+        const discount = quoteReady ? Number(state.quote.discount || 0) : null;
+        const grandTotal = quoteReady ? Number(state.quote.total) : null;
+
         document.getElementById("checkout-subtotal").textContent = money.format(subtotal);
-
-        // Calculate delivery & discounts
-        const isFood = service === "food";
-        const deliveryFee = state.quote ? state.quote.deliveryFee : (isFood ? (subtotal > 399 ? 0 : 29) : (subtotal >= 999 ? 0 : 50));
-        const discount = state.quote ? state.quote.discount : (isFood && subtotal > 399 ? 100 : 0);
-        const grandTotal = Math.max(0, subtotal + deliveryFee - discount);
-
-        document.getElementById("checkout-delivery").textContent = deliveryFee === 0 ? "FREE" : money.format(deliveryFee);
-        document.getElementById("checkout-discount").textContent = discount > 0 ? `−${money.format(discount)}` : "Applied at checkout";
-        document.getElementById("checkout-total").textContent = money.format(grandTotal);
+        document.getElementById("checkout-delivery").textContent = quoteReady ? (deliveryFee === 0 ? "FREE" : money.format(deliveryFee)) : "Confirming with delivery service";
+        document.getElementById("checkout-discount").textContent = quoteReady && discount > 0 ? `−${money.format(discount)}` : quoteReady ? "None" : "Confirming at checkout";
+        document.getElementById("checkout-total").textContent = quoteReady ? money.format(grandTotal) : "Awaiting quote";
+        document.getElementById("checkout-estimate").textContent = state.quote?.estimatedDelivery || state.serviceability?.estimatedDelivery || state.serviceability?.eta || "Confirmed by delivery service";
+        const placeOrderButton = document.getElementById("checkout-place-order");
+        if (placeOrderButton) placeOrderButton.disabled = !quoteReady || state.serviceability?.available !== true || !state.items.length;
 
         // Update button text in review
         const placeBtnText = document.getElementById("place-order-text");
         if (placeBtnText) {
-            placeBtnText.textContent = state.selectedMethod === "cod"
+            placeBtnText.textContent = !quoteReady
+                ? "Waiting for delivery quote"
+                : state.selectedMethod === "cod"
                 ? `Confirm Order (${money.format(grandTotal)} via COD)`
                 : `Pay ${money.format(grandTotal)} Securely`;
         }
@@ -142,9 +154,12 @@
 
     function currentAddress() {
         return {
+            id: state.selectedAddress,
             recipientName: document.getElementById("checkout-recipient").value.trim(),
             phone: document.getElementById("checkout-phone").value.trim(),
             line1: document.getElementById("checkout-address-line").value.trim(),
+            area: document.getElementById("checkout-area").value.trim(),
+            landmark: document.getElementById("checkout-landmark").value.trim(),
             city: document.getElementById("checkout-city").value.trim(),
             state: document.getElementById("checkout-state").value.trim(),
             pincode: document.getElementById("checkout-pincode").value.trim()
@@ -153,9 +168,13 @@
 
     function fillAddress(address) {
         state.selectedAddress = address.id || null;
+        state.serviceability = null;
         document.getElementById("checkout-recipient").value = address.recipientName || "";
         document.getElementById("checkout-phone").value = address.phone || "";
         document.getElementById("checkout-address-line").value = address.line1 || "";
+        document.getElementById("checkout-area").value = address.area || "";
+        document.getElementById("checkout-area").required = Boolean(address.area) || !address.id;
+        document.getElementById("checkout-landmark").value = address.landmark || "";
         document.getElementById("checkout-city").value = address.city || "";
         document.getElementById("checkout-state").value = address.state || "";
         document.getElementById("checkout-pincode").value = address.pincode || "";
@@ -169,9 +188,11 @@
 
         if (!state.addresses.length) {
             container.style.display = "none";
+            document.getElementById("checkout-change-address").hidden = true;
             return;
         }
-        container.style.display = "grid";
+        document.getElementById("checkout-change-address").hidden = false;
+        container.style.display = state.addressPickerOpen ? "grid" : "none";
 
         state.addresses.forEach((address) => {
             const label = document.createElement("label");
@@ -180,13 +201,16 @@
             input.type = "radio";
             input.name = "saved-address";
             input.checked = state.selectedAddress === address.id;
-            input.addEventListener("change", () => fillAddress(address));
+            input.addEventListener("change", () => {
+                state.addressPickerOpen = false;
+                fillAddress(address);
+            });
 
             const copy = document.createElement("div");
             const title = document.createElement("strong");
             title.textContent = `${address.label || "Saved Address"} ${address.isDefault ? "★ Default" : ""}`;
             const summary = document.createElement("small");
-            summary.textContent = `${address.recipientName} · ${address.phone}\n${[address.line1, address.city, address.state, address.pincode].filter(Boolean).join(", ")}`;
+            summary.textContent = `${address.recipientName} · ${address.phone}\n${[address.line1, address.area, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(", ")}`;
             copy.append(title, summary);
             label.append(input, copy);
             container.append(label);
@@ -224,20 +248,80 @@
 
         const placeButton = document.getElementById("checkout-place-order");
         if (placeButton) {
-            placeButton.disabled = !state.items.length;
+            placeButton.disabled = !state.items.length || !state.quote || state.serviceability?.available !== true;
         }
+        document.querySelector('[data-checkout-next="payment"]')?.toggleAttribute("disabled", !state.customerReady || !state.items.length);
     }
 
     async function updateQuote() {
         const endpoint = service === "food" ? "foodQuoteEndpoint" : "shoppingQuoteEndpoint";
         if (!state.customerReady) return;
         try {
-            const quote = await window.THA_ONE_API.request(endpoint, { method: "POST", body: { items: state.items, address: currentAddress() } });
-            state.quote = quote.quote || quote || null;
+            if (!window.THA_ONE_API.endpoint(window.THA_ONE_CONFIG?.[endpoint])) {
+                throw new Error("Location-based delivery quotes are not connected. Checkout is unavailable.");
+            }
+            const response = await window.THA_ONE_API.request(endpoint, { method: "POST", body: { items: state.items, address: currentAddress() } });
+            const quote = response.quote || response;
+            state.quote = quote;
+            if (state.quote?.available === false || state.quote?.serviceable === false) {
+                state.serviceability = { available: false, message: state.quote.message };
+                setStatus(state.quote.message || "Currently unavailable at your location.", "warning");
+            } else if (!hasValidAmount(state.quote?.total) || !hasValidAmount(state.quote?.deliveryFee)) {
+                throw new Error("The delivery service did not return a valid order quote.");
+            }
+            state.codEnabled = state.quote?.codAvailable === true || state.quote?.cashOnDelivery === true;
+            const codCard = document.getElementById("cod-option-card");
+            if (codCard) codCard.hidden = !state.codEnabled;
+            if (!state.codEnabled && state.selectedMethod === "cod") {
+                state.selectedMethod = "upi_gpay";
+                const defaultCard = document.querySelector('.payment-card input[value="upi_gpay"]')?.closest(".payment-card");
+                document.querySelectorAll(".payment-card").forEach((card) => card.classList.remove("selected"));
+                defaultCard?.classList.add("selected");
+                const defaultInput = defaultCard?.querySelector('input[type="radio"]');
+                if (defaultInput) defaultInput.checked = true;
+                renderPaymentSubpanel();
+            }
             renderCart();
-        } catch {
+        } catch (error) {
             state.quote = null;
+            state.codEnabled = false;
+            const codCard = document.getElementById("cod-option-card");
+            if (codCard) codCard.hidden = true;
+            setStatus(error.message || "Delivery charges could not be confirmed. Try again shortly.", "warning");
             renderCart();
+        }
+    }
+
+    async function confirmServiceability(address) {
+        const itemIds = state.items.map((item) => service === "food" ? item.dishId : item.id);
+        const selection = service === "food" ? { dishIds: itemIds } : { productIds: itemIds };
+        try {
+            const result = await window.THA_ONE_API.request("serviceabilityEndpoint", {
+                method: "POST",
+                body: { service, pincode: address.pincode, ...selection }
+            });
+            const unavailableIds = [
+                ...(result.unavailableItemIds || []),
+                ...(result.unavailableProductIds || []),
+                ...(result.unavailableDishIds || [])
+            ];
+            const itemUnavailable = itemIds.some((id) => unavailableIds.includes(id));
+            state.serviceability = { ...result, available: result.available === true && !itemUnavailable };
+            if (state.serviceability.available !== true) {
+                const message = result.message || "Currently unavailable at your location.";
+                document.getElementById("checkout-availability").textContent = message;
+                setStatus(message, "warning");
+                return false;
+            }
+            document.getElementById("checkout-availability").textContent = result.message || "Delivery is available at this address.";
+            state.codEnabled = false;
+            return true;
+        } catch {
+            state.serviceability = { available: false };
+            const message = "Delivery availability could not be confirmed. Try again shortly.";
+            document.getElementById("checkout-availability").textContent = message;
+            setStatus(message, "warning");
+            return false;
         }
     }
 
@@ -275,7 +359,7 @@
                         <span>⚡</span><strong>Enter Your UPI ID / VPA</strong>
                     </div>
                     <div class="subpanel-content">
-                        <p>Enter your Virtual Payment Address (e.g. mobile@upi or username@okhdfcbank). A payment collect request will be sent to your UPI app.</p>
+                        <p>Enter your Virtual Payment Address. It will be sent only to the configured payment service when you start checkout.</p>
                         <div class="upi-id-field-wrap">
                             <input type="text" id="custom-upi-vpa" placeholder="username@bank" value="${escapeHtml(state.upiVpa)}" autocomplete="off" spellcheck="false">
                         </div>
@@ -294,7 +378,7 @@
                         <span>⚡</span><strong>${escapeHtml(methodName)} Selected</strong>
                     </div>
                     <div class="subpanel-content">
-                        <p>Fast, direct bank checkout via <b>${escapeHtml(methodName)}</b>. When you proceed, an encrypted UPI request will be dispatched to your phone.</p>
+                        <p>A secure payment session will be requested from <b>${escapeHtml(methodName)}</b> when you continue.</p>
                         <div class="security-guarantee-note">
                             <span>🔒</span>
                             <span><b>Zero PIN Disclosure:</b> THA ONE will NEVER ask for your UPI PIN. You will enter your PIN only inside your official ${escapeHtml(methodName)} app.</span>
@@ -308,17 +392,7 @@
                     <span>💳</span><strong>${escapeHtml(methodName)} Information</strong>
                 </div>
                 <div class="subpanel-content">
-                    <p>Enter your non-sensitive card reference details. Secure 3D-Secure authentication occurs on the bank portal.</p>
-                    <div class="card-fields-grid">
-                        <div class="service-form-field">
-                            <label for="mock-card-name">Name on Card</label>
-                            <input class="service-input" id="mock-card-name" placeholder="As printed on card" autocomplete="cc-name" value="${escapeHtml(document.getElementById('checkout-recipient')?.value || '')}">
-                        </div>
-                        <div class="service-form-field">
-                            <label for="mock-card-exp">Expiry (MM/YY)</label>
-                            <input class="service-input" id="mock-card-exp" placeholder="MM/YY" maxlength="5" autocomplete="cc-exp">
-                        </div>
-                    </div>
+                    <p>Card details and authentication must be completed only in the connected provider's secure checkout.</p>
                     <div class="security-guarantee-note">
                         <span>🔒</span>
                         <span><b>PCI-DSS Compliance:</b> THA ONE never collects or stores card CVV or payment passwords. Authentication is done via your bank's OTP page.</span>
@@ -331,7 +405,7 @@
                     <span>🏛️</span><strong>Net Banking — Select Your Bank</strong>
                 </div>
                 <div class="subpanel-content">
-                    <p>Select your bank to connect directly to its secure internet banking portal:</p>
+                    <p>Select your bank. You will continue through the configured provider's secure banking flow.</p>
                     <div class="popular-banks-row">
                         <button type="button" class="bank-chip active" data-bank="HDFC Bank">HDFC Bank</button>
                         <button type="button" class="bank-chip" data-bank="State Bank of India">SBI</button>
@@ -374,7 +448,7 @@
         const address = currentAddress();
         const addressEl = document.getElementById("checkout-review-address");
         if (addressEl) {
-            addressEl.textContent = `${address.recipientName} · ${address.phone} · ${address.line1}, ${address.city}, ${address.state} ${address.pincode}`;
+            addressEl.textContent = `${address.recipientName} · ${address.phone} · ${[address.line1, address.area, address.landmark, address.city, address.state, address.pincode].filter(Boolean).join(", ")}`;
         }
 
         const methodBadge = document.getElementById("review-method-badge");
@@ -412,10 +486,11 @@
         const modal = document.getElementById("payment-modal");
         modal.hidden = true;
         document.body.style.overflow = "";
-        if (state.timerInterval) {
-            clearInterval(state.timerInterval);
-            state.timerInterval = null;
+        if (state.pollTimeout) {
+            clearTimeout(state.pollTimeout);
+            state.pollTimeout = null;
         }
+        state.paymentPolling = false;
     }
 
     function setModalState(stateName) {
@@ -426,35 +501,13 @@
         });
     }
 
-    function startUpiCountdown(seconds = 300) {
-        if (state.timerInterval) clearInterval(state.timerInterval);
-        let remaining = seconds;
-        const countdownEl = document.getElementById("upi-countdown");
-
-        function update() {
-            const m = Math.floor(remaining / 60);
-            const s = remaining % 60;
-            if (countdownEl) countdownEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-            if (remaining <= 0) {
-                clearInterval(state.timerInterval);
-                state.timerInterval = null;
-                handlePaymentResult({ status: "failed", message: "UPI collect request timed out. Please try again." });
-            }
-            remaining--;
-        }
-        update();
-        state.timerInterval = setInterval(update, 1000);
-    }
-
     async function handlePaymentResult(result) {
-        if (state.timerInterval) {
-            clearInterval(state.timerInterval);
-            state.timerInterval = null;
-        }
-
-        if (result.status === "successful") {
+        const status = String(result?.status || "pending").toLowerCase();
+        if (status === "successful" && result.verified === true) {
+            state.paymentPolling = false;
+            if (state.pollTimeout) clearTimeout(state.pollTimeout);
             setModalState("successful");
-            document.getElementById("success-payment-id").textContent = result.paymentId || "pay_tha_verified";
+            document.getElementById("success-payment-id").textContent = result.paymentId || state.activePayment?.paymentId || "Verified";
             const trackingUrl = `order-tracking.html?service=${service}&id=${encodeURIComponent(state.activeOrder?.id || result.orderId)}`;
             const trackLink = document.getElementById("track-order-link");
             if (trackLink) trackLink.href = trackingUrl;
@@ -466,45 +519,89 @@
             setTimeout(() => {
                 window.location.assign(trackingUrl);
             }, 2500);
-        } else if (result.status === "failed") {
+        } else if (result.verified === true && status === "failed") {
+            state.paymentPolling = false;
+            if (state.pollTimeout) clearTimeout(state.pollTimeout);
             setModalState("failed");
-            document.getElementById("failed-reason").textContent = result.message || "Payment declined by issuing bank or UPI provider. No money was charged.";
-        } else if (result.status === "cancelled") {
+            document.getElementById("failed-reason").textContent = result.message || "The payment provider reported that this payment failed. Your order remains unpaid.";
+        } else if (result.verified === true && status === "cancelled") {
+            state.paymentPolling = false;
+            if (state.pollTimeout) clearTimeout(state.pollTimeout);
             setModalState("cancelled");
-        } else if (result.status === "pending") {
+        } else if (status === "processing") {
+            setModalState("processing");
+        } else {
             setModalState("pending");
-            startUpiCountdown(300);
+            const instruction = document.getElementById("pending-instruction");
+            if (instruction && result?.message) instruction.textContent = result.message;
+        }
+    }
+
+    async function pollPaymentStatus() {
+        if (!state.paymentPolling || !state.activePayment?.paymentId) return;
+        try {
+            const result = await window.THA_ONE_API.request("paymentVerifyEndpoint", {
+                method: "POST",
+                body: { paymentId: state.activePayment.paymentId, orderId: state.activeOrder?.id }
+            });
+            await handlePaymentResult(result);
+        } catch {
+            setModalState("pending");
+        }
+        if (state.paymentPolling) {
+            state.pollTimeout = window.setTimeout(pollPaymentStatus, 5000);
         }
     }
 
     async function executePaymentFlow() {
         const address = currentAddress();
-        const subtotal = state.items.reduce((sum, item) => sum + (Number(productFor(item)?.price) || 0) * Number(item.quantity), 0);
-        const isFood = service === "food";
-        const deliveryFee = state.quote ? state.quote.deliveryFee : (isFood ? (subtotal > 399 ? 0 : 29) : (subtotal >= 999 ? 0 : 50));
-        const discount = state.quote ? state.quote.discount : (isFood && subtotal > 399 ? 100 : 0);
-        const grandTotal = Math.max(0, subtotal + deliveryFee - discount);
+        const grandTotal = Number(state.quote?.total);
+        if (!hasValidAmount(state.quote?.total) || !Number.isFinite(grandTotal) || state.serviceability?.available !== true) {
+            setStatus("Delivery availability and charges must be confirmed before placing this order.", "warning");
+            return;
+        }
 
-        // First place order with THA_ONE_CORE in Pending Payment status
+        if (state.selectedMethod === "cod" && !state.codEnabled) {
+            setStatus("Cash on Delivery is not available for this order.", "warning");
+            return;
+        }
+        if (state.serviceability?.available !== true) {
+            setStatus("Delivery availability must be confirmed for this address before checkout.", "warning");
+            return;
+        }
+
         let orderResult;
         try {
-            orderResult = await window.THA_ONE_API.request(service === "food" ? "foodCheckoutEndpoint" : "shoppingCheckoutEndpoint", {
-                method: "POST",
-                body: {
-                    service,
-                    items: state.items.map((item) => service === "food"
-                        ? { itemId: item.dishId, quantity: item.quantity, option: item.option || "" }
-                        : { productId: item.id, quantity: item.quantity, variant: item.variant || "" }),
-                    address,
-                    paymentMethod: state.selectedMethod
+            if (state.activeOrder?.id) {
+                orderResult = { orderId: state.activeOrder.id, order: state.activeOrder };
+            } else {
+                const checkoutEndpoint = service === "food" ? "foodCheckoutEndpoint" : "shoppingCheckoutEndpoint";
+                if (!window.THA_ONE_API.endpoint(window.THA_ONE_CONFIG?.[checkoutEndpoint])) {
+                    throw new Error("Secure order service is not connected. Your order was not placed.");
                 }
-            });
+                orderResult = await window.THA_ONE_API.request(checkoutEndpoint, {
+                    method: "POST",
+                    body: {
+                        service,
+                        items: state.items.map((item) => service === "food"
+                            ? { itemId: item.dishId, quantity: item.quantity, option: item.option || "" }
+                            : { productId: item.id, quantity: item.quantity, variant: item.variant || "" }),
+                        address,
+                        paymentMethod: state.selectedMethod
+                    }
+                });
+            }
+            if (orderResult?.success === false) throw new Error(orderResult.message || "Order could not be created.");
         } catch (e) {
-            setStatus("Unable to initialize order. Please check your address and cart.", "error");
+            setStatus(e.message || "Unable to initialize order. Please check your address and cart.", "error");
             return;
         }
 
         const orderId = orderResult.orderId || orderResult.order?.id;
+        if (!orderId) {
+            setStatus("The order service did not return an order reference. Please try again.", "error");
+            return;
+        }
         state.activeOrder = orderResult.order || { id: orderId };
 
         // For Cash on Delivery: Instant confirmed order
@@ -514,38 +611,44 @@
             return;
         }
 
-        // Open Secure Payment Gateway modal
         openPaymentModal();
         setModalState("processing");
-
         document.getElementById("modal-amount").textContent = money.format(grandTotal);
         document.getElementById("modal-order-ref").textContent = `Order: ${orderId}`;
         const providerName = methodLabels[state.selectedMethod] || "Payment Gateway";
         document.getElementById("processing-provider-name").textContent = providerName;
-        document.getElementById("pending-app-name").textContent = providerName;
 
-        // Initiate payment with backend payment service
-        const paymentIntent = window.THA_ONE_CORE.initiatePayment({
-            orderAmount: grandTotal,
-            method: state.selectedMethod,
-            vpa: state.upiVpa,
-            orderId,
-            service
-        });
-        state.activePayment = paymentIntent;
+        try {
+            const paymentIntent = await window.THA_ONE_API.request("paymentStartEndpoint", {
+                method: "POST",
+                body: {
+                    method: state.selectedMethod,
+                    vpa: state.upiVpa,
+                    bank: state.selectedBank,
+                    orderId,
+                    service
+                }
+            });
+            const paymentId = paymentIntent.paymentId || paymentIntent.id;
+            if (!paymentId) throw new Error("The payment provider did not return a payment reference.");
+            state.activePayment = { ...paymentIntent, paymentId };
+            document.getElementById("gateway-session-id").textContent = `Payment reference: ${paymentId}`;
 
-        document.getElementById("gateway-session-id").textContent = `Session: ${paymentIntent.paymentId}`;
-
-        // Handshake transition: after 900ms processing, move to pending (waiting for approval)
-        setTimeout(() => {
-            setModalState("pending");
-            startUpiCountdown(300);
-            if (state.selectedMethod === "upi_custom" && state.upiVpa) {
-                document.getElementById("pending-instruction").innerHTML = `Collect request sent to <strong>${escapeHtml(state.upiVpa)}</strong>. Open your UPI app to approve the ${money.format(grandTotal)} payment.`;
-            } else {
-                document.getElementById("pending-instruction").innerHTML = `Collect request sent to your mobile device. Open <strong>${escapeHtml(providerName)}</strong> to approve payment of ${money.format(grandTotal)}.`;
+            if (paymentIntent.redirectUrl) {
+                const redirect = window.THA_ONE_API.safeRedirect(paymentIntent.redirectUrl);
+                if (!redirect) throw new Error("The payment provider returned an untrusted checkout address.");
+                window.location.assign(redirect.href);
+                return;
             }
-        }, 900);
+
+            state.paymentPolling = true;
+            setModalState("pending");
+            pollPaymentStatus();
+        } catch (error) {
+            state.paymentPolling = false;
+            setModalState("failed");
+            document.getElementById("failed-reason").textContent = error.message || "Secure payment is not connected. Your order remains unpaid and your cart is unchanged.";
+        }
     }
 
     // --- INITIALIZATION ---
@@ -572,19 +675,15 @@
         const switcher = document.querySelector("tha-app-switcher");
         switcher?.setAttribute("current", isFood ? "food" : "shopping");
 
-        // COD is disabled for pure digital or large food orders if desired, otherwise supported
         const codCard = document.getElementById("cod-option-card");
-        if (codCard && isFood) {
-            // Food COD enabled
-            codCard.hidden = false;
-        }
+        if (codCard) codCard.hidden = true;
 
         renderCart();
         loadCustomerData();
         setupPaymentMethods();
 
         // Next / Back buttons
-        document.querySelectorAll("[data-checkout-next]").forEach((button) => button.addEventListener("click", () => {
+        document.querySelectorAll("[data-checkout-next]").forEach((button) => button.addEventListener("click", async () => {
             if (button.dataset.checkoutNext === "payment") {
                 const form = document.getElementById("checkout-address-form");
                 const invalid = [...form.querySelectorAll("input,textarea")].find((field) => !field.checkValidity());
@@ -594,60 +693,56 @@
                     return;
                 }
                 state.address = currentAddress();
-                updateQuote();
+                button.disabled = true;
+                const available = await confirmServiceability(state.address);
+                if (available) await updateQuote();
+                button.disabled = false;
+                if (!available || state.serviceability?.available !== true) return;
             }
             if (button.dataset.checkoutNext === "review") {
+                if (state.serviceability?.available !== true) {
+                    setStatus("Delivery availability must be confirmed for this address before checkout.", "warning");
+                    setStep("address");
+                    return;
+                }
                 renderReview();
             }
             setStep(button.dataset.checkoutNext);
         }));
 
+        document.getElementById("checkout-change-address")?.addEventListener("click", () => {
+            state.addressPickerOpen = !state.addressPickerOpen;
+            renderSavedAddresses();
+            document.getElementById("checkout-change-address").setAttribute("aria-expanded", String(state.addressPickerOpen));
+        });
+
         document.querySelectorAll("[data-checkout-back]").forEach((button) => button.addEventListener("click", () => setStep(button.dataset.checkoutBack)));
 
-        // Place order button
+        document.querySelectorAll("#checkout-address-form input, #checkout-address-form textarea").forEach((field) => {
+            field.addEventListener("input", () => {
+                state.selectedAddress = null;
+                state.serviceability = null;
+                document.getElementById("checkout-area").required = true;
+            });
+        });
+
         const placeOrderBtn = document.getElementById("checkout-place-order");
         if (placeOrderBtn) {
-            placeOrderBtn.addEventListener("click", executePaymentFlow);
+            placeOrderBtn.addEventListener("click", async () => {
+                placeOrderBtn.disabled = true;
+                await executePaymentFlow();
+                placeOrderBtn.disabled = !state.items.length || !state.quote || state.serviceability?.available !== true;
+            });
         }
 
-        // Modal close button
         document.getElementById("modal-close")?.addEventListener("click", () => {
-            if (confirm("Are you sure you want to cancel this payment?")) {
-                const res = window.THA_ONE_CORE.verifyPayment({
-                    paymentId: state.activePayment?.paymentId,
-                    orderId: state.activeOrder?.id,
-                    simulateStatus: "cancelled"
-                });
-                handlePaymentResult(res);
-            }
+            closePaymentModal();
+            setStatus("Payment status is not confirmed. Your order remains unpaid until the provider confirms it.", "warning");
         });
 
-        // Gateway simulator buttons
-        document.getElementById("sim-approve-btn")?.addEventListener("click", () => {
-            const res = window.THA_ONE_CORE.verifyPayment({
-                paymentId: state.activePayment?.paymentId,
-                orderId: state.activeOrder?.id,
-                simulateStatus: "successful"
-            });
-            handlePaymentResult(res);
-        });
-
-        document.getElementById("sim-decline-btn")?.addEventListener("click", () => {
-            const res = window.THA_ONE_CORE.verifyPayment({
-                paymentId: state.activePayment?.paymentId,
-                orderId: state.activeOrder?.id,
-                simulateStatus: "failed"
-            });
-            handlePaymentResult(res);
-        });
-
-        document.getElementById("sim-cancel-btn")?.addEventListener("click", () => {
-            const res = window.THA_ONE_CORE.verifyPayment({
-                paymentId: state.activePayment?.paymentId,
-                orderId: state.activeOrder?.id,
-                simulateStatus: "cancelled"
-            });
-            handlePaymentResult(res);
+        document.getElementById("payment-check-status")?.addEventListener("click", () => {
+            if (!state.paymentPolling) state.paymentPolling = true;
+            pollPaymentStatus();
         });
 
         document.getElementById("retry-payment-btn")?.addEventListener("click", () => {
@@ -663,6 +758,17 @@
             closePaymentModal();
             setStep("payment");
         });
+
+        const returnedPaymentId = params.get("paymentId");
+        const returnedOrderId = params.get("orderId");
+        if (returnedPaymentId && returnedOrderId) {
+            state.activePayment = { paymentId: returnedPaymentId };
+            state.activeOrder = { id: returnedOrderId };
+            openPaymentModal();
+            setModalState("processing");
+            state.paymentPolling = true;
+            pollPaymentStatus();
+        }
     }
 
     init();

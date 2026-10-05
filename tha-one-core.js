@@ -36,6 +36,8 @@
                 recipientName: "Aarav Sharma",
                 phone: "9876543210",
                 line1: "Flat 402, Green Glen Layout, Outer Ring Road",
+                area: "Green Glen Layout",
+                landmark: "",
                 city: "Bengaluru",
                 state: "Karnataka",
                 pincode: "560103",
@@ -47,6 +49,8 @@
                 recipientName: "Aarav Sharma",
                 phone: "9876543210",
                 line1: "Prestige Tech Cloud, Building 3, Kadubeesanahalli",
+                area: "Kadubeesanahalli",
+                landmark: "",
                 city: "Bengaluru",
                 state: "Karnataka",
                 pincode: "560103",
@@ -80,6 +84,8 @@
                 recipientName: "Aarav Sharma",
                 phone: "9876543210",
                 line1: "Flat 402, Green Glen Layout, Outer Ring Road",
+                area: "Green Glen Layout",
+                landmark: "",
                 city: "Bengaluru",
                 state: "Karnataka",
                 pincode: "560103"
@@ -106,6 +112,8 @@
                 recipientName: "Aarav Sharma",
                 phone: "9876543210",
                 line1: "Flat 402, Green Glen Layout, Outer Ring Road",
+                area: "Green Glen Layout",
+                landmark: "",
                 city: "Bengaluru",
                 state: "Karnataka",
                 pincode: "560103"
@@ -147,6 +155,13 @@
             if (!this.user || !this.user.id) {
                 this.user = structuredClone(SEED_USER);
                 this.persistUser();
+            }
+            if (Array.isArray(this.user.addresses)) {
+                this.user.addresses = this.user.addresses.map((address) => ({
+                    ...address,
+                    area: typeof address.area === "string" ? address.area : "",
+                    landmark: typeof address.landmark === "string" ? address.landmark : ""
+                }));
             }
             if (!Array.isArray(this.orders) || !this.orders.length) {
                 this.orders = structuredClone(SEED_ORDERS);
@@ -416,13 +431,7 @@
         }
 
         logout() {
-            // Keep seeded identity ready for next demo login
-            const preserved = structuredClone(SEED_USER);
-            preserved.roles.seller.status = "not_applied";
-            preserved.roles.seller.verified = false;
-            preserved.roles.deliveryPartner.status = "not_applied";
-            preserved.roles.deliveryPartner.verified = false;
-            this.user = preserved;
+            // Keep this account's role preference and verification state for its next login.
             this.persistUser();
             return { success: true };
         }
@@ -452,6 +461,8 @@
                 recipientName: String(address.recipientName || "").trim(),
                 phone: String(address.phone || "").trim(),
                 line1: String(address.line1 || "").trim(),
+                area: String(address.area || "").trim(),
+                landmark: String(address.landmark || "").trim(),
                 city: String(address.city || "").trim(),
                 state: String(address.state || "").trim(),
                 pincode: String(address.pincode || "").trim(),
@@ -610,7 +621,8 @@
                 orderNumber: orderId,
                 service,
                 createdAt: new Date().toISOString(),
-                status: isFood ? "Order placed" : "Confirmed",
+                status: paymentMethod === "cod" ? (isFood ? "Order placed" : "Confirmed") : "Pending Payment",
+                paymentStatus: paymentMethod === "cod" ? "pay_on_delivery" : "pending",
                 progressIndex: 1,
                 total: quote.total,
                 amount: quote.total,
@@ -639,88 +651,18 @@
 
         // --- PAYMENT GATEWAY INTEGRATION SERVICE ---
 
-        initiatePayment({ orderAmount, method, vpa = "", orderId = "", service = "shopping" }) {
-            const paymentId = "pay_tha_" + Math.random().toString(36).substring(2, 10);
-            const providerNames = {
-                upi_gpay: "Google Pay (UPI)",
-                upi_phonepe: "PhonePe (UPI)",
-                upi_paytm: "Paytm (UPI)",
-                upi_bhim: "BHIM (UPI)",
-                upi_custom: "Other UPI",
-                card_credit: "Credit Card Gateway",
-                card_debit: "Debit Card Gateway",
-                card: "Credit/Debit Card Gateway",
-                netbanking: "Net Banking Gateway",
-                cod: "Cash on Delivery"
-            };
-
-            const isUpi = (method || "").startsWith("upi_");
-            const cleanVpa = String(vpa || "").trim().toLowerCase();
-
-            return {
-                success: true,
-                paymentId,
-                orderId: orderId || null,
-                service,
-                amount: Number(orderAmount) || 0,
-                method: method || "upi_gpay",
-                isUpi,
-                methodLabel: providerNames[method] || "Secure Payment Provider",
-                vpa: isUpi && cleanVpa ? cleanVpa : "",
-                status: "processing", // Real provider lifecycle: 'processing' -> 'pending' -> 'successful' | 'failed' | 'cancelled'
-                createdAt: new Date().toISOString(),
-                expiresInSeconds: 300,
-                securityGuarantee: "THA ONE never asks for or stores UPI PIN, card CVV, or netbanking passwords. Payment is authorized solely via secure bank / UPI gateway."
-            };
+        initiatePayment() {
+            const error = new Error("Secure payment is not connected yet. Your order has not been paid.");
+            error.code = "payment_provider_unconfigured";
+            throw error;
         }
 
-        verifyPayment({ paymentId, orderId, simulateStatus = "successful" }) {
-            // Strictly check verification status from simulated backend/gateway
-            if (simulateStatus === "failed") {
-                return {
-                    success: false,
-                    status: "failed",
-                    paymentId,
-                    orderId,
-                    message: "Payment declined by issuing bank or UPI provider. No money was charged."
-                };
-            }
-            if (simulateStatus === "cancelled") {
-                return {
-                    success: false,
-                    status: "cancelled",
-                    paymentId,
-                    orderId,
-                    message: "Payment transaction was cancelled by the user."
-                };
-            }
-            if (simulateStatus === "pending") {
-                return {
-                    success: false,
-                    status: "pending",
-                    paymentId,
-                    orderId,
-                    message: "Payment is pending authorization in your UPI app. Please approve within 5 minutes."
-                };
-            }
-
-            // Successful confirmation from verified provider
-            const order = orderId ? this.getOrderById(orderId) : null;
-            if (order) {
-                order.paymentStatus = "paid";
-                order.paymentId = paymentId;
-                if (!order.status || order.status === "Pending Payment") {
-                    order.status = order.service === "food" ? "Order placed" : "Confirmed";
-                }
-                this.persistOrders();
-            }
-
+        verifyPayment() {
             return {
-                success: true,
-                status: "successful",
-                paymentId,
-                orderId,
-                verifiedAt: new Date().toISOString()
+                success: false,
+                verified: false,
+                status: "unconfigured",
+                message: "Payment status can only be confirmed by the connected payment provider."
             };
         }
 

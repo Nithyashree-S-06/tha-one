@@ -19,9 +19,6 @@
     async function checkStatus(service) {
         const endpoint = secureEndpoint(config.statusEndpoint);
         if (!endpoint) {
-            if (window.THA_ONE_CORE) {
-                return window.THA_ONE_CORE.getRoleStatus(service);
-            }
             return { status: "unconfigured", verified: false };
         }
         endpoint.searchParams.set("service", service);
@@ -38,6 +35,11 @@
 
     async function requireVerified(service, gate, dashboard) {
         const status = await checkStatus(service);
+        const onlineToggle = document.querySelector(".delivery-online-toggle");
+        const storeOpenIndicator = document.querySelector(".ops-status-open");
+        if (onlineToggle) onlineToggle.hidden = !status.verified;
+        if (storeOpenIndicator) storeOpenIndicator.hidden = !status.verified;
+
         if (status.verified) {
             gate.hidden = true;
             dashboard.hidden = false;
@@ -49,12 +51,6 @@
         const message = gate.querySelector("[data-gate-message]");
         const link = gate.querySelector("[data-gate-link]");
         const retry = gate.querySelector("[data-gate-retry]");
-
-        // Hide delivery online toggle and store open indicators when not verified
-        const onlineToggle = document.querySelector(".delivery-online-toggle");
-        if (onlineToggle) onlineToggle.hidden = !status.verified;
-        const storeOpenIndicator = document.querySelector(".ops-status-open");
-        if (storeOpenIndicator) storeOpenIndicator.hidden = !status.verified;
 
         if (status.status === "not_applied") {
             title.textContent = service === "seller" ? "Become a THA ONE Seller" : "Become a Delivery Partner";
@@ -86,41 +82,6 @@
         if (link) link.href = config.onboardingPaths?.[service] || `${service}-onboarding.html`;
         if (retry) {
             retry.onclick = () => requireVerified(service, gate, dashboard);
-        }
-
-        // Add demo simulation controls in development mode so testers can easily test all 4 statuses
-        let demoSimWrap = gate.querySelector(".kyc-demo-sim-wrap");
-        if (!demoSimWrap && window.THA_ONE_CORE && retry && retry.parentElement) {
-            demoSimWrap = document.createElement("div");
-            demoSimWrap.className = "kyc-demo-sim-wrap";
-            demoSimWrap.style.cssText = "margin-top: 16px; padding: 12px; border: 1px dashed #b2cbb0; border-radius: 8px; background: #f8faf6; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;";
-            
-            const label = document.createElement("span");
-            label.style.cssText = "font-size: 11px; font-weight: 700; color: #20372e; text-transform: uppercase; letter-spacing: 0.5px;";
-            label.textContent = "Status Simulator:";
-            demoSimWrap.appendChild(label);
-
-            const statuses = [
-                { id: "pending", label: "⏳ Pending", color: "#8f621a", bg: "#fdf2dc" },
-                { id: "needs_correction", label: "✏️ Needs Correction", color: "#9a4b08", bg: "#fceddf" },
-                { id: "rejected", label: "❌ Rejected", color: "#a5281b", bg: "#feebe9" },
-                { id: "verified", label: "✓ Verified (Unlock)", color: "#24611e", bg: "#e5f6e0" }
-            ];
-
-            statuses.forEach(s => {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.style.cssText = `padding: 4px 10px; border: 1px solid ${s.color}; border-radius: 4px; background: ${s.bg}; color: ${s.color}; font-size: 11px; font-weight: 700; cursor: pointer; transition: transform 0.1s ease;`;
-                btn.textContent = s.label;
-                btn.title = `Simulate '${s.id}' status for this service`;
-                btn.addEventListener("click", async () => {
-                    window.THA_ONE_CORE.setRoleStatus(service, s.id);
-                    await requireVerified(service, gate, dashboard);
-                });
-                demoSimWrap.appendChild(btn);
-            });
-
-            retry.parentElement.appendChild(demoSimWrap);
         }
 
         return false;

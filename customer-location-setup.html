@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f6f0">
+    <meta name="description" content="Set or change your THA ONE delivery address.">
+    <title>Delivery Location | THA ONE</title>
+    <link rel="stylesheet" href="storefront.css">
+    <link rel="stylesheet" href="services.css">
+    <link rel="stylesheet" href="customer-location.css">
+    <script src="app-config.js" defer></script>
+    <script src="tha-one-core.js" defer></script>
+    <script src="kyc-config.js" defer></script>
+    <script src="global-app-switcher.js" defer></script>
+    <script src="kyc-access.js" defer></script>
+    <script src="app-api.js" defer></script>
+    <script src="customer-location-setup.js" defer></script>
+</head>
+<body class="customer-location-page">
+    <svg class="visually-hidden" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></symbol>
+        <symbol id="icon-arrow-left" viewBox="0 0 24 24"><path d="M20 12H5m6 6-6-6 6-6"/></symbol>
+    </svg>
+    <tha-app-switcher current="shopping"></tha-app-switcher>
+    <header class="ops-header profile-header">
+        <a href="home.html" class="ops-brand"><span class="ops-brand-mark">T</span>THA ONE</a>
+        <span class="ops-service-name">Delivery location</span>
+        <a class="ops-header-button" href="profile.html" aria-label="Profile"><svg class="icon" aria-hidden="true"><use href="#icon-user"/></svg>Profile</a>
+    </header>
+
+    <main class="location-shell">
+        <header class="location-heading">
+            <div>
+                <p class="service-eyebrow">Shopping and Food delivery</p>
+                <h1>Set your delivery location</h1>
+                <p>Choose a saved address or use a pincode, your current location, or a manually entered address.</p>
+            </div>
+            <a class="location-heading-back" href="home.html"><svg class="icon" aria-hidden="true"><use href="#icon-arrow-left"/></svg> Back to Shopping</a>
+        </header>
+
+        <p class="location-status" id="location-status" role="status" aria-live="polite"></p>
+
+        <section class="location-section" id="saved-address-section" hidden aria-labelledby="saved-address-title">
+            <h2 id="saved-address-title">Saved addresses</h2>
+            <p>Select an address to make it your delivery location.</p>
+            <div class="saved-location-list" id="saved-location-list"></div>
+            <div class="location-form-actions"><button class="service-button" type="button" id="use-saved-address" disabled>Use selected address</button></div>
+        </section>
+
+        <section class="location-section" aria-labelledby="choose-method-title">
+            <h2 id="choose-method-title">Choose how to set your location</h2>
+            <div class="location-methods" role="group" aria-label="Location setup method">
+                <button class="location-method" type="button" data-location-mode-button="current" aria-pressed="true"><span class="location-method-icon" aria-hidden="true">📍</span>Use Current Location</button>
+                <button class="location-method" type="button" data-location-mode-button="pincode" aria-pressed="false"><span class="location-method-icon" aria-hidden="true">🏠</span>Enter Pincode</button>
+                <button class="location-method" type="button" data-location-mode-button="manual" aria-pressed="false"><span class="location-method-icon" aria-hidden="true">✏️</span>Enter Address Manually</button>
+            </div>
+
+            <section class="location-mode" data-location-mode="current" aria-labelledby="current-location-title">
+                <h3 id="current-location-title">Use your current location</h3>
+                <p>Location access is requested only after you choose this option. Your coordinates are used for lookup and are not saved.</p>
+                <button class="service-button" type="button" id="detect-location">Detect my location</button>
+                <p class="location-status" id="current-location-message" role="status" aria-live="polite"></p>
+                <div class="location-result" id="detected-result" hidden>
+                    <h3>Your Location</h3>
+                    <dl class="location-result-grid">
+                        <div><dt>Area</dt><dd id="detected-area"></dd></div>
+                        <div><dt>City</dt><dd id="detected-city"></dd></div>
+                        <div><dt>State</dt><dd id="detected-state"></dd></div>
+                        <div><dt>Pincode</dt><dd id="detected-pincode"></dd></div>
+                    </dl>
+                    <button class="service-button secondary" type="button" id="edit-detected-address">Edit address</button>
+                    <button class="service-button" type="button" id="confirm-detected-location">Confirm Location</button>
+                </div>
+            </section>
+
+            <section class="location-mode" data-location-mode="pincode" aria-labelledby="pincode-location-title" hidden>
+                <h3 id="pincode-location-title">Enter your Pincode</h3>
+                <p>We’ll check the pincode with the location service before showing its area and city.</p>
+                <form class="location-lookup-row" id="pincode-lookup-form" novalidate>
+                    <div class="service-form-field"><label for="lookup-pincode">6-digit Indian pincode</label><input class="service-input" id="lookup-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required></div>
+                    <button class="service-button" type="submit" id="lookup-pincode-button">Find location</button>
+                </form>
+                <p class="location-status" id="pincode-message" role="status" aria-live="polite"></p>
+                <div class="location-result" id="pincode-result" hidden>
+                    <h3>Pincode location</h3>
+                    <dl class="location-result-grid">
+                        <div><dt>Area</dt><dd id="pincode-area"></dd></div>
+                        <div><dt>City</dt><dd id="pincode-city"></dd></div>
+                        <div><dt>State</dt><dd id="pincode-state"></dd></div>
+                        <div><dt>Pincode</dt><dd id="pincode-value"></dd></div>
+                    </dl>
+                    <button class="service-button secondary" type="button" id="edit-pincode-address">Edit address</button>
+                    <button class="service-button" type="button" id="confirm-pincode-location">Confirm</button>
+                </div>
+            </section>
+
+            <section class="location-mode" data-location-mode="manual" aria-labelledby="manual-location-title" hidden>
+                <h3 id="manual-location-title">Enter Address Manually</h3>
+                <form id="manual-address-form" novalidate>
+                    <div class="location-form-grid">
+                        <div class="service-form-field"><label for="manual-label">Address type</label><select class="service-select-input" id="manual-label"><option>Home</option><option>Work</option><option>Other</option></select></div>
+                        <div class="service-form-field"><label for="manual-recipient">Customer name</label><input class="service-input" id="manual-recipient" autocomplete="name" maxlength="100" required></div>
+                        <div class="service-form-field"><label for="manual-phone">Contact number</label><input class="service-input" id="manual-phone" type="tel" autocomplete="tel" maxlength="20" required></div>
+                        <div class="service-form-field"><label for="manual-house">House / Flat / Building</label><input class="service-input" id="manual-house" autocomplete="address-line1" maxlength="160" required></div>
+                        <div class="service-form-field"><label for="manual-area">Street / Area</label><input class="service-input" id="manual-area" autocomplete="address-line2" maxlength="160" required></div>
+                        <div class="service-form-field"><label for="manual-landmark">Landmark <span>(optional)</span></label><input class="service-input" id="manual-landmark" maxlength="120"></div>
+                        <div class="service-form-field"><label for="manual-city">City</label><input class="service-input" id="manual-city" autocomplete="address-level2" maxlength="80" required></div>
+                        <div class="service-form-field"><label for="manual-state">State</label><input class="service-input" id="manual-state" autocomplete="address-level1" maxlength="80" required></div>
+                        <div class="service-form-field"><label for="manual-pincode">Pincode</label><input class="service-input" id="manual-pincode" inputmode="numeric" autocomplete="postal-code" pattern="[0-9]{6}" maxlength="6" required></div>
+                    </div>
+                    <p class="location-status" id="manual-message" role="status" aria-live="polite"></p>
+                    <div class="location-form-actions"><button class="service-button" type="submit">Save Address</button></div>
+                </form>
+            </section>
+        </section>
+        <p class="location-privacy-note">Your saved delivery address is used to fulfil orders. THA ONE does not continuously track your location.</p>
+    </main>
+</body>
+</html>

@@ -2,7 +2,7 @@
     "use strict";
 
     const products = Array.isArray(window.THA_ONE_PRODUCTS) ? window.THA_ONE_PRODUCTS : [];
-    const storageKeys = { cart: "tha-one-cart", wishlist: "tha-one-wishlist", location: "tha-one-location", recentlyViewed: "tha-one-recently-viewed" };
+    const storageKeys = { cart: "tha-one-cart", wishlist: "tha-one-wishlist", recentlyViewed: "tha-one-recently-viewed" };
     const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const categories = ["All", "Electronics", "Fashion", "Mobiles", "Beauty", "Home", "Grocery", "Accessories", "Sports", "Offers"];
     const heroBanners = [
@@ -125,9 +125,13 @@
         updateBadges();
     }
 
-    function addToCart(id, quantity = 1, variant = "") {
+    async function addToCart(id, quantity = 1, variant = "") {
         const product = productById(id);
         if (!product) return showToast("We couldn’t find that item.");
+        const availability = await window.THA_ONE_LOCATION?.checkAvailability("shopping", { productIds: [id] });
+        if (availability?.available !== true) {
+            return showToast(availability?.message || "Delivery availability could not be confirmed. Try again shortly.");
+        }
         const existing = state.cart.find((item) => item.id === id && item.variant === variant);
         if (existing) existing.quantity += quantity;
         else state.cart.push({ id, quantity, variant });
@@ -477,27 +481,7 @@
     }
 
     function setupLocation() {
-        const dialog = document.getElementById("location-dialog");
-        const label = document.getElementById("location-label");
-        if (!dialog || !label) return;
-        const location = readStorage(storageKeys.location, "");
-        if (location) label.textContent = location;
-        document.getElementById("location-open")?.addEventListener("click", () => {
-            dialog.showModal();
-            document.getElementById("location-input").focus();
-        });
-        document.getElementById("save-location")?.addEventListener("click", () => {
-            const value = document.getElementById("location-input").value.trim();
-            if (!value) {
-                document.getElementById("location-input").setAttribute("aria-invalid", "true");
-                document.getElementById("location-input").focus();
-                return;
-            }
-            writeStorage(storageKeys.location, value);
-            label.textContent = value;
-            dialog.close();
-            showToast(`Delivery location set to ${value}`);
-        });
+        window.THA_ONE_LOCATION?.bindHeaders();
     }
 
     function setupCartControls() {

@@ -82,6 +82,7 @@
                     </div>
 
                     <div id="saved-addresses" class="saved-addresses"></div>
+                    <button class="text-link" type="button" id="checkout-change-address" aria-expanded="false" hidden>Change Address</button>
 
                     <div class="checkout-address-form" id="checkout-address-form">
                         <div class="address-form-toggle-bar">
@@ -97,8 +98,16 @@
                                 <input class="service-input" id="checkout-phone" type="tel" autocomplete="tel" required maxlength="20" placeholder="e.g. 9876543210">
                             </div>
                             <div class="service-form-field full-width">
-                                <label for="checkout-address-line">Street Address / Flat / Building</label>
+                                <label for="checkout-address-line">House / Flat / Building</label>
                                 <textarea class="service-textarea" id="checkout-address-line" autocomplete="street-address" required maxlength="300" placeholder="e.g. Flat 402, Green Glen Layout, Outer Ring Road"></textarea>
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-area">Street / Area</label>
+                                <input class="service-input" id="checkout-area" autocomplete="address-line2" required maxlength="160">
+                            </div>
+                            <div class="service-form-field">
+                                <label for="checkout-landmark">Landmark <span>(optional)</span></label>
+                                <input class="service-input" id="checkout-landmark" maxlength="120">
                             </div>
                             <div class="service-form-field">
                                 <label for="checkout-city">City</label>
@@ -114,6 +123,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <p class="checkout-step-error" id="checkout-availability" role="status" aria-live="polite"></p>
 
                     <p class="checkout-step-error" id="address-error" role="alert"></p>
 
@@ -133,7 +144,7 @@
                         <span>02</span>
                         <div>
                             <h2 id="checkout-payment-title">Select Payment Method</h2>
-                            <p>Choose how you want to pay. All payments are verified securely via trusted provider gateways.</p>
+                            <p>Choose a method. A connected provider must confirm payment before the order is marked paid.</p>
                         </div>
                     </div>
 
@@ -294,7 +305,7 @@
 
                     <div class="checkout-review-card">
                         <div class="review-block">
-                            <span class="review-label">Delivering To:</span>
+                            <span class="review-label">Deliver to</span>
                             <div class="review-value" id="checkout-review-address">Loading address…</div>
                         </div>
                         <div class="review-block">
@@ -337,6 +348,10 @@
                         <strong id="checkout-delivery">Calculated at checkout</strong>
                     </div>
                     <div>
+                        <span>Estimated arrival</span>
+                        <strong id="checkout-estimate">Confirmed by delivery service</strong>
+                    </div>
+                    <div>
                         <span>Savings / Discount</span>
                         <strong id="checkout-discount">Applied at checkout</strong>
                     </div>
@@ -353,12 +368,12 @@
                     </div>
                     <div class="summary-badge-item">
                         <svg class="icon" aria-hidden="true"><use href="#icon-lock"/></svg>
-                        <span>256-Bit SSL Encrypted Payment</span>
+                        <span>Provider-verified payment status</span>
                     </div>
                 </div>
 
                 <p class="checkout-provider-note" id="checkout-provider-note">
-                    All prices are inclusive of taxes. Real-time payment verification is managed securely by the backend payment provider.
+                    All prices are inclusive of taxes. Payment confirmation is checked by the configured backend provider.
                 </p>
             </aside>
         </div>
@@ -375,7 +390,7 @@
                         <small id="gateway-session-id">Connecting...</small>
                     </div>
                 </div>
-                <button type="button" class="modal-close-btn" id="modal-close" aria-label="Cancel payment">
+                <button type="button" class="modal-close-btn" id="modal-close" aria-label="Close payment status">
                     <svg class="icon" aria-hidden="true"><use href="#icon-close"/></svg>
                 </button>
             </header>
@@ -392,7 +407,7 @@
                 <div class="payment-state-view" id="state-processing">
                     <div class="gateway-spinner" aria-hidden="true"></div>
                     <h3>Connecting to Payment Gateway...</h3>
-                    <p>Securing handshake with <span id="processing-provider-name">payment provider</span>. Please do not refresh.</p>
+                    <p>Requesting a secure session from <span id="processing-provider-name">payment provider</span>.</p>
                 </div>
 
                 <!-- 2. PAYMENT PENDING (UPI Collect / Approval) -->
@@ -402,36 +417,13 @@
                         <span class="pending-symbol">📱</span>
                     </div>
                     <h3>Payment Pending Approval</h3>
-                    <p id="pending-instruction">
-                        We sent a collect request to your UPI app. Open <strong id="pending-app-name">Google Pay</strong> to approve the payment.
-                    </p>
-                    <div class="countdown-timer-box">
-                        <span class="timer-clock">⏱</span>
-                        <span>Complete authorization in: <b id="upi-countdown">04:59</b></span>
-                    </div>
+                    <p id="pending-instruction">Waiting for payment status from the authorized provider.</p>
+                    <button type="button" class="service-button secondary" id="payment-check-status">Check payment status</button>
                     <div class="upi-pin-reminder">
                         <svg class="icon" aria-hidden="true"><use href="#icon-shield"/></svg>
                         <span>Enter your UPI PIN <b>only inside your official UPI app</b>. THA ONE never asks for your PIN.</span>
                     </div>
 
-                    <!-- Integration-ready simulation test panel -->
-                    <div class="gateway-dev-suite">
-                        <div class="dev-suite-header">
-                            <span>Integration-Ready Gateway Test Suite</span>
-                            <small>Simulate provider webhook confirmation</small>
-                        </div>
-                        <div class="dev-suite-buttons">
-                            <button type="button" class="dev-sim-btn success" id="sim-approve-btn">
-                                ✓ Simulate Bank Approval (Success)
-                            </button>
-                            <button type="button" class="dev-sim-btn error" id="sim-decline-btn">
-                                ✗ Simulate Bank Decline (Failed)
-                            </button>
-                            <button type="button" class="dev-sim-btn warning" id="sim-cancel-btn">
-                                ⊘ Simulate User Cancel (Cancelled)
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- 3. PAYMENT SUCCESSFUL -->
@@ -457,9 +449,9 @@
                     <div class="failed-icon-wrap" aria-hidden="true">
                         <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </div>
-                    <h3 class="failed-title">Payment Declined</h3>
+                    <h3 class="failed-title">Payment Not Completed</h3>
                     <p id="failed-reason">
-                        The transaction was declined by your bank or UPI provider. No money was deducted from your account.
+                        The payment provider did not confirm this transaction. Your order remains unpaid.
                     </p>
                     <div class="state-actions">
                         <button type="button" class="service-button" id="retry-payment-btn">
@@ -487,8 +479,7 @@
             </div>
 
             <footer class="payment-modal-footer">
-                <span>🔒 Powered by THA ONE Unified Secure Gateway Handoff</span>
-                <span>PCI-DSS &amp; RBI Compliant</span>
+                <span>Payment status is confirmed by the configured provider.</span>
             </footer>
         </div>
     </div>

@@ -6,7 +6,6 @@
     const dishes = catalog.dishes || [];
     const categoryIcons = { Pizza: "🍕", Burgers: "🍔", Chicken: "🍗", Chinese: "🍜", "South Indian": "🍛", Healthy: "🥗", Desserts: "🍰", Beverages: "🥤" };
     const storageKey = "tha-one-food-cart";
-    const locationKey = "tha-one-location";
     const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
     const state = {
         cart: readCart(),
@@ -133,9 +132,13 @@
         }).join("");
     }
 
-    function addDish(dishId, quantity = 1, option = "") {
+    async function addDish(dishId, quantity = 1, option = "") {
         const dish = dishById(dishId);
         if (!dish) return showToast("We couldn’t find that dish.");
+        const availability = await window.THA_ONE_LOCATION?.checkAvailability("food", { dishIds: [dishId] });
+        if (availability?.available !== true) {
+            return showToast(availability?.message || "Currently unavailable at your location.");
+        }
         const existing = state.cart.find((item) => item.dishId === dishId && item.option === option);
         if (existing) existing.quantity += quantity;
         else state.cart.push({ dishId, quantity, option });
@@ -203,26 +206,7 @@
     }
 
     function setupLocation() {
-        const dialog = document.getElementById("food-location-dialog");
-        const label = document.getElementById("food-location-label");
-        const location = localStorage.getItem(locationKey) || "";
-        if (location) label.textContent = location;
-        document.getElementById("food-location-open").addEventListener("click", () => dialog.showModal());
-        document.getElementById("food-save-location").addEventListener("click", () => {
-            const input = document.getElementById("food-location-input");
-            const value = input.value.trim();
-            if (!value) {
-                input.setAttribute("aria-invalid", "true");
-                input.focus();
-                return;
-            }
-            try { localStorage.setItem(locationKey, value); } catch { showToast("Your browser couldn’t save that location."); }
-            label.textContent = value;
-            input.setAttribute("aria-invalid", "false");
-            dialog.close();
-            showToast(`Finding good food near ${value}`);
-            renderRestaurants();
-        });
+        window.THA_ONE_LOCATION?.bindHeaders();
     }
 
     function setupOrder() {
@@ -260,10 +244,18 @@
             renderDishes();
         });
         document.getElementById("restaurant-sort").addEventListener("change", renderRestaurants);
-        document.getElementById("restaurant-grid").addEventListener("click", (event) => {
+        document.getElementById("restaurant-grid").addEventListener("click", async (event) => {
             const trigger = event.target.closest("[data-browse-restaurant]");
             if (!trigger) return;
             event.preventDefault();
+            const availability = await window.THA_ONE_LOCATION?.checkAvailability("food", { restaurantIds: [trigger.dataset.browseRestaurant] });
+            if (availability?.verified === true && availability.available !== true) {
+                showToast(availability?.message || "Currently unavailable at your location.");
+                return;
+            }
+            if (availability?.verified !== true) {
+                showToast("You can browse the menu; delivery availability will be checked before ordering.");
+            }
             state.restaurantId = trigger.dataset.browseRestaurant;
             state.category = "All";
             renderCategories();

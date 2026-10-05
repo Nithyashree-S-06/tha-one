@@ -385,6 +385,7 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </button>
                 </footer>
+                <p id="experience-error" role="alert" aria-live="polite"></p>
             </form>
 
             <div class="guarantee-note">
@@ -428,17 +429,37 @@
                 return "home.html";
             }
 
+            function getLocationSetupDestination() {
+                return `customer-location-setup.html?returnTo=${encodeURIComponent(getRedirectDestination())}`;
+            }
+
+            async function saveSelection(roles, skipped) {
+                const result = await window.THA_ONE_API.request("experienceSelectEndpoint", {
+                    method: "POST",
+                    body: { roles, skipped }
+                });
+                if (result?.success === false) {
+                    throw new Error(result.message || "Your experience preference could not be saved.");
+                }
+                window.THA_ONE_CORE?.saveExperienceSelection({ roles, skipped });
+            }
+
+            function showSaveError(error) {
+                document.getElementById("experience-error").textContent = error.message || "Your selection could not be saved. Please try again.";
+            }
+
             // Skip for now: normal customer experience with ZERO KYC
             skipBtn.addEventListener("click", async () => {
                 skipBtn.disabled = true;
+                document.getElementById("continue-experience").disabled = true;
                 try {
-                    if (window.THA_ONE_CORE) {
-                        window.THA_ONE_CORE.saveExperienceSelection({ roles: ["shopping", "food"], skipped: true });
-                    }
-                } catch (e) {
-                    console.warn("[THA ONE] Experience save error:", e);
+                    await saveSelection(["shopping", "food"], true);
+                    window.location.assign(getLocationSetupDestination());
+                } catch (error) {
+                    showSaveError(error);
+                    skipBtn.disabled = false;
+                    document.getElementById("continue-experience").disabled = false;
                 }
-                window.location.assign(getRedirectDestination());
             });
 
             // Continue with selected roles
@@ -450,13 +471,16 @@
 
                 // If nothing selected, default to shopping
                 const roles = selected.length ? selected : ["shopping", "food"];
+                const skipButton = document.getElementById("skip-experience");
+                skipButton.disabled = true;
 
                 try {
-                    if (window.THA_ONE_CORE) {
-                        window.THA_ONE_CORE.saveExperienceSelection({ roles, skipped: false });
-                    }
-                } catch (err) {
-                    console.warn("[THA ONE] Core update error:", err);
+                    await saveSelection(roles, false);
+                } catch (error) {
+                    showSaveError(error);
+                    submitBtn.disabled = false;
+                    skipButton.disabled = false;
+                    return;
                 }
 
                 // Route according to selection
@@ -468,8 +492,7 @@
                 } else if (hasDelivery) {
                     window.location.assign("delivery-onboarding.html");
                 } else {
-                    // Normal Customer (Shopping and/or Food) -> enters Home directly with zero KYC
-                    window.location.assign(getRedirectDestination());
+                    window.location.assign(getLocationSetupDestination());
                 }
             });
         });

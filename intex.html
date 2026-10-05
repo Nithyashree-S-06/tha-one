@@ -456,7 +456,10 @@
                         return core.resetPassword(payload);
                     case "googleStart":
                         const gRes = core.loginWithGoogle();
-                        const gDest = !gRes.user?.experienceSelected ? "experience.html" : getRedirectDestination();
+                        const hasDefaultAddress = gRes.user?.addresses?.some((address) => address.isDefault === true);
+                        const returnTo = getRedirectDestination();
+                        const locationTarget = `customer-location-setup.html?returnTo=${encodeURIComponent(returnTo)}`;
+                        const gDest = !gRes.user?.experienceSelected ? "experience.html" : hasDefaultAddress ? returnTo : locationTarget;
                         return { authorizationUrl: gDest };
                     default:
                         throw new Error("Unsupported authentication action.");
@@ -519,9 +522,9 @@
             }
         }
 
-        function navigateAfterAuthentication(authResult) {
+        async function navigateAfterAuthentication(authResult) {
             const core = window.THA_ONE_CORE;
-            const user = core?.getUser?.() || authResult?.user;
+            const user = authResult?.user || core?.getUser?.();
             const params = new URLSearchParams(window.location.search);
             const redirect = params.get("redirect") || params.get("returnUrl");
 
@@ -532,7 +535,17 @@
                 return;
             }
 
-            // Existing users who already completed or skipped selection go directly to destination
+            let hasDefaultAddress = Array.isArray(user?.addresses) && user.addresses.some((address) => address.isDefault === true);
+            try {
+                const response = await window.THA_ONE_API.request("addressesEndpoint");
+                hasDefaultAddress = Array.isArray(response.addresses) && response.addresses.some((address) => address.isDefault === true);
+            } catch {}
+            if (!hasDefaultAddress) {
+                const returnTo = getRedirectDestination();
+                window.location.assign(`customer-location-setup.html?returnTo=${encodeURIComponent(returnTo)}`);
+                return;
+            }
+
             window.location.assign(getRedirectDestination());
         }
 

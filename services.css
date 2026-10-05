@@ -153,6 +153,7 @@
 .ops-header-button:hover { border-color: #e3e9e0; color: #314638; background: #fff; }
 .ops-header-button .icon { width: 15px; height: 15px; }
 .ops-status-open { display: inline-flex; align-items: center; gap: 6px; color: #4f7548; font-size: 9px; font-weight: 600; white-space: nowrap; }
+.ops-status-open[hidden], .delivery-online-toggle[hidden] { display: none !important; }
 .ops-status-open > span { width: 6px; height: 6px; border-radius: 50%; background: #7daf64; box-shadow: 0 0 0 3px #e9f2e2; }
 .ops-status-open.is-paused { color: #9a7131; }
 .ops-status-open.is-paused > span { background: #d2a84e; box-shadow: 0 0 0 3px #faf0d9; }

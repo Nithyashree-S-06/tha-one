@@ -299,50 +299,17 @@
         }
         panel.hidden = false;
 
-        // Developer test triggers on the result panel
-        let simBox = panel.querySelector(".onboarding-sim-box");
-        if (!simBox && window.THA_ONE_CORE) {
-            simBox = document.createElement("div");
-            simBox.className = "onboarding-sim-box";
-            simBox.style.cssText = "margin-top: 18px; padding: 12px; border: 1px dashed #b2cbb0; border-radius: 8px; background: #f8faf6; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;";
-            const lbl = document.createElement("span");
-            lbl.style.cssText = "font-size: 11px; font-weight: 700; color: #20372e; text-transform: uppercase;";
-            lbl.textContent = "Simulator:";
-            simBox.appendChild(lbl);
-
-            const items = [
-                { id: "pending", label: "⏳ Pending", color: "#8f621a", bg: "#fdf2dc" },
-                { id: "needs_correction", label: "✏️ Needs Correction", color: "#9a4b08", bg: "#fceddf" },
-                { id: "rejected", label: "❌ Rejected", color: "#a5281b", bg: "#feebe9" },
-                { id: "verified", label: "✓ Verified", color: "#24611e", bg: "#e5f6e0" }
-            ];
-
-            items.forEach(it => {
-                const b = document.createElement("button");
-                b.type = "button";
-                b.style.cssText = `padding: 4px 10px; border: 1px solid ${it.color}; border-radius: 4px; background: ${it.bg}; color: ${it.color}; font-size: 11px; font-weight: 700; cursor: pointer;`;
-                b.textContent = it.label;
-                b.addEventListener("click", () => {
-                    window.THA_ONE_CORE.setRoleStatus(service, it.id);
-                    setResult({ status: it.id, maskedDetails: result.maskedDetails || {} });
-                });
-                simBox.appendChild(b);
-            });
-            panel.appendChild(simBox);
+        const nextRoleLink = document.getElementById("onboarding-next-role");
+        if (nextRoleLink) {
+            const hasSecondRole = service === "seller" && new URLSearchParams(window.location.search).get("dualRole") === "delivery";
+            nextRoleLink.hidden = !hasSecondRole;
         }
     }
 
     async function refreshStatus() {
         const endpoint = safeEndpoint(config.statusEndpoint);
         if (!endpoint) {
-            if (window.THA_ONE_CORE) {
-                const status = window.THA_ONE_CORE.getRoleStatus(service);
-                if (status.status === "pending" || status.status === "verified" || status.status === "failed" || status.status === "needs_correction") {
-                    setResult({ status: status.status === "needs_correction" ? "failed" : status.status, correctionCode: "correction_requested" });
-                    return;
-                }
-            }
-            setBanner("Development simulation active: Complete the onboarding form to submit your verification request.", "warning");
+            setBanner("Verification status is unavailable until the authorized verification service is connected.", "warning");
             return;
         }
         endpoint.searchParams.set("service", service);
@@ -405,29 +372,15 @@
             const preview = upload.querySelector(".kyc-file-preview");
             const remove = upload.querySelector(".kyc-remove-document");
             if (!endpoint) {
-                status.textContent = "Development mode: Documents selected will be simulated for verification review.";
+                status.textContent = "Secure document upload is not configured. Documents cannot be accepted yet.";
+                input.disabled = true;
             }
             input.addEventListener("change", async () => {
                 const file = input.files?.[0];
                 if (!file) return;
                 if (!endpoint) {
-                    documentRefs.set(type, "doc_sim_" + Date.now());
-                    const url = file.type.startsWith("image/") ? URL.createObjectURL(file) : "";
-                    if (url) previewUrls.set(type, url);
-                    preview.replaceChildren();
-                    if (url) {
-                        const image = document.createElement("img");
-                        image.src = url;
-                        image.alt = "Private document preview";
-                        preview.append(image);
-                    }
-                    const label = document.createElement("span");
-                    label.textContent = "Document staged for verification review.";
-                    preview.append(label);
-                    preview.hidden = false;
-                    status.textContent = "Document selected (development simulation).";
-                    remove.hidden = false;
-                    remove.disabled = false;
+                    input.value = "";
+                    status.textContent = "Secure document upload is not configured. No document was saved.";
                     return;
                 }
                 if (!config.acceptedDocumentTypes?.includes(file.type) || file.size > Number(config.maxDocumentBytes || 0)) {
@@ -514,26 +467,13 @@
         const number = document.getElementById("delivery-identity-number");
         const message = document.getElementById("identity-provider-message");
         if (!endpoint) {
-            message.textContent = "Development simulation: Click start to simulate consent-based identity verification.";
+            message.textContent = "Identity verification is unavailable until the authorized provider is connected.";
         }
-        const updateButton = () => { button.disabled = !consent.checked || !type.value || !number.value.trim(); };
+        const updateButton = () => { button.disabled = !endpoint || !consent.checked || !type.value || !number.value.trim(); };
         [consent, type, number].forEach((field) => field.addEventListener("input", updateButton));
         updateButton();
         button.addEventListener("click", async () => {
             if (!consent.checked || !type.value || !number.value.trim()) return;
-            if (!endpoint) {
-                button.disabled = true;
-                button.textContent = "Verifying…";
-                message.textContent = "Simulating authorized identity provider check…";
-                setTimeout(() => {
-                    identityVerificationId = "id_sim_" + Date.now();
-                    number.value = "";
-                    message.textContent = "Identity verification step complete (Development simulation).";
-                    button.textContent = "Verified ✓";
-                    button.disabled = true;
-                }, 600);
-                return;
-            }
             button.disabled = true;
             button.textContent = "Connecting securely…";
             message.textContent = "Contacting the authorized identity provider. Follow its consent/OTP prompts.";
@@ -595,23 +535,6 @@
             return;
         }
         if (!endpoint) {
-            if (window.THA_ONE_CORE) {
-                const payload = definition.collect();
-                button.disabled = true;
-                button.textContent = "Submitting securely…";
-                setBanner("Submitting to the authorized verification service…", "warning");
-                try {
-                    const result = window.THA_ONE_CORE.submitKyc(service, payload);
-                    setResult(result);
-                } catch (err) {
-                    errorNode.textContent = err.message || "Submission failed. Please check your details.";
-                } finally {
-                    clearSensitiveFields();
-                    button.disabled = false;
-                    button.textContent = "Submit for verification";
-                }
-                return;
-            }
             errorNode.textContent = "Secure verification submission is not configured. No information has been sent or saved.";
             clearSensitiveFields();
             return;
